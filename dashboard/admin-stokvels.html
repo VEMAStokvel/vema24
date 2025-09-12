@@ -38,9 +38,11 @@
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center space-x-2">
                     <i class="fas fa-users fa-2x"></i>
-                    <h1 class="text-2xl font-bold">Stokvel Admin Dashboard</h1>
+                    <h1 class="text-xl md:text-2xl font-bold">Stokvel Admin Dashboard</h1>
                 </div>
-                <div class="flex items-center space-x-4">
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-4">
                     <a href="admin-users.html" class="bg-blue-700 text-white px-4 py-2 rounded">User Management</a>
                     <a href="admin-funerals.html" class="bg-blue-700 text-white px-4 py-2 rounded">Funeral Policies</a>
                     <a href="admin-loans.html" class="bg-blue-700 text-white px-4 py-2 rounded">Loan Management</a>
@@ -48,14 +50,33 @@
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
                 </div>
+                
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-button" class="text-white focus:outline-none">
+                        <i class="fas fa-bars fa-lg"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Navigation (hidden by default) -->
+            <div id="mobile-menu" class="hidden pb-4 md:hidden">
+                <div class="flex flex-col space-y-3">
+                    <a href="admin-users.html" class="bg-blue-700 text-white px-4 py-2 rounded text-center">User Management</a>
+                    <a href="admin-funerals.html" class="bg-blue-700 text-white px-4 py-2 rounded text-center">Funeral Policies</a>
+                    <a href="admin-loans.html" class="bg-blue-700 text-white px-4 py-2 rounded text-center">Loan Management</a>
+                    <button id="mobile-logout-btn" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded w-full">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="container mx-auto px-4 py-6">
+    <div class="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
         <!-- Loading Indicator -->
         <div id="loading-indicator" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 hidden">
-            <div class="bg-white rounded-lg p-6 flex items-center space-x-4">
+            <div class="bg-white rounded-lg p-4 sm:p-6 flex items-center space-x-4">
                 <div class="loading-spinner"></div>
                 <p id="loading-text">Loading...</p>
             </div>
@@ -72,37 +93,37 @@
 
         <!-- Stokvel Management Section -->
         <section id="stokvels-section" class="dashboard-section active">
-            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Stokvel Management</h2>
+            <div class="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">Stokvel Management</h2>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
                     <div class="bg-blue-100 p-4 rounded-lg shadow card-hover">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-blue-800 font-semibold">Total Stokvels</p>
-                                <p id="total-stokvels" class="text-3xl font-bold text-blue-800">0</p>
+                                <p class="text-blue-800 font-semibold text-sm sm:text-base">Total Stokvels</p>
+                                <p id="total-stokvels" class="text-2xl sm:text-3xl font-bold text-blue-800">0</p>
                             </div>
-                            <i class="fas fa-users text-blue-800 text-2xl"></i>
+                            <i class="fas fa-users text-blue-800 text-xl sm:text-2xl"></i>
                         </div>
                     </div>
                     
                     <div class="bg-green-100 p-4 rounded-lg shadow card-hover">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-green-800 font-semibold">Active Stokvels</p>
-                                <p id="active-stokvels" class="text-3xl font-bold text-green-800">0</p>
+                                <p class="text-green-800 font-semibold text-sm sm:text-base">Active Stokvels</p>
+                                <p id="active-stokvels" class="text-2xl sm:text-3xl font-bold text-green-800">0</p>
                             </div>
-                            <i class="fas fa-check-circle text-green-800 text-2xl"></i>
+                            <i class="fas fa-check-circle text-green-800 text-xl sm:text-2xl"></i>
                         </div>
                     </div>
                     
                     <div class="bg-purple-100 p-4 rounded-lg shadow card-hover">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-purple-800 font-semibold">Total Savings</p>
-                                <p id="total-savings" class="text-3xl font-bold text-purple-800">R0</p>
+                                <p class="text-purple-800 font-semibold text-sm sm:text-base">Total Savings</p>
+                                <p id="total-savings" class="text-2xl sm:text-3xl font-bold text-purple-800">R0</p>
                             </div>
-                            <i class="fas fa-wallet text-purple-800 text-2xl"></i>
+                            <i class="fas fa-wallet text-purple-800 text-xl sm:text-2xl"></i>
                         </div>
                     </div>
                 </div>
@@ -111,12 +132,12 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stokvel Name</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Next Contribution</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                <th class="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stokvel Name</th>
+                                <th class="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Type</th>
+                                <th class="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
+                                <th class="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Next Contribution</th>
+                                <th class="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="stokvels-table-body" class="bg-white divide-y divide-gray-200">
@@ -129,8 +150,8 @@
     </div>
 
     <!-- Edit Stokvel Balance Modal -->
-    <div id="edit-stokvel-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-50">
-        <div class="bg-white rounded-lg shadow-xl w-11/12 md:w-1/2 lg:w-1/3 max-h-screen overflow-y-auto">
+    <div id="edit-stokvel-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-50 px-2">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-screen overflow-y-auto">
             <div class="border-b px-4 py-2 flex justify-between items-center">
                 <h3 class="text-lg font-semibold">Edit Stokvel Balance</h3>
                 <button id="close-edit-stokvel-modal" class="text-gray-600 hover:text-gray-800">
@@ -181,8 +202,8 @@
     </div>
 
     <!-- Create Stokvel Modal -->
-    <div id="create-stokvel-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-50">
-        <div class="bg-white rounded-lg shadow-xl w-11/12 md:w-1/2 lg:w-1/3 max-h-screen overflow-y-auto">
+    <div id="create-stokvel-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-50 px-2">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-screen overflow-y-auto">
             <div class="border-b px-4 py-2 flex justify-between items-center">
                 <h3 class="text-lg font-semibold">Create Stokvel</h3>
                 <button id="close-create-stokvel-modal" class="text-gray-600 hover:text-gray-800">
@@ -253,6 +274,11 @@
         const cancelCreateStokvel = document.getElementById('cancel-create-stokvel');
         const createStokvelForm = document.getElementById('create-stokvel-form');
         
+        // Mobile menu elements
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
+        
         // Show/hide functions
         function showLoading(message = 'Loading...') {
             loadingText.textContent = message;
@@ -304,7 +330,7 @@
                 if (usersSnapshot.empty) {
                     stokvelsTableBody.innerHTML = `
                         <tr>
-                            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            <td colspan="6" class="px-3 py-4 text-center text-gray-500">
                                 No stokvels found.
                             </td>
                         </tr>
@@ -349,7 +375,7 @@
                     if (stokvels.length === 0) {
                         stokvelsTableBody.innerHTML = `
                             <tr>
-                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                <td colspan="6" class="px-3 py-4 text-center text-gray-500">
                                     No stokvels found.
                                 </td>
                         </tr>
@@ -363,25 +389,25 @@
                     stokvels.forEach((stokvel) => {
                         stokvelsHtml += `
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-3 py-4">
                                     <div class="font-medium">${stokvel.name}</div>
                                     <div class="text-sm text-gray-500">${stokvel.userName}</div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-3 py-4 hidden sm:table-cell">
                                     <div class="text-gray-500">${stokvel.type || 'N/A'}</div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-3 py-4">
                                     <div class="font-medium">${formatCurrency(stokvel.balance || 0)}</div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-3 py-4 hidden md:table-cell">
                                     <div class="text-gray-500">${stokvel.nextContribution ? formatDate(stokvel.nextContribution) : 'N/A'}</div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-3 py-4">
                                     <span class="px-2 py-1 text-xs font-semibold rounded-full ${stokvel.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
                                         ${stokvel.status || 'N/A'}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-3 py-4">
                                     <button class="text-blue-600 hover:text-blue-900 mr-2 view-stokvel" data-user-id="${stokvel.userId}" data-id="${stokvel.id}">
                                         <i class="fas fa-eye"></i>
                                     </button>
@@ -588,14 +614,14 @@
         });
         
         // Logout functionality
-        document.getElementById('logout-btn').addEventListener('click', function() {
+        function logout() {
             auth.signOut().then(() => {
                 window.location.href = '../index.html';
             }).catch((error) => {
                 showError('Logout Error', error.message);
                 console.error('Error signing out:', error);
             });
-        });
+        }
         
         // Initialize the dashboard
         document.addEventListener('DOMContentLoaded', function() {
@@ -614,6 +640,17 @@
                     this.classList.add('hidden');
                 }
             });
+            
+            // Mobile menu toggle
+            mobileMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            // Mobile logout button
+            mobileLogoutBtn.addEventListener('click', logout);
+            
+            // Desktop logout button
+            document.getElementById('logout-btn').addEventListener('click', logout);
             
             // Check if user is authenticated and is an admin
             auth.onAuthStateChanged((user) => {

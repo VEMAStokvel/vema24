@@ -68,14 +68,35 @@
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center space-x-2">
-                    <i class="fas fa-users fa-2x"></i>
-                    <h1 class="text-2xl font-bold">Stokvel Admin Dashboard</h1>
+                    <i class="fas fa-users text-xl md:text-2xl"></i>
+                    <h1 class="text-xl md:text-2xl font-bold">Funeral Admin Dashboard</h1>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <a href="admin-users.html" class="bg-blue-700 text-white px-4 py-2 rounded">User Management</a>
-                    <a href="admin-stokvels.html" class="bg-blue-700 text-white px-4 py-2 rounded">Stokvel Management</a>
-                    <a href="admin-loans.html" class="bg-blue-700 text-white px-4 py-2 rounded">Loan Management</a>
-                    <button id="logout-btn" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">
+                
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="text-white focus:outline-none">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- Desktop menu -->
+                <div class="hidden md:flex items-center space-x-2 md:space-x-4">
+                    <a href="admin-users.html" class="bg-blue-700 text-white px-3 py-2 rounded text-sm md:text-base">User Management</a>
+                    <a href="admin-stokvels.html" class="bg-blue-700 text-white px-3 py-2 rounded text-sm md:text-base">Stokvel Management</a>
+                    <a href="admin-loans.html" class="bg-blue-700 text-white px-3 py-2 rounded text-sm md:text-base">Loan Management</a>
+                    <button id="logout-btn" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded text-sm md:text-base">
+                        <i class="fas fa-sign-out-alt"></i> <span class="hidden md:inline">Logout</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile menu (hidden by default) -->
+            <div id="mobile-menu" class="hidden pb-4 md:hidden">
+                <div class="flex flex-col space-y-2">
+                    <a href="admin-users.html" class="bg-blue-700 text-white px-3 py-2 rounded text-sm">User Management</a>
+                    <a href="admin-stokvels.html" class="bg-blue-700 text-white px-3 py-2 rounded text-sm">Stokvel Management</a>
+                    <a href="admin-loans.html" class="bg-blue-700 text-white px-3 py-2 rounded text-sm">Loan Management</a>
+                    <button id="logout-btn-mobile" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded text-sm text-left">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
                 </div>
@@ -83,10 +104,10 @@
         </div>
     </nav>
 
-    <div class="container mx-auto px-4 py-6">
+    <div class="container mx-auto px-2 md:px-4 py-4 md:py-6">
         <!-- Loading Indicator -->
         <div id="loading-indicator" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 hidden">
-            <div class="bg-white rounded-lg p-6 flex items-center space-x-4">
+            <div class="bg-white rounded-lg p-4 md:p-6 flex items-center space-x-4 mx-4">
                 <div class="loading-spinner"></div>
                 <p id="loading-text">Loading...</p>
             </div>
@@ -103,37 +124,37 @@
 
         <!-- Funeral Policies Section -->
         <section id="funerals-section" class="dashboard-section active">
-            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Funeral Policy Management</h2>
+            <div class="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6">
+                <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6">Funeral Policy Management</h2>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
                     <div class="bg-blue-100 p-4 rounded-lg shadow card-hover">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-blue-800 font-semibold">Total Policies</p>
-                                <p id="total-policies" class="text-3xl font-bold text-blue-800">0</p>
+                                <p class="text-blue-800 font-semibold text-sm md:text-base">Total Policies</p>
+                                <p id="total-policies" class="text-2xl md:text-3xl font-bold text-blue-800">0</p>
                             </div>
-                            <i class="fas fa-monument text-blue-800 text-2xl"></i>
+                            <i class="fas fa-monument text-blue-800 text-xl md:text-2xl"></i>
                         </div>
                     </div>
                     
                     <div class="bg-green-100 p-4 rounded-lg shadow card-hover">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-green-800 font-semibold">Active Policies</p>
-                                <p id="active-policies" class="text-3xl font-bold text-green-800">0</p>
+                                <p class="text-green-800 font-semibold text-sm md:text-base">Active Policies</p>
+                                <p id="active-policies" class="text-2xl md:text-3xl font-bold text-green-800">0</p>
                             </div>
-                            <i class="fas fa-check-circle text-green-800 text-2xl"></i>
+                            <i class="fas fa-check-circle text-green-800 text-xl md:text-2xl"></i>
                         </div>
                     </div>
                     
                     <div class="bg-purple-100 p-4 rounded-lg shadow card-hover">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-purple-800 font-semibold">Total Premium</p>
-                                <p id="total-premium" class="text-3xl font-bold text-purple-800">R0</p>
+                                <p class="text-purple-800 font-semibold text-sm md:text-base">Total Premium</p>
+                                <p id="total-premium" class="text-2xl md:text-3xl font-bold text-purple-800">R0</p>
                             </div>
-                            <i class="fas fa-money-bill-wave text-purple-800 text-2xl"></i>
+                            <i class="fas fa-money-bill-wave text-purple-800 text-xl md:text-2xl"></i>
                         </div>
                     </div>
                 </div>
@@ -142,12 +163,12 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Policy Holder</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cover Type</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monthly Premium</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                <th class="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Policy Holder</th>
+                                <th class="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Cover Type</th>
+                                <th class="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Premium</th>
+                                <th class="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Start Date</th>
+                                <th class="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="funerals-table-body" class="bg-white divide-y divide-gray-200">
@@ -160,8 +181,8 @@
     </div>
 
     <!-- View Funeral Policy Modal -->
-    <div id="view-funeral-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-50">
-        <div class="bg-white rounded-lg shadow-xl w-11/12 md:w-3/4 lg:w-2/3 max-h-screen overflow-y-auto">
+    <div id="view-funeral-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-50 px-2 md:px-0">
+        <div class="bg-white rounded-lg shadow-xl w-full md:w-11/12 lg:w-3/4 xl:w-2/3 max-h-screen overflow-y-auto">
             <div class="border-b px-4 py-2 flex justify-between items-center">
                 <h3 class="text-lg font-semibold">Funeral Policy Details</h3>
                 <button id="close-view-funeral-modal" class="text-gray-600 hover:text-gray-800">
@@ -202,6 +223,10 @@
         const viewFuneralModal = document.getElementById('view-funeral-modal');
         const closeViewFuneralModal = document.getElementById('close-view-funeral-modal');
         const funeralPolicyDetails = document.getElementById('funeral-policy-details');
+        
+        // Mobile menu elements
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
         
         // Show/hide functions
         function showLoading(message = 'Loading...') {
@@ -254,7 +279,7 @@
                 if (usersSnapshot.empty) {
                     funeralsTableBody.innerHTML = `
                         <tr>
-                            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            <td colspan="6" class="px-3 md:px-6 py-4 text-center text-gray-500">
                                 No funeral policies found.
                             </td>
                         </tr>
@@ -300,7 +325,7 @@
                     if (funerals.length === 0) {
                         funeralsTableBody.innerHTML = `
                             <tr>
-                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                <td colspan="6" class="px-3 md:px-6 py-4 text-center text-gray-500">
                                     No funeral policies found.
                                 </td>
                             </tr>
@@ -314,25 +339,25 @@
                     funerals.forEach((funeral) => {
                         funeralsHtml += `
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="font-medium">${funeral.userName}</div>
-                                    <div class="text-sm text-gray-500">${funeral.userEmail || 'N/A'}</div>
+                                <td class="px-3 md:px-6 py-4 whitespace-nowrap">
+                                    <div class="font-medium text-sm">${funeral.userName}</div>
+                                    <div class="text-xs text-gray-500">${funeral.userEmail || 'N/A'}</div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-gray-500">${funeral.coverType || 'Family Cover'}</div>
+                                <td class="px-3 md:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                                    <div class="text-gray-500 text-sm">${funeral.coverType || 'Family Cover'}</div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="font-medium">${formatCurrency(funeral.totalMonthlyPremium || 0)}</div>
+                                <td class="px-3 md:px-6 py-4 whitespace-nowrap">
+                                    <div class="font-medium text-sm">${formatCurrency(funeral.totalMonthlyPremium || 0)}</div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-gray-500">${funeral.startDate ? formatDate(funeral.startDate) : 'N/A'}</div>
+                                <td class="px-3 md:px-6 py-4 whitespace-nowrap hidden md:table-cell">
+                                    <div class="text-gray-500 text-sm">${funeral.startDate ? formatDate(funeral.startDate) : 'N/A'}</div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-3 md:px-6 py-4 whitespace-nowrap">
                                     <span class="px-2 py-1 text-xs font-semibold rounded-full ${funeral.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
                                         ${funeral.status || 'N/A'}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-3 md:px-6 py-4 whitespace-nowrap">
                                     <div class="relative inline-block text-left">
                                         <button class="text-blue-600 hover:text-blue-900 mr-2 view-funeral" data-user-id="${funeral.userId}" data-id="${funeral.id}">
                                             <i class="fas fa-eye"></i>
@@ -608,8 +633,23 @@
             viewFuneralModal.classList.add('hidden');
         });
         
+        // Mobile menu toggle
+        mobileMenuButton.addEventListener('click', function() {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
         // Logout functionality
         document.getElementById('logout-btn').addEventListener('click', function() {
+            auth.signOut().then(() => {
+                window.location.href = '../index.html';
+            }).catch((error) => {
+                showError('Logout Error', error.message);
+                console.error('Error signing out:', error);
+            });
+        });
+        
+        // Mobile logout functionality
+        document.getElementById('logout-btn-mobile').addEventListener('click', function() {
             auth.signOut().then(() => {
                 window.location.href = '../index.html';
             }).catch((error) => {

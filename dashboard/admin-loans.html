@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Loan Management</title>
+    <title>Loan Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
@@ -46,6 +46,47 @@
             border-radius: 4px;
             padding: 2px 4px;
         }
+        .payment-history {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            padding: 0.5rem;
+            margin-top: 1rem;
+        }
+        .progress-bar {
+            height: 8px;
+            background-color: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #3b82f6;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        .payment-item {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 8px 0;
+        }
+        .payment-item:last-child {
+            border-bottom: none;
+        }
+        .summary-card {
+            transition: all 0.3s ease;
+        }
+        .summary-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -58,6 +99,9 @@
                     <h1 class="text-2xl font-bold">Loan Management System</h1>
                 </div>
                 <div class="flex items-center space-x-4">
+                    <button id="debug-toggle" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded">
+                        <i class="fas fa-bug"></i> Debug
+                    </button>
                     <button id="logout-btn" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
@@ -67,6 +111,12 @@
     </nav>
 
     <div class="container mx-auto px-4 py-6">
+        <!-- Debug Panel -->
+        <div id="debug-panel" class="bg-gray-100 border-l-4 border-gray-500 p-4 mt-4 hidden">
+            <h3 class="font-bold mb-2">Debug Information</h3>
+            <div id="debug-content" class="text-sm font-mono"></div>
+        </div>
+
         <!-- Loading Indicator -->
         <div id="loading-indicator" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 hidden">
             <div class="bg-white rounded-lg p-6 flex items-center space-x-4">
@@ -75,23 +125,8 @@
             </div>
         </div>
 
-        <!-- Error Message -->
-        <div id="error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 hidden">
-            <strong class="font-bold" id="error-title">Error!</strong>
-            <span class="block sm:inline" id="error-details">Something went wrong.</span>
-            <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
-                <i class="fas fa-times cursor-pointer" onclick="document.getElementById('error-message').classList.add('hidden')"></i>
-            </span>
-        </div>
-
-        <!-- Success Message -->
-        <div id="success-message" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4 hidden">
-            <strong class="font-bold" id="success-title">Success!</strong>
-            <span class="block sm:inline" id="success-details">Operation completed successfully.</span>
-            <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
-                <i class="fas fa-times cursor-pointer" onclick="document.getElementById('success-message').classList.add('hidden')"></i>
-            </span>
-        </div>
+        <!-- Status Messages -->
+        <div id="status-messages" class="fixed top-4 right-4 z-50 space-y-3"></div>
 
         <!-- Loan View Modal -->
         <div id="loan-view-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-overlay">
@@ -117,50 +152,31 @@
             </div>
         </div>
 
-        <!-- Edit Loan Status Modal -->
-        <div id="edit-status-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-overlay">
-            <div class="bg-white rounded-lg shadow-xl w-11/12 md:w-1/2 lg:w-1/3">
+        <!-- Payment History Modal -->
+        <div id="payment-history-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-overlay">
+            <div class="bg-white rounded-lg shadow-xl w-11/12 md:w-2/3 lg:w-1/2">
                 <div class="p-6">
                     <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-2xl font-bold text-gray-800">Update Loan Status</h3>
-                        <button id="close-edit-modal" class="text-gray-500 hover:text-gray-700">
+                        <h3 class="text-2xl font-bold text-gray-800">Payment History</h3>
+                        <button id="close-payment-history-modal" class="text-gray-500 hover:text-gray-700">
                             <i class="fas fa-times text-xl"></i>
                         </button>
                     </div>
                     
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="status-select">
-                            Loan Status
-                        </label>
-                        <select id="status-select" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                            <option value="Pending">Pending</option>
-                            <option value="Approved">Approved</option>
-                            <option value="Active">Active</option>
-                            <option value="Rejected">Rejected</option>
-                            <option value="Paid">Paid</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-4 hidden" id="interest-rate-field">
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="interest-rate">
-                            Interest Rate (%)
-                        </label>
-                        <input type="number" step="0.01" min="0" id="interest-rate" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <div id="payment-history-content" class="payment-history">
+                        <!-- Payment history will be populated here -->
                     </div>
                     
-                    <div class="mt-8 flex justify-end space-x-4">
-                        <button id="cancel-edit-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded">
-                            Cancel
-                        </button>
-                        <button id="save-status-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-                            Save Changes
+                    <div class="mt-8 flex justify-end">
+                        <button id="close-payment-history-btn" class="bg-blue-600 hover:blue-700 text-white px-4 py-2 rounded">
+                            Close
                         </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Payment Deduction Modal -->
+        <!-- Payment Modal -->
         <div id="payment-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-overlay">
             <div class="bg-white rounded-lg shadow-xl w-11/12 md:w-1/2 lg:w-1/3">
                 <div class="p-6">
@@ -210,7 +226,7 @@
                 <h2 class="text-2xl font-bold text-gray-800 mb-6">Loan Management Dashboard</h2>
                 
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                    <div class="bg-blue-100 p-4 rounded-lg shadow card-hover">
+                    <div class="bg-blue-100 p-4 rounded-lg shadow summary-card">
                         <div class="flex justify-between items-start">
                             <div>
                                 <p class="text-blue-800 font-semibold">Total Loans</p>
@@ -220,7 +236,7 @@
                         </div>
                     </div>
                     
-                    <div class="bg-green-100 p-4 rounded-lg shadow card-hover">
+                    <div class="bg-green-100 p-4 rounded-lg shadow summary-card">
                         <div class="flex justify-between items start">
                             <div>
                                 <p class="text-green-800 font-semibold">Active Loans</p>
@@ -230,7 +246,7 @@
                         </div>
                     </div>
                     
-                    <div class="bg-purple-100 p-4 rounded-lg shadow card-hover">
+                    <div class="bg-purple-100 p-4 rounded-lg shadow summary-card">
                         <div class="flex justify-between items-start">
                             <div>
                                 <p class="text-purple-800 font-semibold">Total Loan Value</p>
@@ -240,7 +256,7 @@
                         </div>
                     </div>
 
-                    <div class="bg-amber-100 p-4 rounded-lg shadow card-hover">
+                    <div class="bg-amber-100 p-4 rounded-lg shadow summary-card">
                         <div class="flex justify-between items-start">
                             <div>
                                 <p class="text-amber-800 font-semibold">Pending Approval</p>
@@ -258,14 +274,18 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Borrower</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loan Amount</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Outstanding</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Interest Rate</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applied On</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="loans-table-body" class="bg-white divide-y divide-gray-200">
-                            <!-- Loans will be populated here -->
+                            <tr>
+                                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                                    Loading loans data...
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -293,21 +313,18 @@
         // DOM elements
         const loadingIndicator = document.getElementById('loading-indicator');
         const loadingText = document.getElementById('loading-text');
-        const errorMessage = document.getElementById('error-message');
-        const errorTitle = document.getElementById('error-title');
-        const errorDetails = document.getElementById('error-details');
-        const successMessage = document.getElementById('success-message');
-        const successTitle = document.getElementById('success-title');
-        const successDetails = document.getElementById('success-details');
+        const statusMessages = document.getElementById('status-messages');
+        const debugPanel = document.getElementById('debug-panel');
+        const debugContent = document.getElementById('debug-content');
         
         // Modal elements
         const loanViewModal = document.getElementById('loan-view-modal');
         const loanDetailsContent = document.getElementById('loan-details-content');
-        const editStatusModal = document.getElementById('edit-status-modal');
         const paymentModal = document.getElementById('payment-modal');
+        const paymentHistoryModal = document.getElementById('payment-history-modal');
+        const paymentHistoryContent = document.getElementById('payment-history-content');
         
         // State variables
-        let currentEditingLoan = null;
         let currentPaymentLoan = null;
         let allLoans = [];
 
@@ -321,31 +338,55 @@
             loadingIndicator.classList.add('hidden');
         }
         
-        function showError(title, details) {
-            errorTitle.textContent = title;
-            errorDetails.textContent = details;
-            errorMessage.classList.remove('hidden');
+        function showMessage(type, title, details) {
+            const messageEl = document.createElement('div');
+            messageEl.className = `p-4 rounded-lg shadow-lg ${type === 'error' ? 'bg-red-500' : 'bg-green-500'} text-white max-w-md`;
+            messageEl.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div>
+                        <strong class="font-bold">${title}</strong>
+                        <p class="text-sm mt-1">${details}</p>
+                    </div>
+                    <button class="ml-4 text-white hover:text-gray-200">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
             
-            // Auto hide after 5 seconds
+            // Add to messages container
+            statusMessages.appendChild(messageEl);
+            
+            // Auto remove after 5 seconds
             setTimeout(() => {
-                errorMessage.classList.add('hidden');
+                messageEl.remove();
             }, 5000);
+            
+            // Add click handler to close button
+            messageEl.querySelector('button').addEventListener('click', () => {
+                messageEl.remove();
+            });
         }
-        
-        function showSuccess(title, details) {
-            successTitle.textContent = title;
-            successDetails.textContent = details;
-            successMessage.classList.remove('hidden');
+
+        // Debug logging
+        function logDebug(message, data = null) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<span class="text-gray-600">[${timestamp}]</span> ${message}`;
             
-            // Auto hide after 5 seconds
-            setTimeout(() => {
-                successMessage.classList.add('hidden');
-            }, 5000);
+            if (data) {
+                const pre = document.createElement('pre');
+                pre.className = 'ml-4 mt-1 text-xs';
+                pre.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+                logEntry.appendChild(pre);
+            }
+            
+            debugContent.appendChild(logEntry);
+            debugContent.scrollTop = debugContent.scrollHeight;
         }
 
         // Format currency
         function formatCurrency(amount) {
-            if (!amount) return 'R0.00';
+            if (!amount && amount !== 0) return 'R0.00';
             return 'R' + parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
         }
         
@@ -486,35 +527,82 @@
                 loanViewModal.classList.remove('hidden');
                 
             } catch (error) {
-                showError('Load Error', 'Failed to load loan details: ' + error.message);
+                showMessage('error', 'Load Error', 'Failed to load loan details: ' + error.message);
                 console.error('Error loading loan details:', error);
+                logDebug('Error loading loan details:', error.message);
             } finally {
                 hideLoading();
             }
         }
 
-        // Open edit status modal
-        function openEditStatusModal(loan) {
-            currentEditingLoan = loan;
+        // Load payment history
+        async function viewPaymentHistory(userId, loanId) {
+            showLoading('Loading payment history...');
             
-            // Set current status
-            document.getElementById('status-select').value = loan.status || 'Pending';
-            
-            // Set interest rate if exists
-            if (loan.interestRate) {
-                document.getElementById('interest-rate').value = loan.interestRate;
+            try {
+                // Get payment history
+                const paymentsSnapshot = await db.collection('users')
+                    .doc(userId)
+                    .collection('loans')
+                    .doc(loanId)
+                    .collection('payments')
+                    .orderBy('date', 'desc')
+                    .get();
+                
+                let paymentsHtml = '';
+                
+                if (paymentsSnapshot.empty) {
+                    paymentsHtml = '<p class="text-gray-500 text-center py-4">No payment history found.</p>';
+                } else {
+                    paymentsHtml = `
+                        <div class="mb-4 p-3 bg-gray-50 rounded-lg">
+                            <h4 class="font-semibold text-gray-700">Payment Summary</h4>
+                            <div class="flex justify-between mt-2">
+                                <span>Total Paid:</span>
+                                <span class="font-bold" id="total-paid-amount">Calculating...</span>
+                            </div>
+                        </div>
+                        <div class="divide-y divide-gray-200">
+                    `;
+                    
+                    let totalPayments = 0;
+                    
+                    paymentsSnapshot.forEach((doc) => {
+                        const payment = doc.data();
+                        const amount = parseFloat(payment.amount);
+                        totalPayments += amount;
+                        
+                        paymentsHtml += `
+                            <div class="payment-item">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <div class="font-medium">${formatDate(payment.date)}</div>
+                                        <div class="text-sm text-gray-500">${payment.reference || 'No reference'}</div>
+                                    </div>
+                                    <div class="text-green-600 font-semibold">${formatCurrency(amount)}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    paymentsHtml += `</div>`;
+                    
+                    // Update total paid amount
+                    setTimeout(() => {
+                        document.getElementById('total-paid-amount').textContent = formatCurrency(totalPayments);
+                    }, 100);
+                }
+                
+                paymentHistoryContent.innerHTML = paymentsHtml;
+                paymentHistoryModal.classList.remove('hidden');
+                
+            } catch (error) {
+                showMessage('error', 'Load Error', 'Failed to load payment history: ' + error.message);
+                console.error('Error loading payment history:', error);
+                logDebug('Error loading payment history:', error.message);
+            } finally {
+                hideLoading();
             }
-            
-            // Show interest rate field only for approved/active status
-            const interestField = document.getElementById('interest-rate-field');
-            if (loan.status === 'Approved' || loan.status === 'Active') {
-                interestField.classList.remove('hidden');
-            } else {
-                interestField.classList.add('hidden');
-            }
-            
-            // Show the modal
-            editStatusModal.classList.remove('hidden');
         }
 
         // Open payment modal
@@ -525,56 +613,16 @@
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('payment-date').value = today;
             
+            // Set maximum payment amount as outstanding balance
+            const outstanding = parseFloat(loan.outstandingBalance || loan.loanAmount);
+            document.getElementById('payment-amount').setAttribute('max', outstanding);
+            
             // Clear previous values
             document.getElementById('payment-amount').value = '';
             document.getElementById('payment-reference').value = '';
             
             // Show the modal
             paymentModal.classList.remove('hidden');
-        }
-
-        // Save loan status changes
-        async function saveLoanStatus() {
-            if (!currentEditingLoan) return;
-            
-            showLoading('Updating loan status...');
-            
-            try {
-                const newStatus = document.getElementById('status-select').value;
-                const interestRate = document.getElementById('interest-rate').value;
-                
-                const updateData = {
-                    status: newStatus,
-                    updatedAt: new Date()
-                };
-                
-                // Only update interest rate if provided and for approved/active loans
-                if (interestRate && (newStatus === 'Approved' || newStatus === 'Active')) {
-                    updateData.interestRate = parseFloat(interestRate);
-                }
-                
-                // Update the loan document
-                await db.collection('users')
-                    .doc(currentEditingLoan.userId)
-                    .collection('loans')
-                    .doc(currentEditingLoan.id)
-                    .update(updateData);
-                
-                // Close the modal
-                editStatusModal.classList.add('hidden');
-                
-                // Show success message
-                showSuccess('Status Updated', 'Loan status has been updated successfully.');
-                
-                // Refresh the loans data
-                loadLoansData();
-                
-            } catch (error) {
-                showError('Update Error', 'Failed to update loan status: ' + error.message);
-                console.error('Error updating loan status:', error);
-            } finally {
-                hideLoading();
-            }
         }
 
         // Save payment
@@ -590,6 +638,10 @@
                 
                 if (!paymentAmount || paymentAmount <= 0) {
                     throw new Error('Please enter a valid payment amount');
+                }
+                
+                if (!paymentDate) {
+                    throw new Error('Please select a payment date');
                 }
                 
                 // Get current loan data
@@ -623,65 +675,114 @@
                     userId: currentPaymentLoan.userId
                 };
                 
-                // Update loan outstanding balance and add payment to history
-                await db.collection('users')
+                // Use a batch write to ensure both operations succeed or fail together
+                const batch = db.batch();
+                
+                const loanRef = db.collection('users')
                     .doc(currentPaymentLoan.userId)
                     .collection('loans')
-                    .doc(currentPaymentLoan.id)
-                    .update({
-                        outstandingBalance: newOutstanding,
-                        updatedAt: new Date()
-                    });
+                    .doc(currentPaymentLoan.id);
+                
+                // Update loan outstanding balance
+                batch.update(loanRef, {
+                    outstandingBalance: newOutstanding,
+                    updatedAt: new Date()
+                });
                 
                 // Add payment to payments subcollection
-                await db.collection('users')
+                const paymentRef = db.collection('users')
                     .doc(currentPaymentLoan.userId)
                     .collection('loans')
                     .doc(currentPaymentLoan.id)
                     .collection('payments')
-                    .add(paymentData);
+                    .doc();
+                
+                batch.set(paymentRef, paymentData);
                 
                 // If paid in full, update status
                 if (newOutstanding <= 0) {
-                    await db.collection('users')
-                        .doc(currentPaymentLoan.userId)
-                        .collection('loans')
-                        .doc(currentPaymentLoan.id)
-                        .update({
-                            status: 'Paid'
-                        });
+                    batch.update(loanRef, {
+                        status: 'Paid'
+                    });
                 }
+                
+                // Commit the batch
+                await batch.commit();
                 
                 // Close the modal
                 paymentModal.classList.add('hidden');
                 
                 // Show success message
-                showSuccess('Payment Recorded', 'Payment has been recorded successfully.');
+                showMessage('success', 'Payment Recorded', 'Payment has been recorded successfully.');
                 
                 // Refresh the loans data
                 loadLoansData();
                 
             } catch (error) {
-                showError('Payment Error', 'Failed to record payment: ' + error.message);
+                showMessage('error', 'Payment Error', 'Failed to record payment: ' + error.message);
                 console.error('Error recording payment:', error);
+                logDebug('Error recording payment:', error.message);
             } finally {
                 hideLoading();
             }
         }
         
-        // Load loans data
-        function loadLoansData() {
-            showLoading('Loading loans...');
+        // Test Firebase connection and data access
+        async function testFirebaseConnection() {
+            showLoading('Testing Firebase connection...');
+            logDebug('Testing Firebase connection...');
             
-            // Get all users and their loans
-            db.collection('users').get().then((usersSnapshot) => {
-                const loansTableBody = document.getElementById('loans-table-body');
+            try {
+                // Test if we can access the users collection
+                const usersSnapshot = await db.collection('users').limit(1).get();
+                logDebug(`Users collection accessible: ${!usersSnapshot.empty}`);
                 
                 if (usersSnapshot.empty) {
-                    loansTableBody.innerHTML = `
+                    logDebug('No users found in database');
+                    hideLoading();
+                    return false;
+                }
+                
+                // Test if we can access loans for the first user
+                const firstUser = usersSnapshot.docs[0];
+                const loansSnapshot = await db.collection('users')
+                    .doc(firstUser.id)
+                    .collection('loans')
+                    .limit(1)
+                    .get();
+                
+                logDebug(`Loans subcollection accessible for user ${firstUser.id}: ${!loansSnapshot.empty}`);
+                
+                if (!loansSnapshot.empty) {
+                    const loanData = loansSnapshot.docs[0].data();
+                    logDebug('Sample loan data:', JSON.stringify(loanData, null, 2));
+                }
+                
+                hideLoading();
+                return true;
+                
+            } catch (error) {
+                logDebug('Firebase connection error:', error.message);
+                hideLoading();
+                return false;
+            }
+        }
+        
+        // Load loans data with improved error handling
+        async function loadLoansData() {
+            showLoading('Loading loans...');
+            logDebug('Starting to load loans from Firebase...');
+            
+            try {
+                // Get all users
+                const usersSnapshot = await db.collection('users').get();
+                logDebug(`Found ${usersSnapshot.size} users in database`);
+                
+                if (usersSnapshot.empty) {
+                    document.getElementById('loans-table-body').innerHTML = `
                         <tr>
                             <td colspan="7" class="px-6 py-4 text-center text-gray-500">
-                                No loans found.
+                                No users found in database.
                             </td>
                         </tr>
                     `;
@@ -696,16 +797,22 @@
                 let totalLoanValue = 0;
                 
                 // Process each user's loans
-                const userPromises = [];
+                const loanPromises = [];
+                
                 usersSnapshot.forEach((userDoc) => {
                     const userData = userDoc.data();
-                    const promise = db.collection('users').doc(userDoc.id).collection('loans').get()
+                    const userLoanPromise = db.collection('users')
+                        .doc(userDoc.id)
+                        .collection('loans')
+                        .get()
                         .then((loansSnapshot) => {
+                            logDebug(`User ${userDoc.id} has ${loansSnapshot.size} loans`);
+                            
                             loansSnapshot.forEach((loanDoc) => {
                                 const loan = loanDoc.data();
                                 loan.id = loanDoc.id;
                                 loan.userId = userDoc.id;
-                                loan.userName = userData.fullName || userData.name || userData.email;
+                                loan.userName = userData.fullName || userData.name || userData.email || 'Unknown User';
                                 allLoans.push(loan);
                                 
                                 totalLoans++;
@@ -713,117 +820,155 @@
                                 if (loan.status === 'Pending') pendingLoans++;
                                 totalLoanValue += parseFloat(loan.loanAmount) || 0;
                             });
+                        })
+                        .catch((error) => {
+                            logDebug(`Error loading loans for user ${userDoc.id}:`, error.message);
                         });
-                    userPromises.push(promise);
+                    
+                    loanPromises.push(userLoanPromise);
                 });
                 
                 // Wait for all loans to be loaded
-                Promise.all(userPromises).then(() => {
-                    // Update summary cards
-                    document.getElementById('total-loans').textContent = totalLoans;
-                    document.getElementById('active-loans').textContent = activeLoans;
-                    document.getElementById('pending-loans').textContent = pendingLoans;
-                    document.getElementById('total-loan-value').textContent = formatCurrency(totalLoanValue);
-                    
-                    if (allLoans.length === 0) {
-                        loansTableBody.innerHTML = `
-                            <tr>
-                                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
-                                    No loans found.
-                                </td>
-                            </tr>
-                        `;
-                        hideLoading();
-                        return;
-                    }
-                    
-                    // Sort loans by application date (newest first)
-                    allLoans.sort((a, b) => {
-                        const dateA = a.applicationDate ? (a.applicationDate.toDate ? a.applicationDate.toDate() : new Date(a.applicationDate)) : new Date(0);
-                        const dateB = b.applicationDate ? (b.applicationDate.toDate ? b.applicationDate.toDate() : new Date(b.applicationDate)) : new Date(0);
-                        return dateB - dateA;
-                    });
-                    
-                    // Render loans table
-                    let loansHtml = '';
-                    allLoans.forEach((loan) => {
-                        const outstanding = parseFloat(loan.outstandingBalance || loan.loanAmount);
-                        
-                        loansHtml += `
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="font-medium">${loan.userName}</div>
-                                    <div class="text-sm text-gray-500">${loan.idNumber || 'N/A'}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="font-medium">${formatCurrency(loan.loanAmount || 0)}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="font-medium outstanding-balance" data-user-id="${loan.userId}" data-loan-id="${loan.id}">
-                                        ${formatCurrency(outstanding)}
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-gray-500">${loan.interestRate ? loan.interestRate + '%' : 'N/A'}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 py-1 text-xs font-semibold rounded-full ${getStatusClass(loan.status)}">
-                                        ${loan.status || 'N/A'}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-500">${formatDate(loan.applicationDate)}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <button class="text-blue-600 hover:text-blue-900 mr-2 view-loan" data-user-id="${loan.userId}" data-loan-id="${loan.id}">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="text-green-600 hover:text-green-900 mr-2 edit-loan" data-user-id="${loan.userId}" data-loan-id="${loan.id}">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                    
-                    loansTableBody.innerHTML = loansHtml;
-                    
-                    // Add event listeners to view buttons
-                    document.querySelectorAll('.view-loan').forEach(button => {
-                        button.addEventListener('click', () => {
-                            const userId = button.getAttribute('data-user-id');
-                            const loanId = button.getAttribute('data-loan-id');
-                            viewLoanDetails(userId, loanId);
-                        });
-                    });
-                    
-                    // Add event listeners to edit buttons
-                    document.querySelectorAll('.edit-loan').forEach(button => {
-                        button.addEventListener('click', () => {
-                            const userId = button.getAttribute('data-user-id');
-                            const loanId = button.getAttribute('data-loan-id');
-                            const loan = allLoans.find(l => l.userId === userId && l.id === loanId);
-                            if (loan) openEditStatusModal(loan);
-                        });
-                    });
-                    
-                    // Add event listeners to outstanding balance cells
-                    document.querySelectorAll('.outstanding-balance').forEach(cell => {
-                        cell.addEventListener('click', () => {
-                            const userId = cell.getAttribute('data-user-id');
-                            const loanId = cell.getAttribute('data-loan-id');
-                            const loan = allLoans.find(l => l.userId === userId && l.id === loanId);
-                            if (loan) openPaymentModal(loan);
-                        });
-                    });
-                    
+                await Promise.all(loanPromises);
+                logDebug(`Total loans loaded: ${allLoans.length}`);
+                
+                // Update summary cards
+                document.getElementById('total-loans').textContent = totalLoans;
+                document.getElementById('active-loans').textContent = activeLoans;
+                document.getElementById('pending-loans').textContent = pendingLoans;
+                document.getElementById('total-loan-value').textContent = formatCurrency(totalLoanValue);
+                
+                if (allLoans.length === 0) {
+                    document.getElementById('loans-table-body').innerHTML = `
+                        <tr>
+                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                                No loans found in database. Check if users have loans subcollections.
+                            </td>
+                        </tr>
+                    `;
                     hideLoading();
+                    return;
+                }
+                
+                // Sort loans by application date (newest first)
+                allLoans.sort((a, b) => {
+                    const dateA = a.applicationDate ? (a.applicationDate.toDate ? a.applicationDate.toDate() : new Date(a.applicationDate)) : new Date(0);
+                    const dateB = b.applicationDate ? (b.applicationDate.toDate ? b.applicationDate.toDate() : new Date(b.applicationDate)) : new Date(0);
+                    return dateB - dateA;
                 });
-            }).catch((error) => {
-                showError('Data Error', 'Failed to load loans. Please refresh the page.');
+                
+                // Render loans table
+                let loansHtml = '';
+                allLoans.forEach((loan) => {
+                    const loanAmount = parseFloat(loan.loanAmount || 0);
+                    const outstanding = parseFloat(loan.outstandingBalance || loanAmount);
+                    const paid = loanAmount - outstanding;
+                    const progress = loanAmount > 0 ? (paid / loanAmount) * 100 : 0;
+                    
+                    loansHtml += `
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="font-medium">${loan.userName}</div>
+                                <div class="text-sm text-gray-500">${loan.idNumber || 'N/A'}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="font-medium">${formatCurrency(loanAmount)}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="font-medium outstanding-balance" data-user-id="${loan.userId}" data-loan-id="${loan.id}">
+                                    ${formatCurrency(outstanding)}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm">
+                                    <div class="flex justify-between text-xs text-gray-600">
+                                        <span>Paid: ${formatCurrency(paid)}</span>
+                                        <span>${progress.toFixed(1)}%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: ${progress}%"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="status-badge ${getStatusClass(loan.status)}">
+                                    ${loan.status || 'N/A'}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-500">${formatDate(loan.applicationDate)}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <button class="text-blue-600 hover:text-blue-900 mr-2 view-loan" data-user-id="${loan.userId}" data-loan-id="${loan.id}" title="View Loan Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="text-purple-600 hover:text-purple-900 mr-2 payment-history-btn" data-user-id="${loan.userId}" data-loan-id="${loan.id}" title="View Payment History">
+                                    <i class="fas fa-history"></i>
+                                </button>
+                                <button class="text-green-600 hover:text-green-900 payment-btn" data-user-id="${loan.userId}" data-loan-id="${loan.id}" title="Record Payment">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                document.getElementById('loans-table-body').innerHTML = loansHtml;
+                
+                // Add event listeners to view buttons
+                document.querySelectorAll('.view-loan').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const userId = button.getAttribute('data-user-id');
+                        const loanId = button.getAttribute('data-loan-id');
+                        viewLoanDetails(userId, loanId);
+                    });
+                });
+                
+                // Add event listeners to payment buttons
+                document.querySelectorAll('.payment-btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const userId = button.getAttribute('data-user-id');
+                        const loanId = button.getAttribute('data-loan-id');
+                        const loan = allLoans.find(l => l.userId === userId && l.id === loanId);
+                        if (loan) openPaymentModal(loan);
+                    });
+                });
+                
+                // Add event listeners to payment history buttons
+                document.querySelectorAll('.payment-history-btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const userId = button.getAttribute('data-user-id');
+                        const loanId = button.getAttribute('data-loan-id');
+                        viewPaymentHistory(userId, loanId);
+                    });
+                });
+                
+                // Add event listeners to outstanding balance cells
+                document.querySelectorAll('.outstanding-balance').forEach(cell => {
+                    cell.addEventListener('click', () => {
+                        const userId = cell.getAttribute('data-user-id');
+                        const loanId = cell.getAttribute('data-loan-id');
+                        const loan = allLoans.find(l => l.userId === userId && l.id === loanId);
+                        if (loan) openPaymentModal(loan);
+                    });
+                });
+                
+            } catch (error) {
+                const errorMsg = 'Failed to load loans: ' + error.message;
+                showMessage('error', 'Data Error', errorMsg);
                 console.error('Error loading loans:', error);
+                logDebug('Error loading loans:', error.message);
+                
+                document.getElementById('loans-table-body').innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-6 py-4 text-center text-red-500">
+                            ${errorMsg}
+                        </td>
+                    </tr>
+                `;
+            } finally {
                 hideLoading();
-            });
+            }
         }
         
         // Event listeners for modals
@@ -835,16 +980,6 @@
             loanViewModal.classList.add('hidden');
         });
         
-        document.getElementById('close-edit-modal').addEventListener('click', () => {
-            editStatusModal.classList.add('hidden');
-        });
-        
-        document.getElementById('cancel-edit-btn').addEventListener('click', () => {
-            editStatusModal.classList.add('hidden');
-        });
-        
-        document.getElementById('save-status-btn').addEventListener('click', saveLoanStatus);
-        
         document.getElementById('close-payment-modal').addEventListener('click', () => {
             paymentModal.classList.add('hidden');
         });
@@ -855,14 +990,17 @@
         
         document.getElementById('save-payment-btn').addEventListener('click', savePayment);
         
-        // Toggle interest rate field based on status selection
-        document.getElementById('status-select').addEventListener('change', function() {
-            const interestField = document.getElementById('interest-rate-field');
-            if (this.value === 'Approved' || this.value === 'Active') {
-                interestField.classList.remove('hidden');
-            } else {
-                interestField.classList.add('hidden');
-            }
+        document.getElementById('close-payment-history-modal').addEventListener('click', () => {
+            paymentHistoryModal.classList.add('hidden');
+        });
+        
+        document.getElementById('close-payment-history-btn').addEventListener('click', () => {
+            paymentHistoryModal.classList.add('hidden');
+        });
+        
+        // Toggle debug panel
+        document.getElementById('debug-toggle').addEventListener('click', function() {
+            debugPanel.classList.toggle('hidden');
         });
         
         // Logout functionality
@@ -870,41 +1008,24 @@
             auth.signOut().then(() => {
                 window.location.href = '../index.html';
             }).catch((error) => {
-                showError('Logout Error', error.message);
+                showMessage('error', 'Logout Error', error.message);
                 console.error('Error signing out:', error);
+                logDebug('Error signing out:', error.message);
             });
         });
         
         // Initialize the dashboard
         document.addEventListener('DOMContentLoaded', function() {
-            // For demo purposes, we'll simulate admin access
-            loadLoansData();
-            
-            // In a real application, you would check if the user is authenticated and is an admin
-            /*
-            auth.onAuthStateChanged((user) => {
-                if (user) {
-                    // Check if user is admin
-                    db.collection('users').doc(user.uid).get()
-                        .then((doc) => {
-                            if (doc.exists && doc.data().role === 'admin') {
-                                // User is admin, load initial data
-                                loadLoansData();
-                            } else {
-                                // User is not admin, redirect
-                                window.location.href = '../index.html';
-                            }
-                        })
-                        .catch((error) => {
-                            console.error('Error checking user role:', error);
-                            window.location.href = '../index.html';
-                        });
+            // Test Firebase connection first
+            testFirebaseConnection().then((connected) => {
+                if (connected) {
+                    logDebug('Firebase connection successful. Loading loans...');
+                    loadLoansData();
                 } else {
-                    // User is not logged in, redirect to login
-                    window.location.href = '../login.html';
+                    showMessage('error', 'Connection Error', 'Could not connect to Firebase. Check console for details.');
+                    logDebug('Firebase connection failed. Please check your configuration and security rules.');
                 }
             });
-            */
         });
     </script>
 </body>
