@@ -1,4 +1,5 @@
 import { auth } from './firebase.js';
+import { router, route } from './router.js';
 
 // Auth state management
 export function handleAuthState(user) {
@@ -150,8 +151,8 @@ export function requireAuth(redirectPath, actionName = 'access this feature') {
             sessionStorage.setItem('intendedDestination', redirectPath);
             sessionStorage.setItem('intendedAction', actionName);
             
-            // Use relative path for login URL
-            const loginUrl = `auth/login.html?redirect=${encodeURIComponent(redirectPath)}&action=${encodeURIComponent(actionName)}`;
+            // Use router to get login URL
+            const loginUrl = `${route('AUTH.LOGIN')}?redirect=${encodeURIComponent(redirectPath)}&action=${encodeURIComponent(actionName)}`;
             
             console.log('Redirecting to login:', loginUrl);
             // Redirect to login
@@ -174,7 +175,7 @@ export function handlePostLoginRedirect() {
         // Redirect to intended destination
         window.location.href = intendedDestination;
     } else {
-        // Default redirect to dashboard
-        window.location.href = 'dashboard/index.html';
+        // Default redirect to dashboard using router
+        window.location.href = route('DASHBOARD.HOME');
     }
 }

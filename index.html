@@ -534,8 +534,13 @@
         import { initializeFirebaseAuth, requireAuth } from './js/utils.js';
         import { initializeMobileMenu } from './js/mobile-menu.js';
         import { initializeLoanCalculator } from './js/loan-calculator.js';
+        import { initNavigation } from './js/navigation.js';
         
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize navigation system first
+            initNavigation();
+            
+            // Then initialize Firebase and other components
             initializeFirebaseAuth().then(() => {
                 initializeMobileMenu();
                 initializeLoanCalculator();
