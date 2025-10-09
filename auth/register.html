@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vema24 - Register</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="/css/styles.css" rel="stylesheet">
+    <link href="../css/styles.css" rel="stylesheet">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
@@ -26,7 +26,7 @@
         <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
             <!-- Logo and Header -->
             <div class="text-center mb-8">
-                <img src="/assets/logo/Vema Black.png" alt="Vema Logo" class="h-14 mx-auto mb-5">
+                <img src="../assets/logo/Vema Black.png" alt="Vema Logo" class="h-14 mx-auto mb-5">
                 <h1 class="text-3xl font-bold text-gray-900 mb-2">Create your account</h1>
                 <p class="text-gray-500">Join Vema24 in just a few steps</p>
             </div>
@@ -531,7 +531,7 @@
     
                 loadingScreen.querySelector('p').textContent = 'Registration complete! Redirecting...';
                 setTimeout(() => {
-                    window.location.href = '/dashboard/index.html';
+                    window.location.href = '../dashboard/index.html';
                 }, 2000);
     
             } catch (error) {

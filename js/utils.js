@@ -175,6 +175,6 @@ export function handlePostLoginRedirect() {
         window.location.href = intendedDestination;
     } else {
         // Default redirect to dashboard
-        window.location.href = '/dashboard/index.html';
+        window.location.href = 'dashboard/index.html';
     }
 }
