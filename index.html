@@ -106,9 +106,9 @@
             <div class="flex items-center space-x-4">
                 <!-- Mobile Auth Buttons - Visible on mobile -->
                 <div id="mobile-auth-buttons" class="md:hidden flex space-x-2">
-                    <a href="auth/login.html" id="mobile-login" class="bg-white text-blue-800 px-3 py-1 rounded hover:bg-blue-100 text-sm">Login</a>
-                    <a href="auth/register.html" id="mobile-register" class="bg-yellow-400 text-blue-800 px-3 py-1 rounded hover:bg-yellow-300 text-sm">Join Now</a>
-                    <a href="dashboard/index.html" id="mobile-dashboard" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm hidden">Dashboard</a>
+                    <a href="/auth/login.html" id="mobile-login" class="bg-white text-blue-800 px-3 py-1 rounded hover:bg-blue-100 text-sm">Login</a>
+                    <a href="/auth/register.html" id="mobile-register" class="bg-yellow-400 text-blue-800 px-3 py-1 rounded hover:bg-yellow-300 text-sm">Join Now</a>
+                    <a href="/dashboard" id="mobile-dashboard" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm hidden">Dashboard</a>
                 </div>
                 
                 <!-- Mobile Menu Button -->
@@ -118,9 +118,9 @@
                 
                 <!-- Desktop Auth Buttons - Hidden on mobile -->
                 <div id="desktop-auth-buttons" class="hidden md:flex space-x-4">
-                    <a href="auth/login.html" id="desktop-login" class="bg-white text-blue-800 px-4 py-2 rounded hover:bg-blue-100">Login</a>
-                    <a href="auth/register.html" id="desktop-register" class="bg-yellow-400 text-blue-800 px-4 py-2 rounded hover:bg-yellow-300">Join Now</a>
-                    <a href="dashboard/index.html" id="desktop-dashboard" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 hidden">Dashboard</a>
+                    <a href="/auth/login.html" id="desktop-login" class="bg-white text-blue-800 px-4 py-2 rounded hover:bg-blue-100">Login</a>
+                    <a href="/auth/register.html" id="desktop-register" class="bg-yellow-400 text-blue-800 px-4 py-2 rounded hover:bg-yellow-300">Join Now</a>
+                    <a href="/dashboard" id="desktop-dashboard" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 hidden">Dashboard</a>
                 </div>
             </div>
         </div>
@@ -146,8 +146,8 @@
                 More than a stokvel, we help you save, get funeral cover, and access loans. At Vema24, we save, grow, and thrive together.
             </p>            
             <div class="flex justify-center space-x-4">
-                <a href="auth/register.html" id="hero-cta" class="bg-yellow-400 text-blue-800 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-yellow-300">Get Started</a>
-                <a href="dashboard/index.html" id="hero-dashboard" class="bg-green-500 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-green-600 hidden">Go to Dashboard</a>
+                <a href="/auth/register.html" id="hero-cta" class="bg-yellow-400 text-blue-800 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-yellow-300">Get Started</a>
+                <a href="/dashboard" id="hero-dashboard" class="bg-green-500 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-green-600 hidden">Go to Dashboard</a>
             </div>
         </div>
     </section>
@@ -178,7 +178,7 @@
                             Portfolio manager support
                         </li>
                     </ul>
-                    <a href="auth/register.html" class="block w-full bg-blue-600 text-white text-center py-2 rounded hover:bg-blue-700">Join Now</a>
+                    <a href="/auth/register.html" class="block w-full bg-blue-600 text-white text-center py-2 rounded hover:bg-blue-700">Join Now</a>
                 </div>
 
                 <!-- Grocery Stokvel -->
@@ -199,7 +199,7 @@
                             Flexible contribution amounts
                         </li>
                     </ul>
-                    <a href="auth/register.html" class="block w-full bg-blue-600 text-white text-center py-2 rounded hover:bg-blue-700">Join Now</a>
+                    <a href="/auth/register.html" class="block w-full bg-blue-600 text-white text-center py-2 rounded hover:bg-blue-700">Join Now</a>
                 </div>
 
                 <!-- Planning Ahead Stokvel -->
@@ -528,19 +528,14 @@
         </div>
     </footer>
 
-    <script src="js/utils.js" type="module" defer></script>
+    <script src="/js/utils.js" type="module" defer></script>
 
     <script type="module">
         import { initializeFirebaseAuth, requireAuth } from './js/utils.js';
         import { initializeMobileMenu } from './js/mobile-menu.js';
         import { initializeLoanCalculator } from './js/loan-calculator.js';
-        import { initNavigation } from './js/navigation.js';
         
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize navigation system first
-            initNavigation();
-            
-            // Then initialize Firebase and other components
             initializeFirebaseAuth().then(() => {
                 initializeMobileMenu();
                 initializeLoanCalculator();
