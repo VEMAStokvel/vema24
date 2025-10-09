@@ -1,0 +1,252 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+    
+    // Check if user is authenticated
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    // Check if user owns this file
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
+    // Check if user is admin
+    function isAdmin() {
+      return isSignedIn() && 
+             firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Validate image file type
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+    
+    // Validate document file type
+    function isDocument() {
+      return request.resource.contentType in [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'image/jpeg',
+        'image/jpg',
+        'image/png'
+      ];
+    }
+    
+    // Validate file size (max 5MB for images, 10MB for documents)
+    function isValidImageSize() {
+      return request.resource.size <= 5 * 1024 * 1024; // 5MB
+    }
+    
+    function isValidDocumentSize() {
+      return request.resource.size <= 10 * 1024 * 1024; // 10MB
+    }
+    
+    // ============================================
+    // USER PROFILE PICTURES
+    // ============================================
+    match /users/{userId}/profile/{fileName} {
+      // Read: Anyone can view profile pictures
+      allow read: if isSignedIn();
+      
+      // Write: Only the user can upload their own profile picture
+      allow write: if isOwner(userId) && 
+                     isImage() && 
+                     isValidImageSize();
+      
+      // Delete: User can delete their own, admin can delete any
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+    
+    // ============================================
+    // IDENTITY DOCUMENTS
+    // ============================================
+    match /users/{userId}/documents/id/{fileName} {
+      // Read: Only owner and admin can view ID documents
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Write: Only owner can upload ID documents
+      allow write: if isOwner(userId) && 
+                     isDocument() && 
+                     isValidDocumentSize();
+      
+      // Delete: Only admin can delete ID documents
+      allow delete: if isAdmin();
+    }
+    
+    // ============================================
+    // PROOF OF ADDRESS
+    // ============================================
+    match /users/{userId}/documents/proof-of-address/{fileName} {
+      // Read: Only owner and admin can view
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Write: Only owner can upload
+      allow write: if isOwner(userId) && 
+                     isDocument() && 
+                     isValidDocumentSize();
+      
+      // Delete: Only admin can delete
+      allow delete: if isAdmin();
+    }
+    
+    // ============================================
+    // BANK STATEMENTS
+    // ============================================
+    match /users/{userId}/documents/bank-statements/{fileName} {
+      // Read: Only owner and admin can view
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Write: Only owner can upload
+      allow write: if isOwner(userId) && 
+                     isDocument() && 
+                     isValidDocumentSize();
+      
+      // Delete: Only admin can delete
+      allow delete: if isAdmin();
+    }
+    
+    // ============================================
+    // FUNERAL CLAIM DOCUMENTS
+    // ============================================
+    match /funeralClaims/{claimId}/documents/{fileName} {
+      // Read: Only the claimant and admin can view
+      allow read: if isSignedIn() && 
+                    (firestore.get(/databases/(default)/documents/funeralClaims/$(claimId)).data.userId == request.auth.uid || 
+                     isAdmin());
+      
+      // Write: Only the claimant can upload claim documents
+      allow write: if isSignedIn() && 
+                     firestore.get(/databases/(default)/documents/funeralClaims/$(claimId)).data.userId == request.auth.uid &&
+                     isDocument() && 
+                     isValidDocumentSize();
+      
+      // Delete: Only admin can delete
+      allow delete: if isAdmin();
+    }
+    
+    // ============================================
+    // LOAN APPLICATION DOCUMENTS
+    // ============================================
+    match /loans/{loanId}/documents/{fileName} {
+      // Read: Only the applicant and admin can view
+      allow read: if isSignedIn() && 
+                    (firestore.get(/databases/(default)/documents/loans/$(loanId)).data.userId == request.auth.uid || 
+                     isAdmin());
+      
+      // Write: Only the applicant can upload loan documents
+      allow write: if isSignedIn() && 
+                     firestore.get(/databases/(default)/documents/loans/$(loanId)).data.userId == request.auth.uid &&
+                     isDocument() && 
+                     isValidDocumentSize();
+      
+      // Delete: Only admin can delete
+      allow delete: if isAdmin();
+    }
+    
+    // ============================================
+    // PRODUCT IMAGES
+    // ============================================
+    match /products/{productId}/images/{fileName} {
+      // Read: All authenticated users can view product images
+      allow read: if isSignedIn();
+      
+      // Write/Delete: Only admin can manage product images
+      allow write, delete: if isAdmin() && 
+                              isImage() && 
+                              isValidImageSize();
+    }
+    
+    // ============================================
+    // STOKVEL DOCUMENTS (Constitutions, Rules, etc.)
+    // ============================================
+    match /stokvels/{stokvelId}/documents/{fileName} {
+      // Read: All stokvel members can read documents
+      allow read: if isSignedIn() && 
+                    request.auth.uid in firestore.get(/databases/(default)/documents/stokvels/$(stokvelId)).data.members;
+      
+      // Write/Delete: Only admin can manage stokvel documents
+      allow write, delete: if isAdmin() && 
+                              isDocument() && 
+                              isValidDocumentSize();
+    }
+    
+    // ============================================
+    // PUBLIC ASSETS (Constitutions, Terms, etc.)
+    // ============================================
+    match /public/{fileName} {
+      // Read: All authenticated users can read public files
+      allow read: if isSignedIn();
+      
+      // Write/Delete: Only admin can manage public files
+      allow write, delete: if isAdmin();
+    }
+    
+    // ============================================
+    // RECEIPTS AND INVOICES
+    // ============================================
+    match /receipts/{userId}/{receiptId}/{fileName} {
+      // Read: Only owner and admin can view receipts
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Write: Only system/admin can create receipts
+      allow write: if isAdmin();
+      
+      // Delete: Only admin can delete receipts
+      allow delete: if isAdmin();
+    }
+    
+    // ============================================
+    // CONTRIBUTION RECEIPTS
+    // ============================================
+    match /contributions/{contributionId}/receipt/{fileName} {
+      // Read: Only the contributor and admin can view
+      allow read: if isSignedIn() && 
+                    (firestore.get(/databases/(default)/documents/contributions/$(contributionId)).data.userId == request.auth.uid || 
+                     isAdmin());
+      
+      // Write: Only system/admin can create receipts
+      allow write: if isAdmin();
+      
+      // Delete: Only admin can delete
+      allow delete: if isAdmin();
+    }
+    
+    // ============================================
+    // TEMPORARY UPLOADS (1 hour expiry)
+    // ============================================
+    match /temp/{userId}/{fileName} {
+      // Read: Only owner can read temp files
+      allow read: if isOwner(userId);
+      
+      // Write: Only owner can upload to temp
+      allow write: if isOwner(userId) && 
+                     request.resource.size <= 10 * 1024 * 1024; // 10MB max
+      
+      // Delete: Owner and admin can delete temp files
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+    
+    // ============================================
+    // ADMIN DOCUMENTS
+    // ============================================
+    match /admin/{document=**} {
+      // Only admin can access admin documents
+      allow read, write, delete: if isAdmin();
+    }
+    
+    // ============================================
+    // DEFAULT DENY ALL
+    // ============================================
+    // Any other path not explicitly allowed is denied
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

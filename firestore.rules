@@ -1,0 +1,335 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+    
+    // Check if user is authenticated
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    // Check if user is accessing their own document
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
+    // Check if user is an admin
+    function isAdmin() {
+      return isSignedIn() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Check if user is a manager (can manage stokvels)
+    function isManager() {
+      return isSignedIn() && 
+             (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'manager' ||
+              isAdmin());
+    }
+    
+    // Validate email format
+    function isValidEmail(email) {
+      return email.matches('^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$');
+    }
+    
+    // Validate South African phone number
+    function isValidSAPhone(phone) {
+      return phone.matches('^(\\+27|0)[6-8][0-9]{8}$');
+    }
+    
+    // Validate required user fields
+    function isValidUserData(data) {
+      return data.keys().hasAll(['email', 'displayName', 'createdAt', 'role']) &&
+             isValidEmail(data.email) &&
+             data.displayName is string &&
+             data.displayName.size() >= 2 &&
+             data.displayName.size() <= 100 &&
+             data.role in ['member', 'manager', 'admin'] &&
+             data.createdAt is timestamp;
+    }
+    
+    // Validate amount is positive
+    function isValidAmount(amount) {
+      return amount is number && amount > 0;
+    }
+    
+    // Check if user is a member of a stokvel
+    function isStokvelMember(stokvelId) {
+      return isSignedIn() &&
+             request.auth.uid in get(/databases/$(database)/documents/stokvels/$(stokvelId)).data.members;
+    }
+    
+    // ============================================
+    // USERS COLLECTION
+    // ============================================
+    match /users/{userId} {
+      // Read: User can read their own data, or admin can read any
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Create: Only during registration with valid data
+      allow create: if isSignedIn() && 
+                      isOwner(userId) && 
+                      isValidUserData(request.resource.data) &&
+                      request.resource.data.role == 'member' && // New users are always 'member'
+                      request.resource.data.savingsTotal == 0 &&
+                      request.resource.data.storeDiscount == 0 &&
+                      request.resource.data.funeralCover == false;
+      
+      // Update: User can update their own data (except sensitive fields), or admin can update
+      allow update: if (isOwner(userId) && 
+                        // Users cannot change their role or sensitive fields
+                        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'createdAt', 'uid']) &&
+                        // Validate updated email if changed
+                        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['email']) || 
+                         isValidEmail(request.resource.data.email)))
+                       || isAdmin();
+      
+      // Delete: Only admin can delete users
+      allow delete: if isAdmin();
+    }
+    
+    // ============================================
+    // STOKVELS COLLECTION
+    // ============================================
+    match /stokvels/{stokvelId} {
+      // Read: Members can read their stokvels, managers/admins can read all
+      allow read: if isStokvelMember(stokvelId) || isManager();
+      
+      // Create: Only authenticated users can create (when joining)
+      allow create: if isSignedIn() &&
+                      request.resource.data.keys().hasAll(['name', 'type', 'members', 'status', 'createdAt']) &&
+                      request.resource.data.name is string &&
+                      request.resource.data.type in ['January', 'Grocery', 'Planning'] &&
+                      request.resource.data.members is list &&
+                      request.resource.data.members.size() > 0 &&
+                      request.auth.uid in request.resource.data.members &&
+                      request.resource.data.status in ['pending', 'active'] &&
+                      request.resource.data.monthlyContribution > 0 &&
+                      request.resource.data.createdAt is timestamp;
+      
+      // Update: Only managers/admins can update stokvels
+      allow update: if isManager() &&
+                      // Cannot change creation date
+                      !request.resource.data.diff(resource.data).affectedKeys().hasAny(['createdAt']);
+      
+      // Delete: Only admin can delete
+      allow delete: if isAdmin();
+    }
+    
+    // ============================================
+    // CONTRIBUTIONS COLLECTION
+    // ============================================
+    match /contributions/{contributionId} {
+      // Read: User can read their own contributions, managers/admins can read all
+      allow read: if isSignedIn() && 
+                    (resource.data.userId == request.auth.uid || isManager());
+      
+      // Create: User can create their own contributions
+      allow create: if isSignedIn() &&
+                      request.resource.data.userId == request.auth.uid &&
+                      request.resource.data.keys().hasAll(['userId', 'stokvelId', 'amount', 'method', 'date', 'status']) &&
+                      isValidAmount(request.resource.data.amount) &&
+                      request.resource.data.method in ['bank_transfer', 'cash', 'card'] &&
+                      request.resource.data.status in ['pending', 'completed', 'failed'] &&
+                      request.resource.data.date is timestamp &&
+                      // Verify user is member of the stokvel
+                      isStokvelMember(request.resource.data.stokvelId);
+      
+      // Update: Only managers/admins can update (e.g., to change status)
+      allow update: if isManager() &&
+                      // Cannot change userId, stokvelId, amount, or date
+                      !request.resource.data.diff(resource.data).affectedKeys()
+                        .hasAny(['userId', 'stokvelId', 'amount', 'date']);
+      
+      // Delete: Only admin can delete
+      allow delete: if isAdmin();
+    }
+    
+    // ============================================
+    // LOANS COLLECTION
+    // ============================================
+    match /loans/{loanId} {
+      // Read: User can read their own loans, admins can read all
+      allow read: if isSignedIn() && 
+                    (resource.data.userId == request.auth.uid || isAdmin());
+      
+      // Create: User can create their own loan applications
+      allow create: if isSignedIn() &&
+                      request.resource.data.userId == request.auth.uid &&
+                      request.resource.data.keys().hasAll(['userId', 'amount', 'term', 'status', 'applicationDate']) &&
+                      // Validate loan amount
+                      request.resource.data.amount in [500, 1000, 2000, 3000] &&
+                      // Validate loan term
+                      request.resource.data.term in [1, 2, 3] &&
+                      request.resource.data.status == 'pending' &&
+                      request.resource.data.applicationDate is timestamp;
+      
+      // Update: User can update their pending loans, admins can update any
+      allow update: if (isSignedIn() && 
+                        resource.data.userId == request.auth.uid &&
+                        resource.data.status == 'pending' &&
+                        // User can only update purpose or cancel
+                        !request.resource.data.diff(resource.data).affectedKeys()
+                          .hasAny(['userId', 'amount', 'term', 'applicationDate']))
+                       || isAdmin();
+      
+      // Delete: Only admin can delete
+      allow delete: if isAdmin();
+    }
+    
+    // ============================================
+    // REFERRALS COLLECTION
+    // ============================================
+    match /referrals/{referralId} {
+      // Read: Referrer can read their referrals, admins can read all
+      allow read: if isSignedIn() && 
+                    (resource.data.referrerId == request.auth.uid || isAdmin());
+      
+      // Create: User can create referrals
+      allow create: if isSignedIn() &&
+                      request.resource.data.referrerId == request.auth.uid &&
+                      request.resource.data.keys().hasAll(['referrerId', 'referredName', 'referredEmail', 'status', 'date']) &&
+                      isValidEmail(request.resource.data.referredEmail) &&
+                      request.resource.data.status == 'pending' &&
+                      request.resource.data.date is timestamp;
+      
+      // Update: Only admin can update (to change status, add commission)
+      allow update: if isAdmin();
+      
+      // Delete: Only admin can delete
+      allow delete: if isAdmin();
+    }
+    
+    // ============================================
+    // PRODUCTS COLLECTION
+    // ============================================
+    match /products/{productId} {
+      // Read: All authenticated users can read products
+      allow read: if isSignedIn();
+      
+      // Create/Update/Delete: Only admin can manage products
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // ============================================
+    // ORDERS COLLECTION
+    // ============================================
+    match /orders/{orderId} {
+      // Read: User can read their own orders, admins can read all
+      allow read: if isSignedIn() && 
+                    (resource.data.userId == request.auth.uid || isAdmin());
+      
+      // Create: User can create their own orders
+      allow create: if isSignedIn() &&
+                      request.resource.data.userId == request.auth.uid &&
+                      request.resource.data.keys().hasAll(['userId', 'items', 'total', 'status', 'createdAt']) &&
+                      request.resource.data.items is list &&
+                      request.resource.data.items.size() > 0 &&
+                      isValidAmount(request.resource.data.total) &&
+                      request.resource.data.status == 'processing' &&
+                      request.resource.data.createdAt is timestamp;
+      
+      // Update: Only admin can update orders
+      allow update: if isAdmin();
+      
+      // Delete: Only admin can delete
+      allow delete: if isAdmin();
+    }
+    
+    // ============================================
+    // FUNERAL CLAIMS COLLECTION
+    // ============================================
+    match /funeralClaims/{claimId} {
+      // Read: User can read their own claims, admins can read all
+      allow read: if isSignedIn() && 
+                    (resource.data.userId == request.auth.uid || isAdmin());
+      
+      // Create: Only users with funeral cover can create claims
+      allow create: if isSignedIn() &&
+                      request.resource.data.userId == request.auth.uid &&
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.funeralCover == true &&
+                      request.resource.data.keys().hasAll(['userId', 'claimType', 'status', 'submittedAt']) &&
+                      request.resource.data.claimType in ['natural_death', 'accidental_death', 'suicide'] &&
+                      request.resource.data.status == 'pending' &&
+                      request.resource.data.submittedAt is timestamp;
+      
+      // Update: Only admin can update claims
+      allow update: if isAdmin();
+      
+      // Delete: Only admin can delete
+      allow delete: if isAdmin();
+    }
+    
+    // ============================================
+    // WITHDRAWAL REQUESTS COLLECTION
+    // ============================================
+    match /withdrawalRequests/{requestId} {
+      // Read: User can read their own requests, admins can read all
+      allow read: if isSignedIn() && 
+                    (resource.data.userId == request.auth.uid || isAdmin());
+      
+      // Create: User can create withdrawal requests for Planning Ahead stokvels
+      allow create: if isSignedIn() &&
+                      request.resource.data.userId == request.auth.uid &&
+                      request.resource.data.keys().hasAll(['userId', 'stokvelId', 'amount', 'status', 'requestedAt']) &&
+                      isStokvelMember(request.resource.data.stokvelId) &&
+                      // Verify it's a Planning Ahead stokvel
+                      get(/databases/$(database)/documents/stokvels/$(request.resource.data.stokvelId)).data.type == 'Planning' &&
+                      isValidAmount(request.resource.data.amount) &&
+                      request.resource.data.status == 'pending' &&
+                      request.resource.data.requestedAt is timestamp;
+      
+      // Update: Only admin can update
+      allow update: if isAdmin();
+      
+      // Delete: User can delete their pending requests, admin can delete any
+      allow delete: if (isSignedIn() && 
+                       resource.data.userId == request.auth.uid &&
+                       resource.data.status == 'pending')
+                      || isAdmin();
+    }
+    
+    // ============================================
+    // NOTIFICATIONS COLLECTION
+    // ============================================
+    match /notifications/{notificationId} {
+      // Read: User can read their own notifications
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      
+      // Create: Only admin/system can create notifications
+      allow create: if isAdmin();
+      
+      // Update: User can mark their own notifications as read
+      allow update: if isSignedIn() && 
+                      resource.data.userId == request.auth.uid &&
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read', 'readAt']);
+      
+      // Delete: User can delete their own notifications, admin can delete any
+      allow delete: if (isSignedIn() && resource.data.userId == request.auth.uid) || isAdmin();
+    }
+    
+    // ============================================
+    // ADMIN LOGS COLLECTION
+    // ============================================
+    match /adminLogs/{logId} {
+      // Read: Only admin can read logs
+      allow read: if isAdmin();
+      
+      // Create: Only admin can create logs
+      allow create: if isAdmin();
+      
+      // No updates or deletes - logs are immutable
+      allow update, delete: if false;
+    }
+    
+    // ============================================
+    // DEFAULT DENY ALL
+    // ============================================
+    // Any other collection not explicitly allowed is denied
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
