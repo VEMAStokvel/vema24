@@ -85,7 +85,7 @@
                 </a>
                 <a href="funeral.html" class="block px-4 py-3 bg-blue-700 text-white flex items-center">
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    Funeral Cover
+                    Funeral Society
                 </a>
                 <a href="loans.html" class="block px-4 py-3 hover:bg-blue-700 text-white flex items-center">
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -694,11 +694,17 @@
             const user = auth.currentUser;
             
             if (user) {
-                // Show modal first
-                document.getElementById('family-modal').classList.remove('hidden');
+                // Check if user has active cover
+                const coverStatus = document.getElementById('cover-status').textContent;
                 
-                // Load data
-                loadUserFuneralData(user.uid);
+                if (coverStatus === 'Inactive' || coverStatus === 'Loading...') {
+                    // No active cover - redirect to funeral form
+                    window.location.href = 'Funeral Widget/funeral-form.html';
+                } else {
+                    // Has active cover - show management modal
+                    document.getElementById('family-modal').classList.remove('hidden');
+                    loadUserFuneralData(user.uid);
+                }
             } else {
                 alert('Please log in to manage your family details.');
             }
@@ -1176,9 +1182,15 @@
         // Check for active funeral cover when user is logged in
         auth.onAuthStateChanged((user) => {
             if (user) {
+                console.log("User authenticated, loading funeral data for:", user.uid);
                 // Load user profile data immediately
                 loadUserProfileData(user.uid).then(() => {
+                    console.log("User profile loaded, now checking funeral cover");
                     // Then check for funeral cover
+                    checkActiveFuneralCover(user.uid);
+                }).catch((error) => {
+                    console.error("Error loading user profile:", error);
+                    // Still try to check funeral cover even if profile loading fails
                     checkActiveFuneralCover(user.uid);
                 });
             } else {
@@ -1194,17 +1206,33 @@
             document.getElementById('cover-type').innerHTML = '<div class="loading-spinner"></div>Loading cover details';
             
             db.collection("users").doc(uid).collection("funeral")
-                .where("status", "==", "active")
+                .limit(1)
                 .get()
                 .then((querySnapshot) => {
+                    console.log('Auto-check found', querySnapshot.size, 'funeral documents');
+                    
                     if (!querySnapshot.empty) {
-                        // User has active cover
-                        querySnapshot.forEach((doc) => {
-                            const coverData = doc.data();
-                            updateUICoverActive(coverData);
-                        });
+                        const funeralDoc = querySnapshot.docs[0];
+                        const funeralData = funeralDoc.data();
+                        console.log('Auto-check funeral document data:', funeralData);
+                        console.log('Document ID:', funeralDoc.id);
+                        console.log('Status field value:', funeralData.status);
+                        console.log('All fields in document:', Object.keys(funeralData));
+                        
+                        // Check if the funeral cover is active - be more flexible with status checking
+                        if (funeralData.status === 'active' || funeralData.status === 'Active' || 
+                            (!funeralData.status && funeralData.mainMember) || 
+                            (funeralData.mainMember && funeralData.mainMember.fullName)) {
+                            console.log('Treating as active cover');
+                            updateUICoverActive(funeralData);
+                        } else {
+                            // Document exists but status is not active
+                            console.log('Document exists but status is not active. Status:', funeralData.status);
+                            updateUICoverInactive();
+                        }
                     } else {
-                        // No active cover found
+                        // No funeral documents found
+                        console.log('No funeral documents found in auto-check');
                         updateUICoverInactive();
                     }
                 })
