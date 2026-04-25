@@ -311,19 +311,83 @@ service cloud.firestore {
     }
     
     // ============================================
+    // STOKVEL REQUESTS COLLECTION
+    // ============================================
+    match /stokvelRequests/{requestId} {
+      // Read: Requester can read their own requests, admins can read all
+      allow read: if isSignedIn() &&
+                    (resource.data.userId == request.auth.uid || isAdmin());
+
+      // Create: Users can create their own join requests
+      allow create: if isSignedIn() &&
+                      request.resource.data.userId == request.auth.uid &&
+                      request.resource.data.keys().hasAll(['userId', 'userName', 'userEmail', 'planType', 'status', 'requestedAt']) &&
+                      request.resource.data.status == 'Pending' &&
+                      request.resource.data.requestedAt is timestamp;
+
+      // Update: Only admin can update (approve/reject requests)
+      allow update: if isAdmin() &&
+                      // Cannot change userId, userName, userEmail, planType, or requestedAt
+                      !request.resource.data.diff(resource.data).affectedKeys()
+                        .hasAny(['userId', 'userName', 'userEmail', 'planType', 'requestedAt']);
+
+      // Delete: Only admin can delete
+      allow delete: if isAdmin();
+    }
+
+    // ============================================
+    // USER STOKVELS SUBCOLLECTION
+    // ============================================
+    match /users/{userId}/stokvels/{stokvelId} {
+      // Read: User can read their own stokvels, managers/admins can read all
+      allow read: if isOwner(userId) || isManager();
+
+      // Create: User can create stokvels in their collection, or admin can (when approving requests)
+      allow create: if isOwner(userId) || isAdmin();
+
+      // Update: User can update their own stokvels, managers/admins can update any
+      allow update: if (isOwner(userId) || isManager()) &&
+                      // Cannot change joinedAt timestamp
+                      !request.resource.data.diff(resource.data).affectedKeys().hasAny(['joinedAt']);
+
+      // Delete: User can delete their own stokvels, or admin can
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // ============================================
+    // USER TRANSACTIONS SUBCOLLECTION
+    // ============================================
+    match /users/{userId}/transactions/{transactionId} {
+      // Read: User can read their own transactions, admins can read all
+      allow read: if isOwner(userId) || isAdmin();
+
+      // Create: User can create transactions in their collection
+      allow create: if isOwner(userId) &&
+                      request.resource.data.keys().hasAll(['amount', 'date', 'type']) &&
+                      isValidAmount(request.resource.data.amount) &&
+                      request.resource.data.date is timestamp;
+
+      // Update: User can update their own pending transactions, admin can update any
+      allow update: if isOwner(userId) || isAdmin();
+
+      // Delete: User can delete their own transactions, admin can delete any
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // ============================================
     // ADMIN LOGS COLLECTION
     // ============================================
     match /adminLogs/{logId} {
       // Read: Only admin can read logs
       allow read: if isAdmin();
-      
+
       // Create: Only admin can create logs
       allow create: if isAdmin();
-      
+
       // No updates or deletes - logs are immutable
       allow update, delete: if false;
     }
-    
+
     // ============================================
     // DEFAULT DENY ALL
     // ============================================

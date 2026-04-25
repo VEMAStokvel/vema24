@@ -5,7 +5,9 @@ export function initializeMobileMenu() {
             menuButton.addEventListener('click', function() {
                 const menu = document.getElementById('mobile-menu');
                 if (menu) {
-                    menu.classList.toggle('hidden');
+                    menu.classList.toggle('is-open');
+                    const open = menu.classList.contains('is-open');
+                    menuButton.setAttribute('aria-expanded', open ? 'true' : 'false');
                 }
             });
         }

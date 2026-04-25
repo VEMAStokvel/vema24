@@ -4,67 +4,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vema Stokvel - My Stokvels</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <link href="https://cdn.tailwindcss.com" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore-compat.js"></script>
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-15px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .table-row-item {
+            animation: fadeUp 0.5s ease forwards;
+            opacity: 0;
+        }
+        .table-row-item:nth-child(1) { animation-delay: 0.1s; }
+        .table-row-item:nth-child(2) { animation-delay: 0.15s; }
+        .table-row-item:nth-child(3) { animation-delay: 0.2s; }
+    </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
     <!-- Mobile Menu Button -->
-    <div class="md:hidden fixed top-0 left-0 z-30 w-full bg-blue-800 text-white p-4 flex justify-between items-center">
+    <div class="md:hidden fixed top-0 left-0 z-30 w-full bg-gradient-to-r from-blue-800 to-blue-900 text-white p-4 flex justify-between items-center shadow-lg">
         <div class="flex items-center space-x-2">
-            <img src="../assets/logo/Vema White.png" alt="Vema Logo" class="h-8">
+            <i class="fas fa-wallet text-xl"></i>
+            <span class="font-bold">Vema24</span>
         </div>
         <button id="mobile-menu-button" class="text-white focus:outline-none">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-            </svg>
+            <i class="fas fa-bars text-xl"></i>
         </button>
     </div>
 
     <!-- Sidebar Navigation -->
     <div class="flex h-screen">
-        <div id="sidebar" class="bg-blue-800 text-white w-64 flex-shrink-0 fixed md:relative transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-40 h-full">
-            <div class="p-4 flex items-center space-x-2 border-b border-blue-700">
-                <img src="../assets/logo/Vema White.png" alt="Vema Logo" class="h-8">
+        <div id="sidebar" class="bg-gradient-to-b from-blue-800 to-blue-900 text-white w-64 flex-shrink-0 fixed md:relative transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-40 h-full overflow-y-auto shadow-2xl">
+            <div class="p-6 flex items-center space-x-3 border-b border-blue-700">
+                <i class="fas fa-wallet text-2xl"></i>
+                <h2 class="font-bold text-lg">Vema24</h2>
             </div>
-            <nav class="mt-6">
-                <div class="px-4 py-2 text-blue-200 uppercase text-xs font-semibold tracking-wider">Main</div>
-                <a href="index.html" class="block px-4 py-3 bg-blue-700 text-white flex items-center space-x-3">
-                    <i class="fas fa-home w-5 text-center"></i>
+            <nav class="mt-6 space-y-2 px-4">
+                <a href="index.html" class="block px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-3">
+                    <i class="fas fa-home w-5"></i>
                     <span>Dashboard</span>
                 </a>
-                <div class="px-4 py-2 text-blue-200 uppercase text-xs font-semibold tracking-wider">Stokvel</div>
-                <a href="stokvel.html" class="block px-4 py-3 hover:bg-blue-700 text-white flex items-center space-x-3">
-                    <i class="fas fa-users w-5 text-center"></i>
+                <a href="stokvel.html" class="block px-4 py-3 rounded-lg bg-blue-700 text-white flex items-center space-x-3">
+                    <i class="fas fa-piggy-bank w-5"></i>
                     <span>My Stokvels</span>
                 </a>
-        
-                <div class="px-4 py-2 text-blue-200 uppercase text-xs font-semibold tracking-wider">Services</div>
-                <a href="store.html" class="block px-4 py-3 hover:bg-blue-700 text-white flex items-center space-x-3">
-                    <i class="fas fa-store w-5 text-center"></i>
-                    <span>Online Store</span>
-                </a>
-                <a href="funeral.html" class="block px-4 py-3 hover:bg-blue-700 text-white flex items-center space-x-3">
-                    <i class="fas fa-ribbon w-5 text-center"></i>
-                    <span>Funeral Society</span>
-                </a>
-                <a href="loans.html" class="block px-4 py-3 hover:bg-blue-700 text-white flex items-center space-x-3">
-                    <i class="fas fa-hand-holding-usd w-5 text-center"></i>
-                    <span>Loans</span>
-                </a>
-                <div class="px-4 py-2 text-blue-200 uppercase text-xs font-semibold tracking-wider">Account</div>
-                <a href="#" class="block px-4 py-3 hover:bg-blue-700 text-white flex items-center space-x-3">
-                    <i class="fas fa-user-circle w-5 text-center"></i>
+                <a href="profile.html" class="block px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-3">
+                    <i class="fas fa-user-circle w-5"></i>
                     <span>Profile</span>
                 </a>
-                <a href="constitution.html" class="block px-4 py-3 hover:bg-blue-700 text-white flex items-center space-x-3">
-                    <i class="fas fa-file-contract w-5 text-center"></i>
-                    <span>Constitution</span>
-                </a>
-                <a href="#" id="logout-btn" class="block px-4 py-3 hover:bg-blue-700 text-white flex items-center space-x-3">
-                    <i class="fas fa-sign-out-alt w-5 text-center"></i>
+                <a href="#" id="logout-btn" class="block px-4 py-3 rounded-lg hover:bg-red-600 transition-colors flex items-center space-x-3">
+                    <i class="fas fa-sign-out-alt w-5"></i>
                     <span>Logout</span>
                 </a>
             </nav>
@@ -73,371 +71,161 @@
         <!-- Main Content -->
         <div class="flex-1 overflow-auto md:ml-0 mt-16 md:mt-0">
             <!-- Top Bar -->
-            <header class="bg-white shadow-sm p-4 flex justify-between items-center">
-                <h1 class="text-xl md:text-2xl font-semibold text-gray-800">My Stokvels</h1>
+            <header class="bg-white shadow-sm border-b border-slate-200 p-6 sticky top-0 z-20">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-3xl font-bold text-slate-900">My Stokvels</h1>
+                        <p class="text-slate-600 mt-1">Manage and track your savings</p>
+                    </div>
+                    <button id="create-stokvel-btn" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-md hover:shadow-lg flex items-center space-x-2">
+                        <i class="fas fa-plus"></i>
+                        <span>Join Stokvel</span>
+                    </button>
+                </div>
             </header>
 
             <!-- Main Content -->
-            <main class="p-4 md:p-6">
-                <!-- Stokvel Summary -->
-                <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
+            <main class="p-6 max-w-7xl mx-auto">
+                <!-- Loading State -->
+                <div id="loading-container" class="flex justify-center items-center py-12">
+                    <div class="text-center">
+                        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 mb-4">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        </div>
+                        <p class="text-slate-600">Loading your stokvels...</p>
+                    </div>
+                </div>
+
+                <!-- Stokvels Table -->
+                <div id="stokvels-container" class="bg-white rounded-lg shadow-md overflow-hidden hidden">
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
+                        <table class="w-full divide-y divide-slate-200">
+                            <thead class="bg-gradient-to-r from-slate-50 to-slate-100">
                                 <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stokvel</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Type</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Next Contribution</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Status</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">Stokvel Name</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide hidden sm:table-cell">Type</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">Balance</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide hidden md:table-cell">Next Contribution</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide hidden sm:table-cell">Status</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wide">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white divide-y divide-gray-200" id="stokvels-body">
-                                <tr>
-                                    <td colspan="6" class="px-6 py-8 text-center">
-                                        <div class="flex justify-center items-center space-x-2">
-                                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                                            <span class="text-gray-500">Loading your stokvels...</span>
-                                        </div>
-                                    </td>
-                                </tr>
+                            <tbody id="stokvels-body" class="divide-y divide-slate-200">
+                                <!-- Rows populated by JS -->
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Stokvel Details Section -->
-                <div id="stokvel-details" class="hidden">
-                    <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
-                        <div class="p-4 border-b flex justify-between items-center">
-                            <h3 class="font-semibold text-lg" id="stokvel-details-title">Stokvel Details</h3>
-                            <button id="back-to-list" class="text-blue-600 hover:text-blue-800 text-sm flex items-center">
-                                <i class="fas fa-arrow-left mr-1"></i> Back
-                            </button>
-                        </div>
-                        <div class="p-4 md:p-6">
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
-                                <!-- Stokvel Info -->
-                                <div class="bg-blue-50 p-4 md:p-6 rounded-lg">
-                                    <h4 class="font-semibold mb-3 md:mb-4 text-blue-800 flex items-center">
-                                        <i class="fas fa-info-circle mr-2"></i> Stokvel Information
-                                    </h4>
-                                    <div class="space-y-2 md:space-y-3">
-                                        <div>
-                                            <p class="text-xs md:text-sm text-gray-500">Stokvel Name</p>
-                                            <p class="font-medium text-sm md:text-base" id="detail-name">January Stokvel</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-xs md:text-sm text-gray-500">Type</p>
-                                            <p class="font-medium text-sm md:text-base" id="detail-type">Fixed Term</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-xs md:text-sm text-gray-500">Portfolio Manager</p>
-                                            <p class="font-medium text-sm md:text-base" id="detail-manager">John Doe</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-xs md:text-sm text-gray-500">Start Date</p>
-                                            <p class="font-medium text-sm md:text-base" id="detail-start">01 Feb 2023</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-xs md:text-sm text-gray-500">End Date</p>
-                                            <p class="font-medium text-sm md:text-base" id="detail-end">30 Nov 2023</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Contribution Info -->
-                                <div class="bg-green-50 p-4 md:p-6 rounded-lg">
-                                    <h4 class="font-semibold mb-3 md:mb-4 text-green-800 flex items-center">
-                                        <i class="fas fa-money-bill-wave mr-2"></i> Contribution Information
-                                    </h4>
-                                    <div class="space-y-2 md:space-y-3">
-                                        <div>
-                                            <p class="text-xs md:text-sm text-gray-500">Current Balance</p>
-                                            <p class="text-xl md:text-2xl font-bold" id="detail-balance">R5,000.00</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-xs md:text-sm text-gray-500">Monthly Contribution</p>
-                                            <p class="font-medium text-sm md:text-base" id="detail-monthly">R500.00</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-xs md:text-sm text-gray-500">Next Contribution Date</p>
-                                            <p class="font-medium text-sm md:text-base" id="detail-next-date">01 Sep 2023</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-xs md:text-sm text-gray-500">Contributions Made</p>
-                                            <p class="font-medium text-sm md:text-base" id="detail-count">7/10</p>
-                                        </div>
-                                        <div>
-                                            <p class="text-xs md:text-sm text-gray-500">Projected Payout</p>
-                                            <p class="font-medium text-sm md:text-base" id="detail-payout">R5,500.00</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Quick Actions -->
-                                <div class="bg-yellow-50 p-4 md:p-6 rounded-lg">
-                                    <h4 class="font-semibold mb-3 md:mb-4 text-yellow-800 flex items-center">
-                                        <i class="fas fa-bolt mr-2"></i> Quick Actions
-                                    </h4>
-                                    <div class="space-y-2 md:space-y-3">
-                                        <button id="view-rules" class="w-full bg-white border border-blue-600 text-blue-600 py-2 rounded hover:bg-blue-50 flex items-center justify-center">
-                                            <i class="fas fa-file-contract mr-2"></i> View Rules
-                                        </button>
-                                        <button id="contact-manager" class="w-full bg-white border border-blue-600 text-blue-600 py-2 rounded hover:bg-blue-50 flex items-center justify-center">
-                                            <i class="fab fa-whatsapp mr-2"></i> WhatsApp Manager
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Empty State -->
+                <div id="empty-state" class="text-center py-12 bg-white rounded-lg shadow-md">
+                    <i class="fas fa-inbox text-5xl text-slate-300 mb-4"></i>
+                    <h3 class="text-xl font-semibold text-slate-800 mb-2">No Stokvels Yet</h3>
+                    <p class="text-slate-600 mb-6">Join a stokvel to start saving with others</p>
+                    <button id="join-btn-empty" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                        Join a Stokvel
+                    </button>
                 </div>
             </main>
         </div>
     </div>
 
-    <!-- Rules Modal -->
-    <div id="rules-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-40 p-4">
-        <div class="bg-white rounded-lg p-4 md:p-6 w-full max-w-2xl max-h-screen overflow-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg md:text-xl font-semibold" id="rules-modal-title">Stokvel Rules</h3>
-                <button id="close-rules-modal" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="prose prose-sm md:prose" id="rules-content">
-                <p>Loading rules...</p>
-            </div>
-        </div>
-    </div>
-
+    <script src="../js/firebase.config.js"></script>
     <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAEik5dGton3H4LyGDzYbNrw6GwutGNOqk",
-            authDomain: "vema-7606a.firebaseapp.com",
-            projectId: "vema-7606a",
-            storageBucket: "vema-7606a.appspot.com",
-            messagingSenderId: "127492940070",
-            appId: "1:127492940070:web:ddf247a2cb0723ddcbe1e7",
-            measurementId: "G-2E6VC65Q3K"
-        };
+        let currentUser = null;
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Helper functions
-        function formatCurrency(amount) {
-            return 'R' + parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-        }
-
-        function formatDate(date) {
-            if (!date) return 'N/A';
-            const options = { day: 'numeric', month: 'short', year: 'numeric' };
-            return date.toLocaleDateString('en-ZA', options);
-        }
-
-        // Function to open WhatsApp chat
-        function openWhatsApp(phoneNumber, message = '') {
-            // Remove any non-digit characters from the phone number
-            const cleanedNumber = phoneNumber.replace(/\D/g, '');
-            // Encode the message for URL
-            const encodedMessage = encodeURIComponent(message);
-            // Open WhatsApp with the phone number and message
-            window.open(`https://wa.me/${cleanedNumber}?text=${encodedMessage}`, '_blank');
-        }
-
-        // Function to load stokvel data
-        function loadStokvelData() {
-            const userId = auth.currentUser.uid;
-            const userRef = db.collection('users').doc(userId);
-            
-            userRef.get().then((userDoc) => {
-                if (userDoc.exists) {
-                    return userRef.collection('stokvels').get()
-                        .then((querySnapshot) => {
-                            const stokvelsBody = document.getElementById('stokvels-body');
-                            
-                            if (querySnapshot.empty) {
-                                stokvelsBody.innerHTML = `
-                                    <tr>
-                                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
-                                            You don't have any stokvels yet.
-                                        </td>
-                                    </tr>
-                                `;
-                                return;
-                            }
-                            
-                            let stokvels = [];
-                            
-                            querySnapshot.forEach((doc) => {
-                                const stokvel = doc.data();
-                                stokvel.id = doc.id;
-                                stokvels.push(stokvel);
-                            });
-                            
-                            // Render stokvels table
-                            stokvelsBody.innerHTML = stokvels.map(stokvel => `
-                                <tr class="stokvel-row" data-stokvel-id="${stokvel.id}">
-                                    <td class="px-4 py-4 whitespace-nowrap">
-                                        <div class="font-medium">${stokvel.name}</div>
-                                    </td>
-                                    <td class="px-4 py-4 whitespace-nowrap hidden sm:table-cell">
-                                        <div class="text-gray-500">${stokvel.type}</div>
-                                    </td>
-                                    <td class="px-4 py-4 whitespace-nowrap">
-                                        <div class="font-medium">${formatCurrency(stokvel.balance)}</div>
-                                    </td>
-                                    <td class="px-4 py-4 whitespace-nowrap hidden md:table-cell">
-                                        <div class="text-gray-500">${stokvel.nextContribution ? formatDate(stokvel.nextContribution.toDate()) : 'N/A'}</div>
-                                    </td>
-                                    <td class="px-4 py-4 whitespace-nowrap hidden sm:table-cell">
-                                        <span class="px-2 py-1 text-xs font-semibold rounded-full ${stokvel.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
-                                            ${stokvel.status}
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-4 whitespace-nowrap">
-                                        <button class="view-details-btn text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                            View <i class="fas fa-chevron-right ml-1 text-xs"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            `).join('');
-                            
-                            // Add event listeners to view details buttons
-                            document.querySelectorAll('.view-details-btn').forEach(button => {
-                                button.addEventListener('click', function(e) {
-                                    const row = e.target.closest('.stokvel-row');
-                                    const stokvelId = row.getAttribute('data-stokvel-id');
-                                    showStokvelDetails(stokvelId);
-                                });
-                            });
-                        });
-                }
-                return Promise.reject("User document not found");
-            }).catch((error) => {
-                console.error('Error loading stokvel data:', error);
-                document.getElementById('stokvels-body').innerHTML = `
-                    <tr>
-                        <td colspan="6" class="px-6 py-4 text-center text-red-500">
-                            Failed to load stokvel data. Please refresh the page.
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        // Function to show stokvel details
-        function showStokvelDetails(stokvelId) {
-            const userId = auth.currentUser.uid;
-            const stokvelRef = db.collection('users').doc(userId).collection('stokvels').doc(stokvelId);
-            
-            stokvelRef.get().then((doc) => {
-                if (doc.exists) {
-                    const stokvel = doc.data();
-                    
-                    // Update the details view
-                    document.getElementById('detail-name').textContent = stokvel.name || 'N/A';
-                    document.getElementById('detail-type').textContent = stokvel.type || 'N/A';
-                    document.getElementById('detail-manager').textContent = stokvel.manager || 'Vema Stokvel Admin';
-                    document.getElementById('detail-start').textContent = stokvel.startDate ? formatDate(stokvel.startDate.toDate()) : 'N/A';
-                    document.getElementById('detail-end').textContent = stokvel.endDate ? formatDate(stokvel.endDate.toDate()) : 'N/A';
-                    document.getElementById('detail-balance').textContent = formatCurrency(stokvel.balance || 0);
-                    document.getElementById('detail-monthly').textContent = formatCurrency(stokvel.monthlyContribution || 0);
-                    document.getElementById('detail-next-date').textContent = stokvel.nextContribution ? formatDate(stokvel.nextContribution.toDate()) : 'N/A';
-                    document.getElementById('detail-count').textContent = `${stokvel.contributionsMade || 0}/${stokvel.totalContributions || 0}`;
-                    
-                    // Calculate projected payout (simple example)
-                    const projectedPayout = (stokvel.balance || 0) + 
-                                          ((stokvel.totalContributions - (stokvel.contributionsMade || 0)) * (stokvel.monthlyContribution || 0));
-                    document.getElementById('detail-payout').textContent = formatCurrency(projectedPayout);
-                    
-                    // Toggle views
-                    document.querySelector('main > div:first-child').classList.add('hidden');
-                    document.getElementById('stokvel-details').classList.remove('hidden');
-                    
-                    // Set up WhatsApp contact button
-                    document.getElementById('contact-manager').addEventListener('click', () => {
-                        const stokvelName = stokvel.name || 'my stokvel';
-                        const message = `Hi, I have a question about ${stokvelName} (ID: ${stokvelId}).`;
-                        // Replace with actual manager's WhatsApp number or use a default support number
-                        const whatsappNumber = '+27123456789'; // Example number
-                        openWhatsApp(whatsappNumber, message);
-                    });
-                }
-            }).catch((error) => {
-                console.error('Error loading stokvel details:', error);
-                alert('Failed to load stokvel details. Please try again.');
-            });
-        }
-
-        // Mobile menu toggle
-        document.getElementById('mobile-menu-button').addEventListener('click', function() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('-translate-x-full');
-        });
-
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', function(event) {
-            const sidebar = document.getElementById('sidebar');
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            
-            if (!sidebar.contains(event.target) && event.target !== mobileMenuButton && !mobileMenuButton.contains(event.target)) {
-                if (window.innerWidth < 768) {
-                    sidebar.classList.add('-translate-x-full');
-                }
+        // Check auth state
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = '../auth/login.html';
+                return;
             }
+            currentUser = user;
+            await loadStorkvels();
         });
 
-        // Initialize the app when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            auth.onAuthStateChanged((user) => {
-                if (!user) {
-                    window.location.href = '../auth/login.html';
-                } else {
-                    loadStokvelData();
-                    
-                    // Back to list button
-                    document.getElementById('back-to-list').addEventListener('click', () => {
-                        document.getElementById('stokvel-details').classList.add('hidden');
-                        document.querySelector('main > div:first-child').classList.remove('hidden');
-                    });
-                    
-                    // View rules button
-                    document.getElementById('view-rules').addEventListener('click', () => {
-                        document.getElementById('rules-modal').classList.remove('hidden');
-                        document.getElementById('rules-content').innerHTML = `
-                            <h3>Stokvel Rules and Regulations</h3>
-                            <ol>
-                                <li>Monthly contributions must be paid by the 5th of each month</li>
-                                <li>Late payments incur a 10% penalty fee</li>
-                                <li>Withdrawals require 14 days notice</li>
-                                <li>All disputes will be resolved by the stokvel committee</li>
-                            </ol>
-                        `;
-                    });
-                    
-                    document.getElementById('close-rules-modal').addEventListener('click', () => {
-                        document.getElementById('rules-modal').classList.add('hidden');
-                    });
-                    
-                    // Logout button
-                    document.getElementById('logout-btn').addEventListener('click', (e) => {
-                        e.preventDefault();
-                        auth.signOut().then(() => {
-                            window.location.href = '../index.html';
-                        }).catch((error) => {
-                            console.error('Logout error:', error);
-                            alert('Failed to logout. Please try again.');
-                        });
-                    });
+        // Toggle mobile menu
+        document.getElementById('mobile-menu-button').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+        });
+
+        // Logout
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            await auth.signOut();
+            window.location.href = '../auth/login.html';
+        });
+
+        async function loadStorkvels() {
+            try {
+                const loadingContainer = document.getElementById('loading-container');
+                const stokvelsContainer = document.getElementById('stokvels-container');
+                const emptyState = document.getElementById('empty-state');
+                const tbody = document.getElementById('stokvels-body');
+
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                const stokvels = userDoc.data()?.stokvels || [];
+
+                if (stokvels.length === 0) {
+                    loadingContainer.classList.add('hidden');
+                    stokvelsContainer.classList.add('hidden');
+                    emptyState.classList.remove('hidden');
+                    return;
                 }
-            });
+
+                tbody.innerHTML = '';
+                stokvels.forEach((stokvel, idx) => {
+                    const row = document.createElement('tr');
+                    row.className = 'table-row-item hover:bg-slate-50 transition-colors';
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                    <span class="text-blue-600 font-semibold">${stokvel.name.charAt(0)}</span>
+                                </div>
+                                <span class="font-medium text-slate-900">${stokvel.name}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap hidden sm:table-cell text-sm text-slate-600">${stokvel.type || 'Fixed'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold text-slate-900">R ${(stokvel.balance || 0).toLocaleString()}</td>
+                        <td class="px-6 py-4 whitespace-nowrap hidden md:table-cell text-sm text-slate-600">${stokvel.nextContribution || 'N/A'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                            <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold ${stokvel.active ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                                ${stokvel.active ? 'Active' : 'Pending'}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <button class="text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors">Details</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                loadingContainer.classList.add('hidden');
+                stokvelsContainer.classList.remove('hidden');
+                emptyState.classList.add('hidden');
+            } catch (error) {
+                console.error('Error loading stokvels:', error);
+                document.getElementById('loading-container').innerHTML = `
+                    <div class="text-center text-red-600">
+                        <p>Error loading stokvels. Please try again.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Join stokvel buttons
+        document.getElementById('create-stokvel-btn').addEventListener('click', () => {
+            alert('Join Stokvel modal would open here');
+        });
+        document.getElementById('join-btn-empty').addEventListener('click', () => {
+            alert('Join Stokvel modal would open here');
         });
     </script>
 </body>

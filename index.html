@@ -3,601 +3,1683 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vema Stokvel - Home</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="css/styles.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Vema24 — Save Together, Grow Together</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- Firebase SDK v12 -->
     <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
-
+    <script src="js/config/firebase-init.js"></script>
 
     <style>
-        /* Add loading overlay styles */
+        * { font-family: 'Inter', sans-serif; }
+        html, body { margin: 0; }
+
+        /* ── Keyframes ── */
+        @keyframes spin       { to   { transform:rotate(360deg); } }
+        @keyframes fadeUp     { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes fadeRight  { from { opacity:0; transform:translateX(32px); } to { opacity:1; transform:translateX(0); } }
+        @keyframes float      { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-8px); } }
+        @keyframes pulseGlow  { 0%,100% { box-shadow:0 0 0 0 rgba(251,191,36,.5); } 60% { box-shadow:0 0 0 12px rgba(251,191,36,0); } }
+        @keyframes gradShift  { 0%,100% { background-position:0% 50%; } 50% { background-position:100% 50%; } }
+        @keyframes slideIn    { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes fillBar    { from { width:0; } to { width:var(--w); } }
+        @keyframes countNum   { from { opacity:0; transform:scale(.8); } to { opacity:1; transform:scale(1); } }
+        @keyframes ping       { 0% { transform:scale(1); opacity:.9; } 100% { transform:scale(2); opacity:0; } }
+        @keyframes panelIn    { from { opacity:0; transform:translateY(16px) scale(.985); } to { opacity:1; transform:translateY(0) scale(1); } }
+        @keyframes tabPop      { 0% { transform:scale(.92); } 55% { transform:scale(1.06); } 100% { transform:scale(1); } }
+
+        /* ── Loading ── */
         #loading-overlay {
+            position:fixed; inset:0; background:#0f172a;
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            z-index:9999; transition:opacity .4s ease;
+        }
+        .load-ring {
+            width:50px; height:50px; border:3px solid rgba(255,255,255,.15);
+            border-top-color:#fbbf24; border-radius:50%;
+            animation:spin .9s linear infinite; margin-bottom:1rem;
+        }
+        #main-content { opacity:0; transition:opacity .4s ease; }
+
+        /* ── Scroll reveal ── */
+        .reveal { opacity:0; transform:translateY(26px); transition:opacity .6s ease, transform .6s ease; }
+        .reveal.visible { opacity:1; transform:translateY(0); }
+        .rv-1 { transition-delay:.08s; }
+        .rv-2 { transition-delay:.16s; }
+        .rv-3 { transition-delay:.24s; }
+        .rv-4 { transition-delay:.32s; }
+
+        /* ── Top nav: floating pill (capsule) ── */
+        /* Fixed so it stays visible over the whole page (hero used overflow-hidden, which broke sticky) */
+        nav.topnav-shell {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.3s ease;
-        }
-        
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #3498db;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Hide content initially */
-        #main-content {
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        /* Auth loading states */
-        .auth-loading {
-            position: relative;
-            min-width: 100px;
-            min-height: 36px;
-        }
-        
-        .auth-loading::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
             right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
+            z-index: 100;
+            padding: max(0.65rem, env(safe-area-inset-top, 0px)) 0.75rem 0;
+            background: transparent;
+        }
+        .topnav-pill {
+            margin:0 auto;
+            max-width:100%;
+            width:100%;
+            display:flex; align-items:center; gap:.5rem .75rem;
+            padding:.55rem .65rem .55rem 1rem;
+            background:rgba(255,255,255,.97);
+            border:1px solid rgba(226,232,240,.98);
+            border-radius:9999px;
+            box-shadow:
+                0 10px 40px rgba(15,23,42,.12),
+                0 2px 10px rgba(15,23,42,.06);
+            backdrop-filter:blur(14px);
+        }
+        @media (min-width:768px) {
+            .topnav-pill { padding:.55rem .65rem .55rem 1.15rem; gap:.75rem 1rem; }
+        }
+        .topnav-logo-ring {
+            width:2.5rem; height:2.5rem; border-radius:50%; flex-shrink:0;
+            display:flex; align-items:center; justify-content:center;
+            background:linear-gradient(135deg,#2563eb,#0891b2);
+            box-shadow:inset 0 1px 0 rgba(255,255,255,.22);
+        }
+        .topnav-logo-ring img { height:1.15rem; width:auto; max-width:1.35rem; object-fit:contain; }
+        .topnav-wordmark {
+            font-weight:800; font-size:1.05rem; letter-spacing:-.03em; white-space:nowrap;
+            background:linear-gradient(90deg,#1d4ed8,#0891b2);
+            -webkit-background-clip:text; background-clip:text; color:transparent;
+        }
+        .topnav-divider {
+            width:1px; height:1.65rem; flex-shrink:0;
+            background:#e2e8f0;
+        }
+        .topnav-links a {
+            color:#475569; font-size:.875rem; font-weight:600;
+            transition:color .15s ease;
+        }
+        .topnav-links a:hover { color:#0f172a; }
+        .topnav-cta-pill {
+            border-radius:9999px;
+            background:linear-gradient(90deg,#2563eb,#06b6d4);
+            color:#fff !important;
+            font-weight:700; font-size:.8125rem;
+            padding:.5rem 1.1rem;
+            display:inline-flex; align-items:center; gap:.35rem;
+            box-shadow:0 4px 16px rgba(37,99,235,.32);
+            transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+        }
+        .topnav-cta-pill:hover {
+            transform:translateY(-1px);
+            box-shadow:0 6px 22px rgba(37,99,235,.38);
+            opacity:.96;
+        }
+        .topnav-dash-pill {
+            border-radius:9999px;
+            background:linear-gradient(90deg,#059669,#10b981);
+            color:#fff !important;
+            font-weight:700; font-size:.8125rem;
+            padding:.5rem 1.1rem;
+            display:inline-flex; align-items:center; gap:.35rem;
+            box-shadow:0 4px 16px rgba(5,150,105,.3);
+            transition:transform .15s ease, box-shadow .15s ease;
+        }
+        .topnav-dash-pill:hover {
+            transform:translateY(-1px);
+            box-shadow:0 6px 20px rgba(5,150,105,.35);
+        }
+        .topnav-icon-btn {
+            color:#475569; border-radius:9999px; padding:.45rem .55rem;
+            transition:background .15s ease, color .15s ease;
+        }
+        .topnav-icon-btn:hover { background:#f1f5f9; color:#0f172a; }
+        .topnav-mobile-panel {
+            margin-top:.65rem;
+            border-radius:1.25rem;
+            background:rgba(255,255,255,.98);
+            border:1px solid #e2e8f0;
+            box-shadow:0 16px 40px rgba(15,23,42,.1);
+            overflow:hidden;
+            transform-origin: top center;
+        }
+        @media (max-width: 767px) {
+            #mobile-menu {
+                transition:
+                    opacity .26s ease,
+                    transform .34s cubic-bezier(.22, 1, .36, 1),
+                    max-height .38s ease,
+                    margin-top .25s ease,
+                    visibility 0s linear .35s;
+                max-height: 0;
+                opacity: 0;
+                transform: scale(0.82);
+                visibility: hidden;
+                pointer-events: none;
+                margin-top: 0 !important;
+                border-width: 0;
+                overflow: hidden;
+            }
+            #mobile-menu.is-open {
+                transition:
+                    opacity .28s ease .05s,
+                    transform .36s cubic-bezier(.22, 1, .36, 1),
+                    max-height .42s ease,
+                    margin-top .22s ease,
+                    visibility 0s linear 0s;
+                max-height: 16rem;
+                opacity: 1;
+                transform: scale(1);
+                visibility: visible;
+                pointer-events: auto;
+                margin-top: .65rem !important;
+                border-width: 1px;
+                overflow: hidden;
+            }
+        }
+        @media (min-width: 768px) {
+            #mobile-menu { display: none !important; }
+        }
+        .topnav-mobile-panel a {
+            color:#334155; font-weight:600; font-size:.875rem;
+            transition:background .12s ease, color .12s ease;
+        }
+        .topnav-mobile-panel a:hover { background:#f8fafc; color:#0f172a; }
+
+        /* ── Hero gradient ── */
+        .hero-bg {
+            background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 45%,#1d4ed8 78%,#0ea5e9 100%);
+            background-size:200% 200%;
+            animation:gradShift 16s ease infinite;
+        }
+
+        /* ── CTA glow ── */
+        .cta-glow { animation:pulseGlow 2.4s ease-in-out infinite; }
+
+        /* ── App mockup card ── */
+        .mockup-card {
+            background:rgba(255,255,255,.1);
+            backdrop-filter:blur(20px);
+            border:1px solid rgba(255,255,255,.18);
+            border-radius:24px;
+            animation:fadeRight .9s ease .25s both;
+        }
+        .mockup-card--hero {
+            overflow: visible;
+        }
+        @media (min-width: 1280px) {
+            .mockup-card--hero {
+                border-radius: 28px;
+                min-height: 40rem;
+            }
+            .mockup-card--hero .mockup-ring-svg {
+                width: 5rem;
+                height: 5rem;
+            }
+            .hero-mockup-wrap {
+                max-width: 24rem;
+            }
+        }
+        @media (min-width: 1536px) {
+            .mockup-card--hero {
+                border-radius: 32px;
+                min-height: 52rem;
+            }
+            .mockup-card--hero .mockup-ring-svg {
+                width: 6rem;
+                height: 6rem;
+            }
+            .hero-mockup-wrap {
+                max-width: 28rem;
+            }
+        }
+        @media (min-width: 1920px) {
+            .mockup-card--hero {
+                min-height: 58rem;
+                border-radius: 36px;
+            }
+            .hero-mockup-wrap {
+                max-width: 32rem;
+            }
+        }
+        .balance-num { animation:countNum .8s ease .6s both; }
+        .progress-bar-fill {
+            height:100%; border-radius:999px;
+            background:linear-gradient(90deg,#22c55e,#4ade80);
+            animation:fillBar 1.4s cubic-bezier(.25,.46,.45,.94) .8s both;
+        }
+        .tx-item { animation:slideIn .4s ease both; }
+        .tx-item:nth-child(1) { animation-delay:.9s; }
+        .tx-item:nth-child(2) { animation-delay:1.1s; }
+        .tx-item:nth-child(3) { animation-delay:1.3s; }
+
+        /* ── Stats strip: mini charts + in-view motion ── */
+        .stats-strip {
+            border-top: 2px solid #0f172a;
+            border-bottom: 2px solid #0f172a;
+        }
+        .stat-strip-cell { display: flex; flex-direction: column; align-items: center; }
+        .stat-strip-viz {
+            width: 100%;
+            max-width: 7.5rem;
+            margin: 0 auto 0.65rem;
+            min-height: 3rem;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        /* Mini column chart */
+        .stat-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 5px;
+            height: 2.75rem;
+            width: 100%;
+        }
+        .stat-bars span {
+            flex: 0 0 7px;
+            width: 7px;
+            border-radius: 4px 4px 2px 2px;
+            transform-origin: bottom center;
+            transform: scaleY(0);
+            transition: transform 0.62s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .stat-bars--blue span {
+            background: linear-gradient(to top, #1d4ed8, #60a5fa);
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+        }
+        .stat-bars--green span {
+            background: linear-gradient(to top, #15803d, #4ade80);
+            box-shadow: 0 2px 8px rgba(22, 163, 74, 0.25);
+        }
+        .reveal.visible .stat-bars span { transform: scaleY(1); }
+        .reveal.visible .stat-bars span:nth-child(1) { transition-delay: 0.04s; }
+        .reveal.visible .stat-bars span:nth-child(2) { transition-delay: 0.1s; }
+        .reveal.visible .stat-bars span:nth-child(3) { transition-delay: 0.16s; }
+        .reveal.visible .stat-bars span:nth-child(4) { transition-delay: 0.22s; }
+        .reveal.visible .stat-bars span:nth-child(5) { transition-delay: 0.28s; }
+        .reveal.visible .stat-bars span:nth-child(6) { transition-delay: 0.34s; }
+        /* Sparkline */
+        .stat-spark {
+            width: 100%;
+            height: 2.75rem;
+            overflow: visible;
+        }
+        .stat-spark path {
+            fill: none;
+            stroke-width: 2.75;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+        }
+        .stat-spark--indigo path { stroke: #4f46e5; filter: drop-shadow(0 2px 6px rgba(79, 70, 229, 0.35)); }
+        .reveal.visible .stat-spark path {
+            transition: stroke-dashoffset 1.05s cubic-bezier(0.22, 1, 0.36, 1);
+            stroke-dashoffset: 0;
+        }
+        /* 24/7 pulse rings */
+        .stat-pulse {
+            position: relative;
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .stat-pulse::before,
+        .stat-pulse::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 2px solid rgba(234, 179, 8, 0.45);
+            opacity: 0;
+        }
+        .reveal.visible .stat-pulse::before {
+            animation: statRing 2.2s ease-out infinite;
+            animation-delay: 0.15s;
+        }
+        .reveal.visible .stat-pulse::after {
+            animation: statRing 2.2s ease-out infinite;
+            animation-delay: 1.1s;
+        }
+        .stat-pulse i {
+            font-size: 1.05rem;
+            color: #ca8a04;
+            position: relative;
+            z-index: 1;
+        }
+        @keyframes statRing {
+            0% { transform: scale(0.55); opacity: 0.85; }
+            100% { transform: scale(1.35); opacity: 0; }
+        }
+        .stat-num-big {
+            font-variant-numeric: tabular-nums;
+            min-height: 2.25rem;
+            line-height: 2.25rem;
+        }
+        .stats-strip .reveal .stat-num-big {
+            opacity: 0;
+            transform: scale(0.88);
+        }
+        .stats-strip .reveal.visible .stat-num-big {
+            animation: countNum 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.12s forwards;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .stat-bars span {
+                transform: scaleY(1) !important;
+                transition: none !important;
+            }
+            .stat-spark path {
+                stroke-dashoffset: 0 !important;
+                transition: none !important;
+            }
+            .stat-pulse::before,
+            .stat-pulse::after { animation: none !important; opacity: 0 !important; }
+            .stats-strip .reveal .stat-num-big,
+            .stats-strip .reveal.visible .stat-num-big {
+                opacity: 1;
+                transform: none;
+                animation: none;
+            }
+            .hiw-section.reveal.visible .hiw-rail {
+                transform: scaleX(1) !important;
+                transition: none !important;
+            }
+            .hiw-intro-bars span {
+                transform: scaleY(1) !important;
+                transition: none !important;
+            }
+            #panel-groc .plan-progress-inner,
+            #panel-plan .plan-progress-inner {
+                transform: scaleX(1) !important;
+                transition: none !important;
+            }
+            .plan-left-spark .plan-spark-path {
+                stroke-dashoffset: 0 !important;
+                transition: none !important;
+            }
+            #panel-jan .jan-month-seg {
+                transform: scaleY(1) !important;
+                transition: none !important;
+            }
+            .plan-panel.active.plan-panel--enter .plan-pair-shell {
+                animation: none !important;
+                transform: none !important;
+            }
+            .cta-chart-bar {
+                transform: scaleY(1) !important;
+                transition: none !important;
+            }
+            .hiw-step-col.reveal:not(.visible) .step-badge,
+            .hiw-step-col.reveal.visible .step-badge {
+                transform: none !important;
+            }
+        }
+
+        /* ── How it works: rounded track + animated journey rail + intro bars ── */
+        .hiw-shell {
+            position: relative;
+            background: linear-gradient(180deg, #f8fafc 0%, #ffffff 55%);
+            border: 1px solid #e2e8f0;
+            border-radius: 1.75rem;
+            box-shadow:
+                0 18px 50px rgba(15, 23, 42, 0.07),
+                0 1px 0 rgba(255, 255, 255, 0.9) inset;
+            overflow: hidden;
+        }
+        .hiw-rail {
+            position: absolute;
+            top: 3.35rem;
+            left: 10%;
+            right: 10%;
+            height: 3px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #60a5fa, #4ade80, #facc15, #c4b5fd);
+            opacity: 0.85;
+            transform: scaleX(0);
+            transform-origin: left center;
+            transition: transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+            z-index: 0;
+            pointer-events: none;
+        }
+        @media (max-width: 767px) {
+            .hiw-rail { display: none; }
+        }
+        .hiw-section.reveal.visible .hiw-rail {
+            transform: scaleX(1);
+        }
+        .hiw-step-col {
+            position: relative;
+            z-index: 1;
+        }
+        .step-badge {
+            transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
+        }
+        .hiw-step-col.reveal:not(.visible) .step-badge {
+            transform: scale(0.82);
+        }
+        .hiw-step-col.reveal.visible .step-badge {
+            transform: scale(1);
+        }
+        .hiw-intro-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 7px;
+            height: 2.5rem;
+        }
+        .hiw-intro-bars span {
+            width: 9px;
             border-radius: 4px;
-            animation: shimmer 1.5s infinite;
+            transform-origin: bottom center;
+            transform: scaleY(0);
+            transition: transform 0.58s cubic-bezier(0.22, 1, 0.36, 1);
         }
+        .hiw-intro-bars span:nth-child(1) { background: linear-gradient(to top, #2563eb, #93c5fd); }
+        .hiw-intro-bars span:nth-child(2) { background: linear-gradient(to top, #16a34a, #86efac); }
+        .hiw-intro-bars span:nth-child(3) { background: linear-gradient(to top, #ca8a04, #fde047); }
+        .hiw-intro-bars span:nth-child(4) { background: linear-gradient(to top, #7c3aed, #d8b4fe); }
+        #how-it-works .hiw-head.reveal.visible .hiw-intro-bars span {
+            transform: scaleY(1);
+        }
+        #how-it-works .hiw-head.reveal.visible .hiw-intro-bars span:nth-child(1) { transition-delay: 0.04s; }
+        #how-it-works .hiw-head.reveal.visible .hiw-intro-bars span:nth-child(2) { transition-delay: 0.1s; }
+        #how-it-works .hiw-head.reveal.visible .hiw-intro-bars span:nth-child(3) { transition-delay: 0.16s; }
+        #how-it-works .hiw-head.reveal.visible .hiw-intro-bars span:nth-child(4) { transition-delay: 0.22s; }
+
+        /* ── Plan pairs: rounded shell + ~82% grow-in when tab opens ── */
+        .plan-pair-shell {
+            width: 100%;
+            border-radius: 1.85rem;
+            padding: clamp(1rem, 2.2vw, 1.35rem);
+            background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 18px 48px rgba(15, 23, 42, 0.06);
+        }
+        .plan-panel.active.plan-panel--enter .plan-pair-shell {
+            animation: planPairIn 0.52s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        @keyframes planPairIn {
+            from {
+                opacity: 0.92;
+                transform: scale(0.82);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* ── Plan demos: shared fill bars (Flexible + Grocery rows) ── */
+        #panel-groc .plan-demo-filltrack,
+        #panel-plan .plan-demo-filltrack {
+            height: 0.375rem;
+            border-radius: 9999px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.22);
+        }
+        #panel-groc .plan-progress-inner,
+        #panel-plan .plan-progress-inner {
+            display: block;
+            height: 100%;
+            border-radius: 9999px;
+            transform-origin: left center;
+            transform: scaleX(0);
+        }
+        #panel-groc.plan-panel:not(.active) .plan-progress-inner,
+        #panel-plan.plan-panel:not(.active) .plan-progress-inner {
+            transition: none;
+        }
+        #panel-groc.plan-panel.active .plan-progress-inner,
+        #panel-plan.plan-panel.active .plan-progress-inner {
+            transform: scaleX(1);
+            transition: transform 0.82s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        #panel-plan.plan-panel.active .plan-goal-rows > div:nth-child(1) .plan-progress-inner {
+            transition-delay: 0.1s;
+        }
+        #panel-plan.plan-panel.active .plan-goal-rows > div:nth-child(2) .plan-progress-inner {
+            transition-delay: 0.2s;
+        }
+        #panel-plan.plan-panel.active .plan-goal-rows > div:nth-child(3) .plan-progress-inner {
+            transition-delay: 0.3s;
+        }
+        #panel-groc.plan-panel.active .plan-groc-rows > div:nth-child(1) .plan-progress-inner {
+            transition-delay: 0.08s;
+        }
+        #panel-groc.plan-panel.active .plan-groc-rows > div:nth-child(2) .plan-progress-inner {
+            transition-delay: 0.16s;
+        }
+        #panel-groc.plan-panel.active .plan-groc-rows > div:nth-child(3) .plan-progress-inner {
+            transition-delay: 0.24s;
+        }
+
+        /* January: 10-month timeline segments */
+        .jan-timeline-row {
+            display: flex;
+            gap: 4px;
+        }
+        .jan-month-seg {
+            flex: 1 1 0;
+            min-width: 0;
+            height: 0.5rem;
+            border-radius: 9999px;
+            transform-origin: bottom center;
+            transform: scaleY(0);
+            transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .jan-month-seg--on {
+            background: linear-gradient(180deg, #4ade80, #22c55e);
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+        }
+        .jan-month-seg--off {
+            background: rgba(255, 255, 255, 0.22);
+        }
+        #panel-jan.plan-panel:not(.active) .jan-month-seg {
+            transition: none;
+        }
+        #panel-jan.plan-panel.active .jan-month-seg {
+            transform: scaleY(1);
+        }
+        #panel-jan.plan-panel.active .jan-month-seg:nth-child(1) { transition-delay: 0.02s; }
+        #panel-jan.plan-panel.active .jan-month-seg:nth-child(2) { transition-delay: 0.05s; }
+        #panel-jan.plan-panel.active .jan-month-seg:nth-child(3) { transition-delay: 0.08s; }
+        #panel-jan.plan-panel.active .jan-month-seg:nth-child(4) { transition-delay: 0.11s; }
+        #panel-jan.plan-panel.active .jan-month-seg:nth-child(5) { transition-delay: 0.14s; }
+        #panel-jan.plan-panel.active .jan-month-seg:nth-child(6) { transition-delay: 0.17s; }
+        #panel-jan.plan-panel.active .jan-month-seg:nth-child(7) { transition-delay: 0.2s; }
+        #panel-jan.plan-panel.active .jan-month-seg:nth-child(8) { transition-delay: 0.23s; }
+        #panel-jan.plan-panel.active .jan-month-seg:nth-child(9) { transition-delay: 0.26s; }
+        #panel-jan.plan-panel.active .jan-month-seg:nth-child(10) { transition-delay: 0.29s; }
+
+        /* Sparklines on white plan cards (January / Grocery / Flexible) */
+        .plan-left-spark {
+            width: 100%;
+            height: 2rem;
+        }
+        .plan-left-spark .plan-spark-path {
+            fill: none;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+        }
+        #panel-jan .plan-spark-path { stroke: #2563eb; }
+        #panel-groc .plan-spark-path { stroke: #059669; }
+        #panel-plan .plan-spark-path { stroke: #9333ea; }
+        #panel-jan.plan-panel:not(.active) .plan-spark-path,
+        #panel-groc.plan-panel:not(.active) .plan-spark-path,
+        #panel-plan.plan-panel:not(.active) .plan-spark-path {
+            transition: none;
+        }
+        #panel-jan.plan-panel.active .plan-spark-path,
+        #panel-groc.plan-panel.active .plan-spark-path,
+        #panel-plan.plan-panel.active .plan-spark-path {
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 0.95s cubic-bezier(0.22, 1, 0.36, 1) 0.12s;
+        }
+
+        /* ── CTA: glass card + mini growth chart ── */
+        .cta-section {
+            position: relative;
+            overflow: hidden;
+        }
+        .cta-glass {
+            border-radius: 1.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: linear-gradient(165deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 100%);
+            box-shadow:
+                0 24px 60px rgba(0, 0, 0, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
+        .cta-chart-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 8px;
+            height: 3.25rem;
+        }
+        .cta-chart-bar {
+            width: 10px;
+            border-radius: 5px 5px 2px 2px;
+            transform-origin: bottom center;
+            transform: scaleY(0);
+            transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+            opacity: 0.95;
+        }
+        .cta-glass.reveal.visible .cta-chart-bar {
+            transform: scaleY(1);
+        }
+        .cta-glass.reveal.visible .cta-chart-bar:nth-child(1) { transition-delay: 0.08s; }
+        .cta-glass.reveal.visible .cta-chart-bar:nth-child(2) { transition-delay: 0.14s; }
+        .cta-glass.reveal.visible .cta-chart-bar:nth-child(3) { transition-delay: 0.2s; }
+        .cta-glass.reveal.visible .cta-chart-bar:nth-child(4) { transition-delay: 0.26s; }
+        .cta-glass.reveal.visible .cta-chart-bar:nth-child(5) { transition-delay: 0.32s; }
+
+        /* ── Plan tabs: one rounded pill wraps all three (sits on gradient / white fold) ── */
+        .plan-tab-wrap {
+            display:flex; justify-content:center;
+        }
+        .plan-tab-bar {
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            gap:clamp(0.5rem, 2.5vw, 1.1rem);
+            padding:0.55rem clamp(0.65rem, 2.5vw, 1rem);
+            margin:0;
+            background:rgba(255,255,255,.94);
+            border:1px solid rgba(226,232,240,.98);
+            border-radius:9999px;
+            box-shadow:
+                0 14px 44px rgba(15,23,42,.14),
+                0 2px 12px rgba(15,23,42,.07),
+                inset 0 1px 0 rgba(255,255,255,.9);
+            backdrop-filter:blur(12px);
+            -webkit-backdrop-filter:blur(12px);
+        }
+        .plan-tab-btn {
+            cursor:pointer; border:none; background:transparent;
+            padding:0; margin:0;
+            display:flex; flex-direction:column; align-items:center; gap:6px;
+            min-width:4.25rem; color:#64748b;
+            transition:color .25s ease, transform .2s ease;
+            -webkit-tap-highlight-color:transparent;
+        }
+        .plan-tab-btn:focus-visible { outline:2px solid #2563eb; outline-offset:4px; border-radius:12px; }
+        .plan-tab-btn .plan-tab-icon {
+            width:3.25rem; height:3.25rem; border-radius:50%;
+            display:flex; align-items:center; justify-content:center;
+            font-size:1.05rem;
+            background:#f8fafc;
+            color:#475569;
+            border:1px solid rgba(226,232,240,.95);
+            box-shadow:
+                0 2px 8px rgba(15,23,42,.06),
+                inset 0 1px 0 rgba(255,255,255,.85);
+            transition:background .25s ease, color .25s ease, box-shadow .25s ease, transform .25s ease, border-color .25s ease;
+        }
+        .plan-tab-btn:hover .plan-tab-icon {
+            background:#fff;
+            transform:translateY(-2px);
+            box-shadow:
+                0 6px 16px rgba(15,23,42,.1),
+                inset 0 1px 0 rgba(255,255,255,.9);
+        }
+        .plan-tab-btn.active { color:#1e3a8a; }
+        .plan-tab-btn.active .plan-tab-icon {
+            background:linear-gradient(145deg,#1e3a8a,#2563eb);
+            color:#fff;
+            border-color:rgba(255,255,255,.22);
+            box-shadow:0 10px 22px rgba(37,99,235,.38);
+            transform:scale(1.05);
+        }
+        .plan-tab-btn .plan-tab-label {
+            font-size:.65rem; font-weight:800; letter-spacing:.02em;
+            text-transform:uppercase; max-width:5.5rem; line-height:1.15;
+            text-align:center;
+        }
+        .plan-panel { display:none; }
+        .plan-panel.active { display:flex; }
+        .plan-panel.active.plan-panel--enter {
+            animation:panelIn .45s cubic-bezier(.22,1,.36,1) both;
+        }
+        .plan-tab-btn.just-picked .plan-tab-icon { animation:tabPop .38s ease; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .plan-panel.active.plan-panel--enter { animation:none; }
+            .plan-tab-btn.just-picked .plan-tab-icon { animation:none; }
+        }
+
+        /* ── Plan preview cards ── */
+        .plan-card::before {
+            content:''; position:absolute; top:0; left:0; right:0; height:4px;
+            border-radius:4px 4px 0 0;
+        }
+        .plan-jan::before   { background:linear-gradient(90deg,#2563eb,#60a5fa); }
+        .plan-groc::before  { background:linear-gradient(90deg,#16a34a,#4ade80); }
+        .plan-plan::before  { background:linear-gradient(90deg,#7c3aed,#c084fc); }
+
+        /* ── Scroll-to-top ── */
+        #scroll-top {
+            position:fixed; bottom:24px; right:24px; z-index:200;
+            background:linear-gradient(135deg,#1e3a8a,#2563eb);
+            color:#fff; border:none; width:46px; height:46px;
+            border-radius:50%; cursor:pointer;
+            box-shadow:0 4px 16px rgba(37,99,235,.4);
+            display:none; align-items:center; justify-content:center;
+        }
+        #scroll-top:hover { transform:translateY(-2px); }
+        #scroll-top.show { display:flex; }
+
+        /* ── Float helpers ── */
+        .float-a { animation:float 4s ease-in-out infinite; }
+        .float-b { animation:float 5s ease-in-out .6s infinite; }
+        .float-c { animation:float 4.5s ease-in-out 1.2s infinite; }
+
+        /* Hero entry anims */
+        .hero-up   { animation:fadeUp   .7s ease both; }
+        .hero-right{ animation:fadeRight .8s ease both; }
+        .d1 { animation-delay:.1s; } .d2 { animation-delay:.2s; }
+        .d3 { animation-delay:.3s; } .d4 { animation-delay:.4s; }
+
         
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
     </style>
-    
 </head>
-<body class="bg-gray-100">
-    
-    <div id="loading-overlay">
-        <div class="loading-spinner"></div>
-        <p class="text-gray-700"></p>
+<body class="m-0 bg-slate-50">
+
+<!-- Loading overlay -->
+<div id="loading-overlay">
+    <div class="load-ring"></div>
+    <p class="text-white text-opacity-60 text-sm font-medium">Vema24…</p>
+</div>
+
+<div id="main-content">
+
+<!-- ══════════════════════════════════════ Top nav (fixed — stays visible while scrolling) -->
+<nav class="topnav-shell" aria-label="Main">
+    <div class="w-full max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-3xl mx-auto px-3 sm:px-4">
+        <div class="topnav-pill">
+            <a href="#" class="flex items-center gap-2 shrink-0 min-w-0 pr-0.5" aria-label="Vema24 home">
+                <span class="topnav-logo-ring" aria-hidden="true">
+                    <img src="assets/logo/Vema White.png" alt="" width="22" height="22">
+                </span>
+                <span class="topnav-wordmark text-[0.95rem] sm:text-base">Vema24</span>
+            </a>
+
+            <span class="topnav-divider hidden md:block shrink-0" aria-hidden="true"></span>
+
+            <div class="topnav-links hidden md:flex flex-1 justify-start items-center gap-4 lg:gap-5 min-w-0 pl-0.5">
+                <a href="#">Home</a>
+                <a href="#plans">Plans</a>
+                <a href="#how-it-works">How It Works</a>
+            </div>
+
+            <div class="flex items-center gap-1 sm:gap-1.5 shrink-0 ml-auto pl-1 md:pl-2">
+                <div id="desktop-auth-buttons" class="hidden md:flex items-center gap-1.5">
+                    <a href="/auth/login.html" id="desktop-login"
+                       class="text-slate-600 hover:text-slate-900 text-sm font-semibold px-2.5 py-2 rounded-full transition-colors">Login</a>
+                    <a href="/auth/register.html" id="desktop-register" class="topnav-cta-pill !px-3.5 !py-2 !text-[0.78rem]">
+                        Join <i class="fas fa-arrow-right text-[10px] opacity-90"></i>
+                    </a>
+                    <a href="/dashboard" id="desktop-dashboard"
+                       class="hidden topnav-dash-pill !px-3.5 !py-2 !text-[0.78rem]">
+                        <i class="fas fa-tachometer-alt text-sm"></i> Dashboard
+                    </a>
+                </div>
+
+                <div class="flex md:hidden items-center gap-1">
+                    <div id="mobile-auth-buttons" class="flex items-center gap-1">
+                        <a href="/auth/login.html" id="mobile-login"
+                           class="text-slate-600 text-xs font-semibold px-2 py-2 rounded-full hover:bg-slate-100 transition-colors">Login</a>
+                        <a href="/auth/register.html" id="mobile-register" class="topnav-cta-pill text-xs py-1.5 px-3">
+                            Join <i class="fas fa-arrow-right text-[10px] opacity-90"></i>
+                        </a>
+                        <a href="/dashboard" id="mobile-dashboard"
+                           class="hidden topnav-dash-pill text-xs py-1.5 px-2.5">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </a>
+                    </div>
+                    <button type="button" id="mobile-menu-button" class="topnav-icon-btn" aria-expanded="false" aria-controls="mobile-menu">
+                        <i class="fas fa-bars text-lg" aria-hidden="true"></i>
+                        <span class="sr-only">Menu</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobile-menu" class="topnav-mobile-panel md:hidden" role="navigation" aria-label="Mobile">
+            <a href="#" class="block px-5 py-3.5 border-b border-slate-100">Home</a>
+            <a href="#plans" class="block px-5 py-3.5 border-b border-slate-100">Plans</a>
+            <a href="#how-it-works" class="block px-5 py-3.5">How It Works</a>
+        </div>
+    </div>
+</nav>
+
+<!-- ══════════════════════════════════════ HERO -->
+<section class="hero-bg relative text-white">
+    <!-- Blobs: clipped in their own layer so the section never uses overflow-x-hidden (that forces overflow-y: auto → nested scroll) -->
+    <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
+        <div class="absolute w-96 h-96 rounded-full opacity-15"
+             style="background:radial-gradient(circle,#60a5fa,transparent);top:-80px;right:-60px;filter:blur(70px)"></div>
+        <div class="absolute w-64 h-64 rounded-full opacity-10"
+             style="background:radial-gradient(circle,#fbbf24,transparent);bottom:-40px;left:-30px;filter:blur(60px)"></div>
     </div>
 
-    <!-- Navigation -->
-    <nav class="bg-blue-800 text-white p-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <img src="assets/logo/Vema White.png" alt="Vema Logo" class="h-10">
-            </div>
-            
-            <!-- Desktop Navigation -->
-            <div class="hidden md:flex space-x-6">
-                <a href="#" class="hover:text-blue-200">Home</a>
-                <a href="#stokvels" class="hover:text-blue-200">Stokvels</a>
-                <a href="#store" class="hover:text-blue-200">Store</a>
-                <a href="#funeral" class="hover:text-blue-200">Funeral Society</a>
-                <a href="#loans" class="hover:text-blue-200">Loans</a>
-            </div>
-            
-            <!-- Mobile Menu Button and Auth Buttons -->
-            <div class="flex items-center space-x-4">
-                <!-- Mobile Auth Buttons - Visible on mobile -->
-                <div id="mobile-auth-buttons" class="md:hidden flex space-x-2">
-                    <a href="/auth/login.html" id="mobile-login" class="bg-white text-blue-800 px-3 py-1 rounded hover:bg-blue-100 text-sm">Login</a>
-                    <a href="/auth/register.html" id="mobile-register" class="bg-yellow-400 text-blue-800 px-3 py-1 rounded hover:bg-yellow-300 text-sm">Join Now</a>
-                    <a href="/dashboard" id="mobile-dashboard" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm hidden">Dashboard</a>
-                </div>
-                
-                <!-- Mobile Menu Button -->
-                <button id="mobile-menu-button" class="md:hidden text-white focus:outline-none ml-2">
-                    <i class="fas fa-bars text-2xl"></i>
-                </button>
-                
-                <!-- Desktop Auth Buttons - Hidden on mobile -->
-                <div id="desktop-auth-buttons" class="hidden md:flex space-x-4">
-                    <a href="/auth/login.html" id="desktop-login" class="bg-white text-blue-800 px-4 py-2 rounded hover:bg-blue-100">Login</a>
-                    <a href="/auth/register.html" id="desktop-register" class="bg-yellow-400 text-blue-800 px-4 py-2 rounded hover:bg-yellow-300">Join Now</a>
-                    <a href="/dashboard" id="desktop-dashboard" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 hidden">Dashboard</a>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-blue-700 mt-2 py-2 px-4 rounded">
-            <div class="flex flex-col space-y-3">
-                <a href="#" class="hover:text-blue-200 py-1">Home</a>
-                <a href="#stokvels" class="hover:text-blue-200 py-1">Stokvels</a>
-                <a href="#store" class="hover:text-blue-200 py-1">Store</a>
-                <a href="#funeral" class="hover:text-blue-200 py-1">Funeral Society</a>
-                <a href="#loans" class="hover:text-blue-200 py-1">Loans</a>
-            </div>
-        </div>
-    </nav>
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-20 md:pt-24 pb-24 md:pb-36">
+        <div class="flex flex-col lg:flex-row items-center gap-14">
 
-    <!-- Hero Section -->
-    <section class="bg-blue-700 text-white py-20">
-        <div class="container mx-auto text-center">
-            <h1 class="text-4xl md:text-5xl font-bold mb-6">Welcome to Vema24</h1>
-            <p class="text-xl mb-8 max-w-2xl mx-auto">
-                Where Community Means Togetherness<br>
-                More than a stokvel, we help you save, get funeral cover, and access loans. At Vema24, we save, grow, and thrive together.
-            </p>            
-            <div class="flex justify-center space-x-4">
-                <a href="/auth/register.html" id="hero-cta" class="bg-yellow-400 text-blue-800 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-yellow-300">Get Started</a>
-                <a href="/dashboard" id="hero-dashboard" class="bg-green-500 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-green-600 hidden">Go to Dashboard</a>
-            </div>
-        </div>
-    </section>
+            <!-- LEFT: text (flex-1 only on lg+ so mobile column doesn’t fill viewport height) -->
+            <div class="w-full lg:flex-1 text-center lg:text-left">
+                <div class="inline-flex items-center gap-2 bg-white bg-opacity-10 border border-white border-opacity-20 rounded-full px-4 py-2 text-xs font-semibold mt-6 md:mt-10 mb-6 hero-up">
+                    <span class="relative flex-shrink-0">
+                        <span class="w-2 h-2 bg-green-400 rounded-full block"></span>
+                        <span class="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-75"></span>
+                    </span>
+                    South Africa's Community Savings Platform
+                </div>
 
-    <!-- Stokvels Section -->
-    <section id="stokvels" class="py-16 bg-white">
-        <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center mb-12 text-blue-800">Our Stokvel Plans</h2>
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- January Stokvel -->
-                <div class="bg-gray-50 p-6 rounded-lg shadow-md border border-blue-200">
-                    <div class="flex justify-between items-start mb-4">
-                        <h3 class="text-xl font-bold text-blue-700">January Stokvel</h3>
-                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">Popular</span>
+                <h1 class="text-4xl md:text-6xl font-black leading-tight mb-5 hero-up d1">
+                    Save Together,<br><span class="text-yellow-300">Grow Together</span>
+                </h1>
+
+                <p class="text-blue-100 text-lg md:text-xl leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0 hero-up d2">
+                    Join thousands of South Africans building wealth through community stokvel savings — simple, transparent, and powerful.
+                </p>
+
+                <div class="flex flex-wrap justify-center lg:justify-start gap-3 mb-8 hero-up d3">
+                    <a href="/auth/register.html" id="hero-cta"
+                       class="bg-yellow-400 text-blue-900 px-7 py-3.5 rounded-2xl font-extrabold hover:bg-yellow-300 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform inline-flex items-center gap-2 text-sm">
+                        <i class="fas fa-rocket"></i> Start Saving Free
+                    </a>
+                    <a href="/dashboard" id="hero-dashboard"
+                       class="hidden bg-green-500 text-white px-7 py-3.5 rounded-2xl font-extrabold hover:bg-green-400 transition-all shadow-lg inline-flex items-center gap-2 text-sm">
+                        <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+                    </a>
+                    <a href="#plans"
+                       class="bg-white bg-opacity-10 border border-white border-opacity-25 text-white px-7 py-3.5 rounded-2xl font-bold hover:bg-opacity-20 transition-all inline-flex items-center gap-2 text-sm">
+                        <i class="fas fa-layer-group"></i> View Plans
+                    </a>
+                </div>
+
+                <!-- Pills -->
+                <div class="flex flex-wrap justify-center lg:justify-start gap-2 hero-up d4">
+                    <span class="inline-flex items-center gap-1.5 bg-white bg-opacity-10 border border-white border-opacity-15 text-white text-xs font-semibold px-3 py-1.5 rounded-full">
+                        <i class="fas fa-shield-alt text-green-300 text-xs"></i> Secure
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 bg-white bg-opacity-10 border border-white border-opacity-15 text-white text-xs font-semibold px-3 py-1.5 rounded-full">
+                        <i class="fas fa-users text-blue-200 text-xs"></i> Community-Driven
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 bg-white bg-opacity-10 border border-white border-opacity-15 text-white text-xs font-semibold px-3 py-1.5 rounded-full">
+                        <i class="fas fa-ban text-red-300 text-xs"></i> No Hidden Fees
+                    </span>
+                </div>
+            </div>
+
+            <!-- RIGHT: animated app preview (tall on large screens — no inner scroll) -->
+            <div class="hero-mockup-wrap w-full max-w-xs flex-shrink-0 hero-right d2">
+                <div class="mockup-card mockup-card--hero p-5 xl:p-8 2xl:p-10 flex flex-col justify-between gap-4 xl:gap-6 2xl:gap-8">
+
+                    <!-- Card top -->
+                    <div class="flex items-center justify-between shrink-0">
+                        <div>
+                            <p class="text-blue-200 text-xs xl:text-sm font-bold uppercase tracking-widest">Showcase</p>
+                            <p class="text-white font-extrabold text-lg xl:text-xl 2xl:text-2xl mt-0.5">January Plan</p>
+                        </div>
+                        <div class="relative float-a inline-flex shrink-0" title="Illustrative progress only">
+                            <!-- SVG progress ring (example, not live data) — float on wrapper so ~82% moves with it -->
+                            <svg width="56" height="56" viewBox="0 0 56 56" class="block mockup-ring-svg" aria-hidden="true">
+                                <circle cx="28" cy="28" r="22" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="5"/>
+                                <circle cx="28" cy="28" r="22" fill="none" stroke="#4ade80" stroke-width="5"
+                                        stroke-dasharray="138" stroke-dashoffset="25"
+                                        stroke-linecap="round" transform="rotate(-90 28 28)"
+                                        style="transition:stroke-dashoffset 1.4s ease .8s"/>
+                            </svg>
+                            <span class="absolute inset-0 flex items-center justify-center text-white font-extrabold text-[10px] xl:text-xs 2xl:text-sm leading-tight text-center px-1">~82%</span>
+                        </div>
                     </div>
-                    <p class="text-gray-600 mb-4">This stokvel helps members prepare for January — a month that’s often expensive. It helps with things like school stationery, uniforms, and other back-to-school needs.</p>
-                    <ul class="mb-6 space-y-2">
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Save for 10 months
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Payout in January
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Portfolio manager support
-                        </li>
-                    </ul>
-                    <a href="/auth/register.html" class="block w-full bg-blue-600 text-white text-center py-2 rounded hover:bg-blue-700">Join Now</a>
-                </div>
 
-                <!-- Grocery Stokvel -->
-                <div class="bg-gray-50 p-6 rounded-lg shadow-md border border-blue-200">
-                    <h3 class="text-xl font-bold text-blue-700 mb-4">Grocery Stokvel</h3>
-                    <p class="text-gray-600 mb-4">This stokvel focuses on grocery shopping during October and November when there are lots of specials. Members save together and buy household goods in bulk to save money and stock up before the holidays.</p>
-                    <ul class="mb-6 space-y-2">
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Save for 10 months
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Grocery vouchers or cash
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Flexible contribution amounts
-                        </li>
-                    </ul>
-                    <a href="/auth/register.html" class="block w-full bg-blue-600 text-white text-center py-2 rounded hover:bg-blue-700">Join Now</a>
-                </div>
+                    <!-- Illustrative projection (not a real balance) -->
+                    <div class="bg-white bg-opacity-10 rounded-2xl xl:rounded-3xl p-4 xl:p-6 2xl:p-8 text-center shrink-0 xl:py-8 2xl:py-12">
+                        <p class="text-blue-200 text-[10px] xl:text-xs font-semibold uppercase tracking-wider mb-0.5">Example only</p>
+                        <p class="text-blue-100 text-xs xl:text-sm mb-1">Projected total if you save R 200/mo</p>
+                        <p class="text-white text-3xl xl:text-4xl 2xl:text-5xl font-black balance-num">~R 2,450</p>
+                        <div class="mt-2.5 xl:mt-4 bg-white bg-opacity-10 rounded-full h-2 xl:h-2.5 overflow-hidden">
+                            <div class="progress-bar-fill rounded-full" style="--w:82%"></div>
+                        </div>
+                        <p class="text-blue-200 text-[11px] xl:text-xs mt-1.5 xl:mt-2 leading-snug">Toward a Jan payout · figures for demo, not your account</p>
+                    </div>
 
-                <!-- Planning Ahead Stokvel -->
-                <div class="bg-gray-50 p-6 rounded-lg shadow-md border border-blue-200">
-                    <h3 class="text-xl font-bold text-blue-700 mb-4">Planning Ahead Stokvel</h3>
-                    <p class="text-gray-600 mb-4">This is our new, flexible stokvel. You can save for at least 10 months and use your money for things like emergencies, holidays, or anything else that’s important to you.</p>
-                    <ul class="mb-6 space-y-2">
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Flexible start date
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Minimum 10 months savings
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                            Withdraw for emergencies
-                        </li>
-                    </ul>
-                    <a href="auth/register.html" class="block w-full bg-blue-600 text-white text-center py-2 rounded hover:bg-blue-700">Join Now</a>
+                    <!-- Sample activity (illustration) -->
+                    <div class="shrink-0">
+                        <p class="text-blue-200 text-xs xl:text-sm font-semibold uppercase tracking-widest mb-2.5 xl:mb-3">Sample activity</p>
+                        <div class="space-y-2 xl:space-y-3">
+                            <div class="tx-item flex items-center justify-between bg-white bg-opacity-10 rounded-xl xl:rounded-2xl px-3 xl:px-4 py-2 xl:py-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-7 h-7 rounded-lg bg-green-400 bg-opacity-25 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-check text-green-300 text-xs"></i>
+                                    </div>
+                                    <span class="text-white text-xs xl:text-sm font-medium">e.g. monthly save</span>
+                                </div>
+                                <span class="text-green-300 text-xs xl:text-sm font-bold">R 200</span>
+                            </div>
+                            <div class="tx-item flex items-center justify-between bg-white bg-opacity-10 rounded-xl xl:rounded-2xl px-3 xl:px-4 py-2 xl:py-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-7 h-7 rounded-lg bg-green-400 bg-opacity-25 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-check text-green-300 text-xs"></i>
+                                    </div>
+                                    <span class="text-white text-xs xl:text-sm font-medium">e.g. monthly save</span>
+                                </div>
+                                <span class="text-green-300 text-xs xl:text-sm font-bold">R 200</span>
+                            </div>
+                            <div class="tx-item flex items-center justify-between bg-white bg-opacity-10 rounded-xl xl:rounded-2xl px-3 xl:px-4 py-2 xl:py-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-7 h-7 rounded-lg bg-yellow-400 bg-opacity-25 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-clock text-yellow-300 text-xs"></i>
+                                    </div>
+                                    <span class="text-white text-xs xl:text-sm font-medium">e.g. next due date</span>
+                                </div>
+                                <span class="text-yellow-300 text-xs xl:text-sm font-bold">R 200</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="/auth/register.html"
+                       class="block w-full shrink-0 bg-yellow-400 text-blue-900 text-center text-xs xl:text-sm font-extrabold py-3 xl:py-3.5 rounded-xl xl:rounded-2xl hover:bg-yellow-300 transition-all">
+                        Get started <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
                 </div>
             </div>
+
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Online Store Preview -->
-<section id="store" class="py-16 bg-gray-100">
-    <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center mb-12 text-blue-800">Vema Online Store</h2>
-        <div class="bg-white p-8 rounded-lg shadow-md text-center">
-            <div class="flex justify-center mb-6">
-                <img src="assets/logo/Vema Black.png" alt="Vema Logo" class="h-20">
+<!-- ══════════════════════════════════════ STATS STRIP -->
+<section id="stats-strip" class="stats-strip bg-white py-10 md:py-12" aria-label="Platform highlights">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10 text-center">
+            <div class="reveal stat-strip-cell">
+                <div class="stat-strip-viz" aria-hidden="true">
+                    <div class="stat-bars stat-bars--blue">
+                        <span style="height:38%"></span>
+                        <span style="height:55%"></span>
+                        <span style="height:48%"></span>
+                        <span style="height:72%"></span>
+                        <span style="height:88%"></span>
+                    </div>
+                </div>
+                <div class="text-3xl font-black text-blue-700 mb-1">
+                    <span class="stat-num-big" data-stat-count="500" data-stat-suffix="+">0+</span>
+                </div>
+                <div class="text-sm text-gray-500 font-medium">Active Members</div>
             </div>
-            <h3 class="text-2xl md:text-4xl font-bold text-blue-700 mb-4">VEMA SHOP COMING SOON</h3>
-            <p class="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
-                We're working hard to bring you an amazing shopping experience. Stay tuned for our launch!
-            </p>
-            <div class="flex justify-center">
-                <a href="#" id="store-visit" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700">
-                    Visit Store
-                </a>
+            <div class="reveal rv-1 stat-strip-cell">
+                <div class="stat-strip-viz" aria-hidden="true">
+                    <div class="stat-bars stat-bars--green">
+                        <span style="height:100%"></span>
+                        <span style="height:100%"></span>
+                        <span style="height:100%"></span>
+                    </div>
+                </div>
+                <div class="text-3xl font-black text-green-600 mb-1">
+                    <span class="stat-num-big" data-stat-count="3" data-stat-suffix="">0</span>
+                </div>
+                <div class="text-sm text-gray-500 font-medium">Stokvel Plans</div>
+            </div>
+            <div class="reveal rv-2 stat-strip-cell">
+                <div class="stat-strip-viz" aria-hidden="true">
+                    <svg class="stat-spark stat-spark--indigo" viewBox="0 0 100 32" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+                        <path d="M2,24 L18,20 L34,22 L50,14 L66,16 L82,8 L98,5" pathLength="100"></path>
+                    </svg>
+                </div>
+                <div class="text-3xl font-black text-indigo-600 mb-1">
+                    <span class="stat-num-big">R1M+</span>
+                </div>
+                <div class="text-sm text-gray-500 font-medium">Community Savings</div>
+            </div>
+            <div class="reveal rv-3 stat-strip-cell">
+                <div class="stat-strip-viz" aria-hidden="true">
+                    <div class="stat-pulse">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                </div>
+                <div class="text-3xl font-black text-yellow-500 mb-1">
+                    <span class="stat-num-big">24/7</span>
+                </div>
+                <div class="text-sm text-gray-500 font-medium">Support</div>
             </div>
         </div>
     </div>
 </section>
 
-    <!-- Funeral Cover Section -->
-<section id="funeral" class="py-16 bg-white">
-    <div class="container mx-auto px-4">
-      <div class="flex flex-col lg:flex-row items-start gap-8">
-        <!-- Left Content (Main Funeral Cover Info) -->
-        <div class="lg:w-1/2 w-full">
-          <h2 class="text-3xl font-bold mb-4 text-blue-800">Funeral Society</h2>
-          <p class="text-gray-600 mb-4">
-            <strong>Vema Funeral Cover – Helping You in Tough Times</strong><br>
-            When you or someone in your family passes away, funeral costs can be stressful. 
-            Vema Funeral Cover helps you pay for the funeral so you don't have to worry about 
-            money during a difficult time.
-          </p>
-  
-          <h3 class="text-xl font-semibold text-blue-700 mb-2">What Is Funeral Cover?</h3>
-          <p class="text-gray-600 mb-4">Anyone can join – It's open to everyone.</p>
-          <p class="text-gray-600 mb-2 font-semibold">It pays out money when:</p>
-          <ul class="list-disc pl-6 mb-4 text-gray-700 space-y-1">
-            <li>You (the main member) pass away</li>
-            <li>Your husband or wife passes away</li>
-            <li>Your children (up to 5) pass away</li>
-            <li>Extended family members pass away</li>
-          </ul>
-  
-          <h3 class="text-xl font-semibold text-blue-700 mb-2">What You Need to Claim</h3>
-          <p class="text-gray-600 mb-2">To claim the money, you'll need:</p>
-          <ul class="list-disc pl-6 mb-4 text-gray-700 space-y-1">
-            <li>A claim form</li>
-            <li>ID of the person who passed away</li>
-            <li>ID of the person claiming the money</li>
-            <li>Death certificate</li>
-            <li>Police report (only if the death was from an accident or unnatural cause)</li>
-            <li>Birth certificate (if a child passed away)</li>
-          </ul>
-  
-          <h3 class="text-xl font-semibold text-blue-700 mb-2">Waiting Periods (When Cover Starts)</h3>
-          <ul class="list-disc pl-6 mb-4 text-gray-700 space-y-1">
-            <li>Natural death – You're covered after <strong>6 months</strong></li>
-            <li>Accidental death – You're covered <strong>right after your first payment</strong></li>
-            <li>Suicide – You're covered after <strong>24 months</strong></li>
-          </ul>
-  
-          <h3 class="text-xl font-semibold text-blue-700 mb-2">Who Can Be Covered?</h3>
-          <ul class="list-disc pl-6 text-gray-700 space-y-1 mb-4">
-            <li>You (main person who joins)</li>
-            <li>Your husband or wife</li>
-            <li>Up to 5 kids (biological or adopted)</li>
-            <li>Extended family (like parents, siblings, etc.)</li>
-          </ul>
-  
-          <p class="text-gray-600">
-            Even if you're not South African, you can still join if you have:
-          </p>
-          <ul class="list-disc pl-6 text-gray-700 space-y-1 mb-8">
-            <li>A South African passport</li>
-            <li>A South African bank account</li>
-          </ul>
-  
-          <a href="#" id="funeral-learn-more" class="inline-block bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700">Learn More</a>
+<!-- ══════════════════════════════════════ PLANS (circular tab bar) -->
+<section id="plans">
+
+    <!-- Dark header -->
+    <div class="pb-24" style="background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 55%,#1d4ed8 100%)">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-16 text-center">
+            <span class="text-yellow-400 font-bold text-xs uppercase tracking-widest">Stokvel Plans</span>
+            <h2 class="text-3xl md:text-4xl font-extrabold text-white mt-3">Choose How You Save</h2>
+            <p class="text-blue-200 mt-2 max-w-md mx-auto text-sm">Three plans, one community. Pick what fits your life.</p>
         </div>
-  
-        <!-- Family Assist Package Right Side -->
-        <div class="lg:w-1/2 w-full bg-gray-100 p-6 md:p-8 rounded-lg mt-8 lg:mt-0">
-          <h3 class="text-xl font-semibold mb-4 text-blue-700">Family Assist Package</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div class="p-4 bg-white rounded shadow">
-              <h4 class="font-bold mb-2">Main Member</h4>
-              <p class="text-gray-600 mb-1 text-sm">Includes Spouse & Kids</p>
-              <p class="text-blue-600 font-semibold">R75/month</p>
-            </div>
-            <div class="p-4 bg-white rounded shadow">
-              <h4 class="font-bold mb-2">Extended Member (Under 65)</h4>
-              <p class="text-blue-600 font-semibold">R55/month</p>
-            </div>
-            <div class="p-4 bg-white rounded shadow">
-              <h4 class="font-bold mb-2">Extended Member (Above 65)</h4>
-              <p class="text-blue-600 font-semibold">R85/month</p>
-            </div>
-            <!-- Empty div to maintain grid layout -->
-            <div class="hidden md:block"></div>
-          </div>
-  
-          <h3 class="text-xl font-semibold mb-4 text-blue-700">Add More Benefits</h3>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div class="bg-white p-3 rounded shadow">
-              <p class="text-gray-700">100 Chairs</p>
-              <p class="font-semibold text-blue-600">R25</p>
-            </div>
-            <div class="bg-white p-3 rounded shadow">
-              <p class="text-gray-700">Mobile Toilet</p>
-              <p class="font-semibold text-blue-600">R30</p>
-            </div>
-            <div class="bg-white p-3 rounded shadow">
-              <p class="text-gray-700">Mobile Fridge</p>
-              <p class="font-semibold text-blue-600">R35</p>
-            </div>
-            <div class="bg-white p-3 rounded shadow">
-              <p class="text-gray-700">Decoration</p>
-              <p class="font-semibold text-blue-600">R65</p>
-            </div>
-            <div class="bg-white p-3 rounded shadow">
-              <p class="text-gray-700">Catering</p>
-              <p class="font-semibold text-blue-600">R75</p>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
-  </section>
 
+    <!-- Circular tabs overlapping the fold -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 -mt-11 md:-mt-14 relative z-20 plan-tab-wrap">
+        <div class="plan-tab-bar" role="tablist" aria-label="Stokvel plans">
+            <button type="button" class="plan-tab-btn active" role="tab" aria-selected="true" aria-controls="panel-jan" tabindex="0" data-plan="jan" id="tab-jan" onclick="switchPlan('jan',this)">
+                <span class="plan-tab-icon" aria-hidden="true"><i class="fas fa-graduation-cap"></i></span>
+                <span class="plan-tab-label">January</span>
+            </button>
+            <button type="button" class="plan-tab-btn" role="tab" aria-selected="false" aria-controls="panel-groc" tabindex="-1" data-plan="groc" id="tab-groc" onclick="switchPlan('groc',this)">
+                <span class="plan-tab-icon" aria-hidden="true"><i class="fas fa-shopping-basket"></i></span>
+                <span class="plan-tab-label">Grocery</span>
+            </button>
+            <button type="button" class="plan-tab-btn" role="tab" aria-selected="false" aria-controls="panel-plan" tabindex="-1" data-plan="plan" id="tab-plan" onclick="switchPlan('plan',this)">
+                <span class="plan-tab-icon" aria-hidden="true"><i class="fas fa-chart-line"></i></span>
+                <span class="plan-tab-label">Flexible</span>
+            </button>
+        </div>
+    </div>
 
+    <!-- Tab panels -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
 
-    <!-- Loans Section -->
-    <section id="loans" class="py-16 bg-gray-100">
-        <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center mb-12 text-blue-800">Member Loans</h2>
-            <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md">
-                <div class="flex flex-col md:flex-row md:space-x-8">
-                    <div class="md:w-1/2 mb-6 md:mb-0">
-                        <h3 class="text-xl font-semibold mb-4 text-blue-700">Loan Benefits</h3>
-                        <ul class="space-y-3">
-                            <li class="flex items-start">
-                                <svg class="w-5 h-5 text-green-500 mt-1 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                <span>Flexible repayment (1-3 months)</span>
-                            </li>
-                            <li class="flex items-start">
-                                <svg class="w-5 h-5 text-green-500 mt-1 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                <span>Fixed total repayment amount</span>
-                            </li>
-                            <li class="flex items-start">
-                                <svg class="w-5 h-5 text-green-500 mt-1 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                <span>No hidden fees</span>
-                            </li>
-                            <li class="flex items-start">
-                                <svg class="w-5 h-5 text-green-500 mt-1 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                <span>Quick disbursement</span>
-                            </li>
-                        </ul>
-                        
-                        <div class="mt-8">
-                            <h4 class="text-lg font-semibold mb-3 text-blue-700">Standard Loan Options</h4>
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full bg-white border border-gray-200">
-                                    <thead class="bg-blue-50">
-                                        <tr>
-                                            <th class="py-2 px-4 border-b text-left">Loan Amount</th>
-                                            <th class="py-2 px-4 border-b text-left">Total Repayment</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr class="hover:bg-gray-50">
-                                            <td class="py-2 px-4 border-b">R500</td>
-                                            <td class="py-2 px-4 border-b">R649.76</td>
-                                        </tr>
-                                        <tr class="hover:bg-gray-50">
-                                            <td class="py-2 px-4 border-b">R1000</td>
-                                            <td class="py-2 px-4 border-b">R1,247.26</td>
-                                        </tr>
-                                        <tr class="hover:bg-gray-50">
-                                            <td class="py-2 px-4 border-b">R2000</td>
-                                            <td class="py-2 px-4 border-b">R2,442.26</td>
-                                        </tr>
-                                        <tr class="hover:bg-gray-50">
-                                            <td class="py-2 px-4 border-b">R3000</td>
-                                            <td class="py-2 px-4 border-b">R3,637.26</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <p class="text-sm text-gray-600 mt-2">Total repayment remains the same regardless of term (1-3 months)</p>
-                        </div>
+        <!-- January -->
+        <div id="panel-jan" class="plan-panel active" role="tabpanel" aria-labelledby="tab-jan">
+            <div class="plan-pair-shell">
+            <div class="flex flex-col lg:flex-row gap-10 items-center w-full">
+            <!-- Left: details -->
+            <div class="flex-1 w-full min-w-0">
+                <div class="relative bg-white rounded-2xl shadow-sm border border-gray-100 p-7 plan-card plan-jan overflow-hidden">
+                    <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mb-5">
+                        <i class="fas fa-graduation-cap text-blue-600 text-2xl"></i>
                     </div>
-                    <div class="md:w-1/2">
-                        <h3 class="text-xl font-semibold mb-4 text-blue-700">Loan Calculator</h3>
-                        <div class="space-y-4">
+                    <div class="flex items-start justify-between mb-3">
+                        <h3 class="text-2xl font-extrabold text-gray-900">January Stokvel</h3>
+                        <span class="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full ml-2 flex-shrink-0">Popular</span>
+                    </div>
+                    <p class="text-gray-500 mb-4 leading-relaxed">Save all year and receive your payout in January — perfect for back-to-school costs, uniforms, and stationery.</p>
+                    <div class="mb-6 plan-spark-wrap" aria-hidden="true">
+                        <svg class="plan-left-spark plan-spark--blue" viewBox="0 0 100 26" preserveAspectRatio="xMidYMid meet" focusable="false">
+                            <path class="plan-spark-path" d="M2,20 L18,14 L34,17 L50,10 L66,12 L82,5 L98,7" pathLength="100"></path>
+                        </svg>
+                    </div>
+                    <ul class="space-y-3 mb-7">
+                        <li class="flex items-center gap-2.5 text-sm text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i> Save for 10 months
+                        </li>
+                        <li class="flex items-center gap-2.5 text-sm text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i> Lump sum payout in January
+                        </li>
+                        <li class="flex items-center gap-2.5 text-sm text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i> Clear balance tracking
+                        </li>
+                    </ul>
+                    <a href="/auth/register.html"
+                       class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold text-sm transition-all">
+                        <i class="fas fa-arrow-right"></i> Join This Plan
+                    </a>
+                </div>
+            </div>
+            <!-- Right: visual demo -->
+            <div class="flex-1 flex items-center justify-center w-full min-w-0">
+                <div class="w-full max-w-xs plan-demo-card">
+                    <!-- Animated savings visual -->
+                    <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-6 text-white shadow-2xl float-a">
+                        <div class="flex items-center justify-between mb-5">
                             <div>
-                                <label class="block text-gray-700 mb-1">Loan Amount</label>
-                                <select id="loan-amount" class="w-full p-2 border rounded">
-                                    <option value="500">R500</option>
-                                    <option value="1000" selected>R1000</option>
-                                    <option value="2000">R2000</option>
-                                    <option value="3000">R3000</option>
-                                </select>
+                                <p class="text-blue-200 text-xs font-bold uppercase tracking-widest">Payout Month</p>
+                                <p class="text-2xl font-extrabold mt-0.5">January 🎉</p>
                             </div>
+                            <div class="w-14 h-14 bg-white bg-opacity-15 rounded-2xl flex items-center justify-center">
+                                <i class="fas fa-graduation-cap text-2xl"></i>
+                            </div>
+                        </div>
+                        <!-- Month progress -->
+                        <p class="text-blue-200 text-xs font-semibold mb-2.5">Example timeline (10 months)</p>
+                        <div class="space-y-1.5">
+                            <div class="jan-timeline-row" aria-hidden="true">
+                                <span class="jan-month-seg jan-month-seg--on"></span>
+                                <span class="jan-month-seg jan-month-seg--on"></span>
+                                <span class="jan-month-seg jan-month-seg--on"></span>
+                                <span class="jan-month-seg jan-month-seg--on"></span>
+                                <span class="jan-month-seg jan-month-seg--on"></span>
+                                <span class="jan-month-seg jan-month-seg--on"></span>
+                                <span class="jan-month-seg jan-month-seg--on"></span>
+                                <span class="jan-month-seg jan-month-seg--on"></span>
+                                <span class="jan-month-seg jan-month-seg--off"></span>
+                                <span class="jan-month-seg jan-month-seg--off"></span>
+                            </div>
+                            <p class="text-blue-200 text-xs">Illustration: 8 of 10 months contributed</p>
+                        </div>
+                        <div class="mt-4 bg-white bg-opacity-15 rounded-2xl p-3.5">
+                            <p class="text-blue-200 text-[10px] font-semibold uppercase tracking-wider mb-0.5">Example only</p>
+                            <p class="text-blue-200 text-xs mb-1">Est. payout if you stick to the plan</p>
+                            <p class="text-2xl font-extrabold">~R 3,200</p>
+                        </div>
+                        <p class="mt-3 text-blue-200 text-xs text-center">Demo copy — your real totals appear after you join ✨</p>
+                    </div>
+                </div>
+            </div>
+            </div>
+            </div>
+        </div>
+
+        <!-- Grocery -->
+        <div id="panel-groc" class="plan-panel" role="tabpanel" aria-labelledby="tab-groc">
+            <div class="plan-pair-shell">
+            <div class="flex flex-col lg:flex-row gap-10 items-center w-full">
+            <div class="flex-1 w-full min-w-0">
+                <div class="relative bg-white rounded-2xl shadow-sm border border-gray-100 p-7 plan-card plan-groc overflow-hidden">
+                    <div class="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center mb-5">
+                        <i class="fas fa-shopping-basket text-green-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-extrabold text-gray-900 mb-3">Grocery Stokvel</h3>
+                    <p class="text-gray-500 mb-4 leading-relaxed">Stock up on household goods before the holidays. Use community buying power to stretch your rand further.</p>
+                    <div class="mb-6 plan-spark-wrap" aria-hidden="true">
+                        <svg class="plan-left-spark plan-spark--green" viewBox="0 0 100 26" preserveAspectRatio="xMidYMid meet" focusable="false">
+                            <path class="plan-spark-path" d="M2,16 L20,20 L38,12 L56,15 L74,8 L98,4" pathLength="100"></path>
+                        </svg>
+                    </div>
+                    <ul class="space-y-3 mb-7">
+                        <li class="flex items-center gap-2.5 text-sm text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i> Save for 10 months
+                        </li>
+                        <li class="flex items-center gap-2.5 text-sm text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i> Grocery vouchers or cash payout
+                        </li>
+                        <li class="flex items-center gap-2.5 text-sm text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i> Oct/Nov payout for holiday buying
+                        </li>
+                    </ul>
+                    <a href="/auth/register.html"
+                       class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-bold text-sm transition-all">
+                        <i class="fas fa-arrow-right"></i> Join This Plan
+                    </a>
+                </div>
+            </div>
+            <div class="flex-1 flex items-center justify-center w-full min-w-0">
+                <div class="w-full max-w-xs plan-demo-card">
+                    <div class="bg-gradient-to-br from-green-600 to-teal-700 rounded-3xl p-6 text-white shadow-2xl float-b">
+                        <div class="flex items-center justify-between mb-5">
                             <div>
-                                <label class="block text-gray-700 mb-1">Repayment Term (months)</label>
-                                <select id="loan-term" class="w-full p-2 border rounded">
-                                    <option value="1">1 month</option>
-                                    <option value="2">2 months</option>
-                                    <option value="3" selected>3 months</option>
-                                </select>
+                                <p class="text-green-200 text-xs font-bold uppercase tracking-widest">Payout Month</p>
+                                <p class="text-2xl font-extrabold mt-0.5">October 🛒</p>
                             </div>
-                            <div class="bg-blue-50 p-3 rounded">
-                                <div class="grid grid-cols-2 gap-2 mb-2">
-                                    <p class="text-gray-600">Capital:</p>
-                                    <p id="capital-amount" class="text-right font-medium">R1,000.00</p>
-                                    
-                                    <p class="text-gray-600">Interest:</p>
-                                    <p id="interest-amount" class="text-right font-medium">R45.00</p>
-                                    
-                                    <p class="text-gray-600">Service Fee:</p>
-                                    <p id="service-fee" class="text-right font-medium">R52.26</p>
-                                    
-                                    <p class="text-gray-600">Initiation Fee:</p>
-                                    <p id="initiation-fee" class="text-right font-medium">R150.00</p>
-                                    
-                                    <p class="text-gray-600 font-semibold">Total Repayment:</p>
-                                    <p id="total-repayment" class="text-right font-bold text-blue-700">R1,247.26</p>
+                            <div class="w-14 h-14 bg-white bg-opacity-15 rounded-2xl flex items-center justify-center">
+                                <i class="fas fa-shopping-basket text-2xl"></i>
+                            </div>
+                        </div>
+                        <!-- Cart items visual -->
+                        <p class="text-green-200 text-xs font-semibold mb-2.5">Example basket (illustrative)</p>
+                        <div class="space-y-2 plan-groc-rows">
+                            <div class="bg-white bg-opacity-15 rounded-xl px-3 py-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-medium">🛍️ Groceries bulk</span>
+                                    <span class="text-xs font-bold text-green-300">R 1,200</span>
                                 </div>
-                                <p class="text-sm text-gray-600">Monthly payment: <span id="monthly-payment" class="font-medium">R415.75</span></p>
+                                <div class="plan-demo-filltrack mt-2 h-1.5">
+                                    <span class="plan-progress-inner bg-emerald-200" style="width:48%"></span>
+                                </div>
                             </div>
-                            <a href="#" id="loan-apply-now" class="block text-center bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Apply Now</a>
+                            <div class="bg-white bg-opacity-15 rounded-xl px-3 py-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-medium">🧴 Household goods</span>
+                                    <span class="text-xs font-bold text-green-300">R 800</span>
+                                </div>
+                                <div class="plan-demo-filltrack mt-2 h-1.5">
+                                    <span class="plan-progress-inner bg-lime-200" style="width:32%"></span>
+                                </div>
+                            </div>
+                            <div class="bg-white bg-opacity-15 rounded-xl px-3 py-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-medium">🎁 Holiday extras</span>
+                                    <span class="text-xs font-bold text-green-300">R 500</span>
+                                </div>
+                                <div class="plan-demo-filltrack mt-2 h-1.5">
+                                    <span class="plan-progress-inner bg-yellow-200" style="width:20%"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3 bg-white bg-opacity-15 rounded-2xl p-3 text-center">
+                            <p class="text-green-200 text-[10px] font-semibold uppercase tracking-wider mb-0.5">Example only</p>
+                            <p class="text-green-200 text-xs">Est. payout (not a live balance)</p>
+                            <p class="text-2xl font-extrabold">~R 2,500</p>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
+            </div>
+            </div>
+        </div>
 
-    <!-- Footer -->
-    <footer class="bg-blue-900 text-white py-12">
-        <div class="container mx-auto px-4">
-            <div class="grid md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">Vema Stokvel</h3>
-                    <p class="text-blue-200">Simple, Fast and Reliable.</p>
-                </div>
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="text-blue-200 hover:text-white">Home</a></li>
-                        <li><a href="#stokvels" class="text-blue-200 hover:text-white">Stokvels</a></li>
-                        <li><a href="#store" class="text-blue-200 hover:text-white">Store</a></li>
-                        <li><a href="#funeral" class="text-blue-200 hover:text-white">Funeral Society</a></li>
-                        <li><a href="#loans" class="text-blue-200 hover:text-white">Loans</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">Contact Us</h3>
-                    <ul class="space-y-2">
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                            <span>087 265 0960</span>
+        <!-- Planning Ahead -->
+        <div id="panel-plan" class="plan-panel" role="tabpanel" aria-labelledby="tab-plan">
+            <div class="plan-pair-shell">
+            <div class="flex flex-col lg:flex-row gap-10 items-center w-full">
+            <div class="flex-1 w-full min-w-0">
+                <div class="relative bg-white rounded-2xl shadow-sm border border-gray-100 p-7 plan-card plan-plan overflow-hidden">
+                    <div class="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center mb-5">
+                        <i class="fas fa-chart-line text-purple-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-extrabold text-gray-900 mb-3">Planning Ahead Stokvel</h3>
+                    <p class="text-gray-500 mb-4 leading-relaxed">Our most flexible plan: at least 10 months of saving, then your payout for whatever goal matters to you.</p>
+                    <div class="mb-6 plan-spark-wrap" aria-hidden="true">
+                        <svg class="plan-left-spark plan-spark--purple" viewBox="0 0 100 26" preserveAspectRatio="xMidYMid meet" focusable="false">
+                            <path class="plan-spark-path" d="M2,18 L16,16 L32,12 L48,14 L64,8 L82,6 L98,3" pathLength="100"></path>
+                        </svg>
+                    </div>
+                    <ul class="space-y-3 mb-7">
+                        <li class="flex items-center gap-2.5 text-sm text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i> Choose your own start date
                         </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                            <span>inquiries@vema24.co.za</span>
+                        <li class="flex items-center gap-2.5 text-sm text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i> Minimum 10 months before payout
+                        </li>
+                        <li class="flex items-center gap-2.5 text-sm text-gray-700">
+                            <i class="fas fa-check-circle text-green-500 flex-shrink-0"></i> Use funds for any personal goal
                         </li>
                     </ul>
+                    <a href="/auth/register.html"
+                       class="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-bold text-sm transition-all">
+                        <i class="fas fa-arrow-right"></i> Join This Plan
+                    </a>
                 </div>
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">Follow Us</h3>
-                    <div class="flex space-x-4">
-                        <a href="https://www.facebook.com/Vemafinance/" target="_blank" rel="noopener noreferrer" class="text-blue-200 hover:text-white">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"></path></svg>
-                        </a>
-                        <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" class="text-blue-200 hover:text-white">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z"></path></svg>
-                        </a>
-                        <a href="https://x.com/Vemafinance" target="_blank" rel="noopener noreferrer" class="text-blue-200 hover:text-white">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path></svg>
-                        </a>
+            </div>
+            <div class="flex-1 flex items-center justify-center w-full min-w-0">
+                <div class="w-full max-w-xs plan-demo-card">
+                    <div class="bg-gradient-to-br from-purple-700 to-indigo-800 rounded-3xl p-6 text-white shadow-2xl float-c">
+                        <div class="flex items-center justify-between mb-5">
+                            <div>
+                                <p class="text-purple-200 text-xs font-bold uppercase tracking-widest">Your Goal</p>
+                                <p class="text-2xl font-extrabold mt-0.5">Dream Big 🌟</p>
+                            </div>
+                            <div class="w-14 h-14 bg-white bg-opacity-15 rounded-2xl flex items-center justify-center">
+                                <i class="fas fa-chart-line text-2xl"></i>
+                            </div>
+                        </div>
+                        <!-- Goals visual -->
+                        <p class="text-purple-200 text-xs font-semibold mb-2.5">Example goals (illustrative)</p>
+                        <div class="space-y-2.5 plan-goal-rows">
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>🚗 New car fund</span>
+                                    <span class="text-green-300 font-bold">65%</span>
+                                </div>
+                                <div class="plan-demo-filltrack">
+                                    <span class="plan-progress-inner bg-green-400" style="width:65%"></span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>🏠 Home improvements</span>
+                                    <span class="text-yellow-300 font-bold">40%</span>
+                                </div>
+                                <div class="plan-demo-filltrack">
+                                    <span class="plan-progress-inner bg-yellow-400" style="width:40%"></span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>✈️ Family holiday</span>
+                                    <span class="text-purple-300 font-bold">80%</span>
+                                </div>
+                                <div class="plan-demo-filltrack">
+                                    <span class="plan-progress-inner bg-purple-300" style="width:80%"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 bg-white bg-opacity-15 rounded-2xl p-3 text-center">
+                            <p class="text-purple-200 text-[10px] font-semibold uppercase tracking-wider mb-0.5">Example only</p>
+                            <p class="text-purple-200 text-xs">Combined projection (demo)</p>
+                            <p class="text-2xl font-extrabold">~R 5,800</p>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="border-t border-blue-800 mt-8 pt-8 text-center text-blue-200">
-                <p>&copy; 2025 Vema Stokvel. All rights reserved.</p>
             </div>
+            </div>
+        </div>
 
-            <div class="pt-4 text-center text-blue-200">
-                <div class="flex justify-center space-x-6">
-                    <a href="vema-termsandconds.html" class="hover:underline hover:text-blue-100 transition-colors">
-                        Terms of Use
-                    </a>
-                    <a href="privacy-policy.html" class="hover:underline hover:text-blue-100 transition-colors">
-                        Privacy Policy
-                    </a>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════ HOW IT WORKS -->
+<section id="how-it-works" class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+
+        <div class="text-center mb-10 reveal hiw-head">
+            <span class="inline-block bg-blue-50 text-blue-600 font-bold text-xs uppercase tracking-widest px-3 py-1.5 rounded-full mb-4">How It Works</span>
+            <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900">4 Steps to Start Saving</h2>
+            <p class="text-gray-500 mt-3 max-w-md mx-auto text-sm">Less than 5 minutes to get started.</p>
+            <div class="hiw-intro-chart mx-auto mt-5 max-w-[220px]" aria-hidden="true">
+                <div class="hiw-intro-bars">
+                    <span style="height:38%"></span>
+                    <span style="height:58%"></span>
+                    <span style="height:46%"></span>
+                    <span style="height:78%"></span>
                 </div>
             </div>
         </div>
-    </footer>
 
-    <script src="/js/utils.js" type="module" defer></script>
+        <div class="hiw-section reveal">
+            <div class="hiw-shell">
+                <div class="relative grid md:grid-cols-4 gap-8 py-8 px-4 md:px-10">
+                    <div class="hiw-rail hidden md:block" aria-hidden="true"></div>
+                    <div class="text-center hiw-step-col reveal relative">
+                        <div class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 font-extrabold text-xl shadow-lg shadow-blue-200 step-badge">1</div>
+                        <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-user-plus text-blue-600 text-lg"></i>
+                        </div>
+                        <h3 class="font-bold text-gray-800 mb-1.5 text-sm">Register</h3>
+                        <p class="text-gray-500 text-xs leading-relaxed">Create your free account in minutes.</p>
+                    </div>
+                    <div class="text-center hiw-step-col reveal rv-1 relative">
+                        <div class="w-14 h-14 bg-green-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 font-extrabold text-xl shadow-lg shadow-green-200 step-badge">2</div>
+                        <div class="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-layer-group text-green-600 text-lg"></i>
+                        </div>
+                        <h3 class="font-bold text-gray-800 mb-1.5 text-sm">Choose a Plan</h3>
+                        <p class="text-gray-500 text-xs leading-relaxed">Pick the stokvel that fits your goals.</p>
+                    </div>
+                    <div class="text-center hiw-step-col reveal rv-2 relative">
+                        <div class="w-14 h-14 bg-yellow-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 font-extrabold text-xl shadow-lg shadow-yellow-200 step-badge">3</div>
+                        <div class="w-12 h-12 bg-yellow-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-university text-yellow-600 text-lg"></i>
+                        </div>
+                        <h3 class="font-bold text-gray-800 mb-1.5 text-sm">Contribute Monthly</h3>
+                        <p class="text-gray-500 text-xs leading-relaxed">EFT to our FNB account, upload proof.</p>
+                    </div>
+                    <div class="text-center hiw-step-col reveal rv-3">
+                        <div class="w-14 h-14 bg-purple-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 font-extrabold text-xl shadow-lg shadow-purple-200 step-badge">4</div>
+                        <div class="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-money-bill-wave text-purple-600 text-lg"></i>
+                        </div>
+                        <h3 class="font-bold text-gray-800 mb-1.5 text-sm">Get Your Payout</h3>
+                        <p class="text-gray-500 text-xs leading-relaxed">Full savings at end of period. No surprises.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-    <script type="module">
-        import { initializeFirebaseAuth, requireAuth } from './js/utils.js';
-        import { initializeMobileMenu } from './js/mobile-menu.js';
-        import { initializeLoanCalculator } from './js/loan-calculator.js';
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeFirebaseAuth().then(() => {
-                initializeMobileMenu();
-                initializeLoanCalculator();
-                initializeProtectedButtons();
-            });
+<!-- ══════════════════════════════════════ CTA -->
+<section id="cta-join" class="py-20 cta-section" style="background:linear-gradient(135deg,#1d4ed8 0%,#1e3a8a 55%,#312e81 100%)">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6">
+        <div class="cta-glass reveal text-center px-6 py-10 md:px-10 md:py-12">
+            <div class="text-5xl mb-4 float-a inline-block">🏦</div>
+            <h2 class="text-3xl md:text-5xl font-black text-white mb-4">Ready to Start?</h2>
+            <p class="text-blue-200 mb-6 max-w-lg mx-auto text-sm md:text-base">Join thousands of South Africans growing their wealth together. 5 minutes to sign up.</p>
+            <div class="mx-auto mb-8 max-w-[240px]" aria-hidden="true">
+                <div class="cta-chart-bars">
+                    <span class="cta-chart-bar bg-yellow-300" style="height:42%"></span>
+                    <span class="cta-chart-bar bg-yellow-200" style="height:58%"></span>
+                    <span class="cta-chart-bar bg-white" style="height:48%"></span>
+                    <span class="cta-chart-bar bg-cyan-200" style="height:72%"></span>
+                    <span class="cta-chart-bar bg-emerald-300" style="height:88%"></span>
+                </div>
+                <p class="text-[10px] text-blue-200/80 uppercase tracking-widest mt-2 font-semibold">Illustrative growth</p>
+            </div>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="/auth/register.html" id="bottom-cta"
+                   class="bg-yellow-400 text-blue-900 px-9 py-4 rounded-2xl font-extrabold hover:bg-yellow-300 transition-all shadow-xl hover:-translate-y-0.5 transform inline-flex items-center gap-2">
+                    <i class="fas fa-rocket"></i> Create Free Account
+                </a>
+                <a href="/auth/login.html"
+                   class="bg-white bg-opacity-10 border border-white border-opacity-25 text-white px-9 py-4 rounded-2xl font-bold hover:bg-opacity-20 transition-all inline-flex items-center gap-2">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+            <p class="text-blue-100/90 text-xs mt-4 max-w-md mx-auto">No debit order is set up on this page — you only commit inside the secure registration flow.</p>
+            <p class="text-blue-100/90 text-xs mt-3 max-w-md mx-auto">
+                Questions first? <a href="mailto:inquiries@vema24.co.za" class="text-yellow-200 font-bold underline">inquiries@vema24.co.za</a> and our team will help you choose the right plan.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════ FOOTER -->
+<footer class="bg-slate-900 text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+                <img src="assets/logo/Vema White.png" alt="Vema" class="h-8 mb-4">
+                <p class="text-gray-500 text-sm leading-relaxed">Simple, fast, and reliable stokvel savings for South African communities.</p>
+                <div class="flex gap-2 mt-4">
+                    <a href="https://www.facebook.com/Vemafinance/" target="_blank" rel="noopener noreferrer"
+                       class="w-8 h-8 bg-white bg-opacity-8 hover:bg-opacity-15 rounded-lg flex items-center justify-center text-gray-500 hover:text-white transition-all border border-white border-opacity-10">
+                        <i class="fab fa-facebook-f text-xs"></i>
+                    </a>
+                    <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer"
+                       class="w-8 h-8 bg-white bg-opacity-8 hover:bg-opacity-15 rounded-lg flex items-center justify-center text-gray-500 hover:text-white transition-all border border-white border-opacity-10">
+                        <i class="fab fa-instagram text-xs"></i>
+                    </a>
+                    <a href="https://x.com/Vemafinance" target="_blank" rel="noopener noreferrer"
+                       class="w-8 h-8 bg-white bg-opacity-8 hover:bg-opacity-15 rounded-lg flex items-center justify-center text-gray-500 hover:text-white transition-all border border-white border-opacity-10">
+                        <i class="fab fa-x-twitter text-xs"></i>
+                    </a>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-bold text-white text-sm mb-3">Explore</h4>
+                <ul class="space-y-2">
+                    <li><a href="#" class="text-gray-500 hover:text-white text-sm transition-colors">Home</a></li>
+                    <li><a href="#plans" class="text-gray-500 hover:text-white text-sm transition-colors">Stokvel Plans</a></li>
+                    <li><a href="#how-it-works" class="text-gray-500 hover:text-white text-sm transition-colors">How It Works</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-white text-sm mb-3">Account</h4>
+                <ul class="space-y-2">
+                    <li><a href="/auth/register.html" class="text-gray-500 hover:text-white text-sm transition-colors">Create Account</a></li>
+                    <li><a href="/auth/login.html" class="text-gray-500 hover:text-white text-sm transition-colors">Login</a></li>
+                    <li><a href="/dashboard" class="text-gray-500 hover:text-white text-sm transition-colors">Dashboard</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-white text-sm mb-3">Contact</h4>
+                <ul class="space-y-2.5">
+                    <li class="flex items-center gap-2 text-gray-500 text-sm">
+                        <i class="fas fa-phone text-blue-500 text-xs flex-shrink-0"></i> 087 265 0960
+                    </li>
+                    <li class="flex items-center gap-2 text-gray-500 text-sm">
+                        <i class="fas fa-envelope text-blue-500 text-xs flex-shrink-0"></i> inquiries@vema24.co.za
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="border-t border-white border-opacity-8 pt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-600">
+            <p>&copy; 2026 Vema Stokvel. All rights reserved.</p>
+            <div class="flex gap-5">
+                <a href="vema-termsandconds.html" class="hover:text-white transition-colors">Terms of Use</a>
+                <a href="privacy-policy.html" class="hover:text-white transition-colors">Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</div><!-- /#main-content -->
+
+<button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <i class="fas fa-chevron-up text-sm"></i>
+</button>
+
+<script>
+    /* ── Tab switching ── */
+    const PLAN_ORDER = ['jan', 'groc', 'plan'];
+    const HASH_SLUG_TO_ID = { jan: 'jan', january: 'jan', groc: 'groc', grocery: 'groc', plan: 'plan', flexible: 'plan', planning: 'plan' };
+    const ID_TO_HASH_SLUG = { jan: 'january', groc: 'grocery', plan: 'flexible' };
+
+    function parsePlanFromHash() {
+        const raw = (window.location.hash || '').replace(/^#/, '');
+        if (!raw.toLowerCase().startsWith('plans')) return null;
+        const eq = raw.indexOf('=');
+        if (eq === -1) return null;
+        const key = raw.slice(eq + 1).toLowerCase().trim();
+        return HASH_SLUG_TO_ID[key] || null;
+    }
+
+    function syncPlanHash(planId) {
+        const slug = ID_TO_HASH_SLUG[planId] || planId;
+        const next = '#plans=' + slug;
+        if (window.location.hash === next) return;
+        const u = new URL(window.location.href);
+        u.hash = 'plans=' + slug;
+        history.replaceState(null, '', u.href);
+    }
+
+    function setPlanTabIndexes(activeBtn) {
+        document.querySelectorAll('.plan-tab-btn').forEach(b => {
+            b.tabIndex = b === activeBtn ? 0 : -1;
+        });
+    }
+
+    function switchPlan(name, btn, options) {
+        options = options || {};
+        if (!btn) btn = document.querySelector('.plan-tab-btn[data-plan="' + name + '"]');
+        if (!btn || btn.classList.contains('active')) return;
+
+        document.querySelectorAll('.plan-tab-btn').forEach(b => {
+            b.classList.remove('active', 'just-picked');
+            b.setAttribute('aria-selected', 'false');
+        });
+        btn.classList.add('active', 'just-picked');
+        btn.setAttribute('aria-selected', 'true');
+        setPlanTabIndexes(btn);
+        setTimeout(() => btn.classList.remove('just-picked'), 420);
+
+        document.querySelectorAll('.plan-panel').forEach(p => {
+            p.classList.remove('active', 'plan-panel--enter');
+        });
+        const panel = document.getElementById('panel-' + name);
+        requestAnimationFrame(() => {
+            panel.classList.add('active', 'plan-panel--enter');
+            const done = () => panel.classList.remove('plan-panel--enter');
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                requestAnimationFrame(done);
+            } else {
+                panel.addEventListener('animationend', done, { once: true });
+            }
         });
 
-        function initializeProtectedButtons() {
-            // Funeral Learn More button
-            const funeralLearnMoreBtn = document.getElementById('funeral-learn-more');
-            if (funeralLearnMoreBtn) {
-                funeralLearnMoreBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    console.log('Funeral Learn More clicked');
-                    requireAuth('dashboard/funeral.html', 'access funeral cover information')
-                        .then(() => {
-                            console.log('Auth successful, redirecting to funeral dashboard');
-                            window.location.href = 'dashboard/funeral.html';
-                        })
-                        .catch(() => {
-                            console.log('Auth failed, user will be redirected to login');
-                            // User will be redirected to login
-                        });
-                });
-            }
+        if (!options.skipHash) syncPlanHash(name);
+    }
 
-            // Loan Apply Now button
-            const loanApplyNowBtn = document.getElementById('loan-apply-now');
-            if (loanApplyNowBtn) {
-                loanApplyNowBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    console.log('Loan Apply Now clicked');
-                    requireAuth('dashboard/loans.html', 'apply for a loan')
-                        .then(() => {
-                            console.log('Auth successful, redirecting to loans dashboard');
-                            window.location.href = 'dashboard/loans.html';
-                        })
-                        .catch(() => {
-                            console.log('Auth failed, user will be redirected to login');
-                            // User will be redirected to login
-                        });
-                });
-            }
+    window.switchPlan = switchPlan;
 
-            // Store Visit button
-            const storeVisitBtn = document.getElementById('store-visit');
-            if (storeVisitBtn) {
-                storeVisitBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    console.log('Store Visit clicked');
-                    requireAuth('dashboard/store.html', 'visit the online store')
-                        .then(() => {
-                            console.log('Auth successful, redirecting to store dashboard');
-                            window.location.href = 'dashboard/store.html';
-                        })
-                        .catch(() => {
-                            console.log('Auth failed, user will be redirected to login');
-                            // User will be redirected to login
-                        });
-                });
+    function applyPlanFromHash() {
+        const id = parsePlanFromHash();
+        if (!id) return;
+        const btn = document.querySelector('.plan-tab-btn[data-plan="' + id + '"]');
+        if (btn) switchPlan(id, btn, { skipHash: true });
+    }
+
+    (function initPlanTabs() {
+        const bar = document.querySelector('.plan-tab-bar');
+        if (!bar) return;
+
+        applyPlanFromHash();
+        window.addEventListener('hashchange', applyPlanFromHash);
+
+        bar.addEventListener('keydown', e => {
+            if (!e.target.classList.contains('plan-tab-btn')) return;
+            const cur = e.target.getAttribute('data-plan');
+            const i = PLAN_ORDER.indexOf(cur);
+            if (i < 0) return;
+
+            let next = null;
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                next = PLAN_ORDER[(i + 1) % PLAN_ORDER.length];
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                next = PLAN_ORDER[(i + PLAN_ORDER.length - 1) % PLAN_ORDER.length];
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                next = PLAN_ORDER[0];
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                next = PLAN_ORDER[PLAN_ORDER.length - 1];
             }
-        }
-    </script>
+            if (!next) return;
+
+            const btn = document.querySelector('.plan-tab-btn[data-plan="' + next + '"]');
+            switchPlan(next, btn);
+            btn.focus();
+        });
+    })();
+
+    /* ── Scroll reveal ── */
+    const ro = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+
+    /* ── Stats strip: count-up when figures scroll into view ── */
+    (function () {
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        document.querySelectorAll('#stats-strip [data-stat-count]').forEach(function (el) {
+            const target = parseInt(el.getAttribute('data-stat-count'), 10);
+            const suffix = el.getAttribute('data-stat-suffix') || '';
+            if (reduce || Number.isNaN(target)) {
+                el.textContent = target + suffix;
+                return;
+            }
+            var done = false;
+            function run() {
+                if (done) return;
+                done = true;
+                var t0 = performance.now();
+                var dur = 950;
+                function frame(now) {
+                    var p = Math.min(1, (now - t0) / dur);
+                    var eased = 1 - Math.pow(1 - p, 3);
+                    el.textContent = Math.round(target * eased) + suffix;
+                    if (p < 1) requestAnimationFrame(frame);
+                }
+                requestAnimationFrame(frame);
+            }
+            var cell = el.closest('.reveal');
+            if (cell && cell.classList.contains('visible')) run();
+            else if (cell) {
+                var once = new MutationObserver(function () {
+                    if (cell.classList.contains('visible')) {
+                        once.disconnect();
+                        run();
+                    }
+                });
+                once.observe(cell, { attributes: true, attributeFilter: ['class'] });
+            } else run();
+        });
+    })();
+
+    /* ── Scroll to top ── */
+    window.addEventListener('scroll', () => {
+        document.getElementById('scroll-top').classList.toggle('show', window.scrollY > 400);
+    });
+
+    /* ── Mobile menu: handled once in js/mobile-menu.js (avoid double toggle) ── */
+
+    /* ── Smooth scroll (supports #plans=slug deep links) ── */
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', e => {
+            const href = a.getAttribute('href');
+            const deep = /^#plans=(.+)$/i.exec(href);
+            if (deep) {
+                e.preventDefault();
+                const section = document.getElementById('plans');
+                const id = HASH_SLUG_TO_ID[deep[1].toLowerCase().trim()];
+                if (id) {
+                    const btn = document.querySelector('.plan-tab-btn[data-plan="' + id + '"]');
+                    switchPlan(id, btn);
+                }
+                if (section) section.scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+            const t = document.querySelector(href);
+            if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
+        });
+    });
+</script>
+<script src="/js/utils.js" type="module" defer></script>
+<script type="module">
+    import { initializeFirebaseAuth } from './js/utils.js';
+    import { initializeMobileMenu }   from './js/mobile-menu.js';
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeMobileMenu();
+        initializeFirebaseAuth();
+    });
+</script>
+
 </body>
 </html>
