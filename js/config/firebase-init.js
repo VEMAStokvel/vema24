@@ -15,4 +15,14 @@ if (!firebase.apps.length) {
 
 // Make auth and firestore available globally
 window.auth = firebase.auth();
-window.db = firebase.firestore();
+
+const db = firebase.firestore();
+try {
+  db.settings({
+    experimentalForceLongPolling: true,
+    experimentalLongPollingOptions: { timeoutSeconds: 25 },
+  });
+} catch (e) {
+  console.warn('Firestore settings skipped:', e);
+}
+window.db = db;

@@ -277,7 +277,15 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-    
+        try {
+            db.settings({
+                experimentalForceLongPolling: true,
+                experimentalLongPollingOptions: { timeoutSeconds: 25 },
+            });
+        } catch (e) {
+            console.warn('Firestore settings:', e);
+        }
+
         // Auth state listener (⚠️ no auto-redirect here!)
         auth.onAuthStateChanged((user) => {
             if (!user) {

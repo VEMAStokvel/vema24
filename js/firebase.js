@@ -14,7 +14,18 @@ if (!firebase.apps.length) {
 }
 
 const auth = firebase.auth();
+
 const db = firebase.firestore();
+// Safari / iOS and some proxies buffer WebChannel responses; reads can hang without completing.
+// Long polling avoids that class of stalls (see Firebase issue #1674).
+try {
+  db.settings({
+    experimentalForceLongPolling: true,
+    experimentalLongPollingOptions: { timeoutSeconds: 25 },
+  });
+} catch (e) {
+  console.warn('Firestore settings skipped:', e);
+}
 
 // Make globally available for non-module scripts
 window.auth = auth;

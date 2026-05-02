@@ -1439,15 +1439,16 @@ Adopted: 01 January 2025`
         const guide    = document.getElementById('dashboard-guide-section');
         const txs      = txList || [];
         const now      = new Date();
+        if (!section || !grid) return;
         if (!stokvels || stokvels.length === 0) {
             section.style.display = 'none';
-            divider.style.display = 'none';
+            if (divider) divider.style.display = 'none';
             if (guide) guide.style.display = 'block';
             return;
         }
         if (guide) guide.style.display = 'none';
         section.style.display = 'block';
-        divider.style.display = 'block';
+        if (divider) divider.style.display = 'block';
         grid.innerHTML = stokvels.map((s, idx) => {
             const meta = PLAN_META[s.type] || { icon:'💰', desc:'Savings plan', monthly:100 };
             const progress = Math.min((s.totalSaved || 0) / (meta.monthly * 3) * 100, 100);
@@ -1506,6 +1507,7 @@ Adopted: 01 January 2025`
         const section  = document.getElementById('explore-section');
         const grid     = document.getElementById('explore-grid');
         const allJoined = document.getElementById('all-joined');
+        if (!section || !grid || !allJoined) return;
         const joined   = stokvels.map(s => s.type);
         const available = EXPLORE_PLANS.filter(p => !joined.includes(p.type));
         const pendingByPlan = new Map(
@@ -2014,23 +2016,79 @@ Adopted: 01 January 2025`
     }
 
     /* ===== AUTH & DASHBOARD LOAD ===== */
+    function hideDashboardLoading(delayMs) {
+        const el = document.getElementById('loading-overlay');
+        if (!el) return;
+        const d = typeof delayMs === 'number' ? delayMs : 320;
+        setTimeout(() => { el.style.display = 'none'; }, d);
+    }
+
+    const DASH_LOAD_TIMEOUT_MS = 45000;
+    let dashLoadWatchdog = null;
+
+    function armDashboardWatchdog() {
+        if (dashLoadWatchdog) clearTimeout(dashLoadWatchdog);
+        dashLoadWatchdog = setTimeout(() => {
+            const el = document.getElementById('loading-overlay');
+            if (el && el.style.display !== 'none') {
+                console.warn('Dashboard load watchdog: forcing overlay off');
+                showToast('This is taking too long. Check your connection and pull to refresh.', 'warning', 8000);
+                hideDashboardLoading(0);
+            }
+        }, DASH_LOAD_TIMEOUT_MS);
+    }
+
+    function clearDashboardWatchdog() {
+        if (dashLoadWatchdog) {
+            clearTimeout(dashLoadWatchdog);
+            dashLoadWatchdog = null;
+        }
+    }
+
+    function withTimeout(promise, ms, message) {
+        return Promise.race([
+            promise,
+            new Promise((_, reject) => setTimeout(() => reject(new Error(message || 'Request timed out')), ms)),
+        ]);
+    }
+
     auth.onAuthStateChanged(async (user) => {
-        if (!user) { window.location.href = '../auth/login.html'; return; }
+        if (!user) {
+            clearDashboardWatchdog();
+            window.location.href = '../auth/login.html';
+            return;
+        }
+        armDashboardWatchdog();
+        const FIRESTORE_OP_MS = 35000;
         try {
-            const userDoc = await db.collection('users').doc(user.uid).get();
+            const userDoc = await withTimeout(
+                db.collection('users').doc(user.uid).get(),
+                FIRESTORE_OP_MS,
+                'Could not load your profile'
+            );
             if (!userDoc.exists) throw new Error('User document not found');
             const userData = userDoc.data();
             window.userData = userData;
             setupGreeting(userData.name || 'Member');
-            document.getElementById('user-name').textContent   = userData.name || 'Member';
-            document.getElementById('user-avatar').textContent = (userData.name || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
+            const nameEl = document.getElementById('user-name');
+            const avEl = document.getElementById('user-avatar');
+            if (nameEl) nameEl.textContent = userData.name || 'Member';
+            if (avEl) avEl.textContent = (userData.name || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
-            const [stokvelsSnap, txSnap] = await Promise.all([
-                db.collection('users').doc(user.uid).collection('stokvels').get(),
-                db.collection('users').doc(user.uid).collection('transactions').get()
-            ]);
+            const [stokvelsSnap, txSnap] = await withTimeout(
+                Promise.all([
+                    db.collection('users').doc(user.uid).collection('stokvels').get(),
+                    db.collection('users').doc(user.uid).collection('transactions').get(),
+                ]),
+                FIRESTORE_OP_MS,
+                'Could not load your stokvel data'
+            );
             try {
-                const reqSnap = await db.collection('stokvelRequests').where('userId', '==', user.uid).get();
+                const reqSnap = await withTimeout(
+                    db.collection('stokvelRequests').where('userId', '==', user.uid).get(),
+                    FIRESTORE_OP_MS,
+                    'Could not load join requests'
+                );
                 _pendingStokvelRequests = reqSnap.docs
                     .map(d => ({ id: d.id, ...d.data() }))
                     .filter(r => String(r.status) === 'Pending');
@@ -2060,21 +2118,29 @@ Adopted: 01 January 2025`
             }));
             _stokvelsSummary = summary;
 
-            document.getElementById('total-savings').textContent    = `R${totalSaved.toFixed(2)}`;
-            document.getElementById('active-stokvels').textContent  = stokvels.length;
+            const totalEl = document.getElementById('total-savings');
+            const activeEl = document.getElementById('active-stokvels');
+            const rankEl = document.getElementById('rank-badge');
+            if (totalEl) totalEl.textContent = `R${totalSaved.toFixed(2)}`;
+            if (activeEl) activeEl.textContent = stokvels.length;
             const rank = getRank(totalSaved);
-            document.getElementById('rank-badge').textContent = `${rank.emoji} ${rank.label}`;
+            if (rankEl) rankEl.textContent = `${rank.emoji} ${rank.label}`;
 
             renderMyStokvels(summary, txDocs);
             updateActiveStokvelStatCardFootnote(summary);
             renderExplorePlans(summary);
             renderDashboardHistory(txSnap.docs.map(d => ({ id: d.id, ...d.data() })));
 
-            setTimeout(() => { document.getElementById('loading-overlay').style.display = 'none'; }, 300);
+            hideDashboardLoading(300);
         } catch (error) {
             console.error('Dashboard load error:', error);
-            showToast('Error loading dashboard. Please refresh.', 'error', 6000);
-            setTimeout(() => { document.getElementById('loading-overlay').style.display = 'none'; }, 500);
+            const hint = (error && error.message) ? String(error.message) : 'Please refresh and try again.';
+            showToast(hint.indexOf('timed out') >= 0 || hint.indexOf('Could not load') >= 0
+                ? hint
+                : 'Error loading dashboard. Please refresh.', 'error', 7000);
+            hideDashboardLoading(400);
+        } finally {
+            clearDashboardWatchdog();
         }
     });
 

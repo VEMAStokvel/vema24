@@ -108,6 +108,14 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        try {
+            db.settings({
+                experimentalForceLongPolling: true,
+                experimentalLongPollingOptions: { timeoutSeconds: 25 },
+            });
+        } catch (e) {
+            console.warn('Firestore settings:', e);
+        }
 
         // Check for intended action and show reason
         document.addEventListener('DOMContentLoaded', function() {
