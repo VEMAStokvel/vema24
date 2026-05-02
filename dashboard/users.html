@@ -21,12 +21,6 @@
                             Total Savings <i class="fas fa-sort"></i>
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Next Contribution</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer sort-header" data-sort="funeral">
-                            Funeral Policies <i class="fas fa-sort"></i>
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer sort-header" data-sort="loans">
-                            Loans <i class="fas fa-sort"></i>
-                        </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
@@ -131,7 +125,7 @@
             if (querySnapshot.empty) {
                 usersTableBody.innerHTML = `
                     <tr>
-                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
                             No users found.
                         </td>
                     </tr>
@@ -159,30 +153,7 @@
                         });
                     });
                 
-                // Get funeral policies for this user
-                const funeralPromise = db.collection('users').doc(doc.id).collection('funeral').get()
-                    .then((funeralSnapshot) => {
-                        user.funerals = [];
-                        funeralSnapshot.forEach((funeralDoc) => {
-                            const funeral = funeralDoc.data();
-                            funeral.id = funeralDoc.id;
-                            user.funerals.push(funeral);
-                        });
-                    });
-                
-                // Get loans for this user
-                const loanPromise = db.collection('users').doc(doc.id).collection('loans').get()
-                    .then((loansSnapshot) => {
-                        user.loans = [];
-                        loansSnapshot.forEach((loanDoc) => {
-                            const loan = loanDoc.data();
-                            loan.id = loanDoc.id;
-                            user.loans.push(loan);
-                        });
-                    });
-                
-                // Wait for all data to be loaded for this user
-                const userDataPromise = Promise.all([stokvelPromise, funeralPromise, loanPromise])
+                const userDataPromise = Promise.all([stokvelPromise])
                     .then(() => {
                         usersData.push(user);
                     });
@@ -201,16 +172,6 @@
                             // Calculate total savings for each user
                             aValue = a.stokvels.reduce((total, stokvel) => total + (parseFloat(stokvel.balance) || 0), 0);
                             bValue = b.stokvels.reduce((total, stokvel) => total + (parseFloat(stokvel.balance) || 0), 0);
-                            break;
-                        case 'funeral':
-                            // Sort by number of funeral policies
-                            aValue = a.funerals.length;
-                            bValue = b.funerals.length;
-                            break;
-                        case 'loans':
-                            // Sort by number of loans
-                            aValue = a.loans.length;
-                            bValue = b.loans.length;
                             break;
                         case 'name':
                             // Sort by name
@@ -274,12 +235,6 @@
                                 <div class="text-gray-500">${nextContribution ? formatDate(nextContribution) : 'N/A'}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-gray-500">${user.funerals.length} funeral(s)</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-gray-500">${user.loans.length} loan(s)</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="relative inline-block text-left">
                                     <button class="text-green-600 hover:text-green-900 mr-2 edit-user-dropdown" data-id="${user.id}">
                                         <i class="fas fa-edit"></i>
@@ -287,12 +242,6 @@
                                     <div class="edit-dropdown-menu absolute hidden right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
                                         <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 add-stokvel" data-id="${user.id}">
                                             <i class="fas fa-users text-blue-500"></i> Stokvel
-                                        </a>
-                                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 add-funeral" data-id="${user.id}">
-                                            <i class="fas fa-monument text-green-500"></i> Funeral
-                                        </a>
-                                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 add-loan" data-id="${user.id}">
-                                            <i class="fas fa-hand-holding-usd text-purple-500"></i> Loan
                                         </a>
                                     </div>
                                 </div>

@@ -9,7 +9,11 @@ window.VEMA_EMAIL_CONFIG = {
     serviceId:  'service_ivdg2co',
     adminEmail: 'vemastokvel@gmail.com',
     templates: {
-        user:  'tmpl_join_request_user',    // generic user notification (all member emails)
-        admin: 'tmpl_join_approved_user'    // generic admin alert (all admin emails)
-    }
+        /** Reserved for future: notify member when join request is submitted (not wired in code yet). */
+        user: 'tmpl_join_request_user',
+        /** Reserved for future: notify member when join is approved (not wired in code yet). */
+        admin: 'tmpl_join_approved_user',
+        /** Used by dashboard/index.html when a member submits a contribution + proof (notifies admin). */
+        contribution: 'tmpl_contribution_approval',
+    },
 };

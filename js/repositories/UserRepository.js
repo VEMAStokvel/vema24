@@ -99,34 +99,6 @@ export class UserRepository extends BaseRepository {
     }
     
     /**
-     * Update user's funeral cover
-     */
-    async updateFuneralCover(userId, coverData) {
-        try {
-            await this.update(userId, {
-                funeralCover: true,
-                funeralCoverType: coverData.planId,
-                funeralCoverSince: new Date().toISOString(),
-                funeralCoverPaymentMethod: coverData.paymentMethod,
-                funeralFamilyDetails: coverData.familyDetails || null
-            });
-            
-            // Recalculate discount
-            const user = await this.getUserById(userId);
-            if (user) {
-                const newDiscount = user.calculateDiscount();
-                await this.update(userId, { storeDiscount: newDiscount });
-            }
-            
-            logger.log(`Funeral cover activated for user ${userId}`);
-            return true;
-        } catch (error) {
-            logger.error(`Error updating funeral cover for user ${userId}:`, error);
-            throw error;
-        }
-    }
-    
-    /**
      * Get users by role
      */
     async getUsersByRole(role) {

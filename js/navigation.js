@@ -98,9 +98,8 @@ export function updateDashboardNavigation() {
         const navMap = {
             'nav-dashboard': dashboardRoutes.home,
             'nav-stokvels': dashboardRoutes.stokvels,
-            'nav-loans': dashboardRoutes.loans,
-            'nav-funeral': dashboardRoutes.funeral,
-            'nav-store': dashboardRoutes.store,
+            'nav-constitution': dashboardRoutes.constitution,
+            'nav-users': dashboardRoutes.users,
             'nav-profile': route('PROFILE'),
             'nav-logout': route('AUTH.LOGIN')
         };
@@ -128,8 +127,6 @@ export function updateAdminNavigation() {
         const navMap = {
             'admin-nav-dashboard': adminRoutes.dashboard,
             'admin-nav-stokvels': adminRoutes.stokvels,
-            'admin-nav-loans': adminRoutes.loans,
-            'admin-nav-funerals': adminRoutes.funerals,
             'admin-nav-users': route('DASHBOARD.USERS')
         };
         
@@ -206,9 +203,8 @@ export const nav = {
     dashboardPage(page) {
         const pageMap = {
             stokvels: 'DASHBOARD.STOKVELS',
-            loans: 'DASHBOARD.LOANS',
-            funeral: 'DASHBOARD.FUNERAL',
-            store: 'DASHBOARD.STORE'
+            constitution: 'DASHBOARD.CONSTITUTION',
+            users: 'DASHBOARD.USERS'
         };
         
         const routeName = pageMap[page];
@@ -226,8 +222,7 @@ export const nav = {
         const pageMap = {
             dashboard: 'DASHBOARD.ADMIN.DASHBOARD',
             stokvels: 'DASHBOARD.ADMIN.STOKVELS',
-            loans: 'DASHBOARD.ADMIN.LOANS',
-            funerals: 'DASHBOARD.ADMIN.FUNERALS'
+            users: 'DASHBOARD.USERS'
         };
         
         const routeName = pageMap[page];

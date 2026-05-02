@@ -1,14 +1,22 @@
-import { db, auth } from './firebase.js';
+// Get db and auth from global scope (set by firebase.js or firebase-init.js)
+// Lazy load to ensure Firebase has initialized
+function getDb() {
+    return window.db;
+}
+
+function getAuth() {
+    return window.auth;
+}
 
 // Stokvel management functions
 document.addEventListener('DOMContentLoaded', () => {
-    if (!auth.currentUser) return;
+    if (!getAuth().currentUser) return;
 
-    const userId = auth.currentUser.uid;
+    const userId = getAuth().currentUser.uid;
     
     // Load user's stokvels
     function loadUserStokvels() {
-        db.collection('users').doc(userId).get()
+        getDb().collection('users').doc(userId).get()
             .then(doc => {
                 if (doc.exists) {
                     const userData = doc.data();
@@ -22,11 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     if (document.getElementById('active-stokvels')) {
                         document.getElementById('active-stokvels').textContent = stokvels.length;
-                    }
-                    
-                    if (document.getElementById('store-discount')) {
-                        document.getElementById('store-discount').textContent = 
-                            userData.storeDiscount ? `${userData.storeDiscount}%` : '0%';
                     }
                     
                     // Populate stokvels table
@@ -106,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // View stokvel details
     function viewStokvelDetails(stokvelId) {
-        db.collection('stokvels').doc(stokvelId).get()
+        getDb().collection('stokvels').doc(stokvelId).get()
             .then(doc => {
                 if (doc.exists) {
                     const stokvelData = doc.data();
@@ -128,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('detail-end').textContent = endDate;
                     
                     // Contribution info (from user's stokvels array)
-                    db.collection('users').doc(userId).get()
+                    getDb().collection('users').doc(userId).get()
                         .then(userDoc => {
                             if (userDoc.exists) {
                                 const userData = userDoc.data();
@@ -168,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Load contribution history
     function loadContributionHistory(stokvelId) {
-        db.collection('contributions')
+        getDb().collection('contributions')
             .where('userId', '==', userId)
             .where('stokvelId', '==', stokvelId)
             .orderBy('date', 'desc')
@@ -301,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
             
-            db.collection('stokvels').add(stokvelData)
+            getDb().collection('stokvels').add(stokvelData)
                 .then(stokvelRef => {
                     // Add stokvel to user's stokvels array
                     const userStokvel = {
@@ -371,7 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         status: 'completed'
                     };
                     
-                    db.collection('contributions').add(contributionData)
+                    getDb().collection('contributions').add(contributionData)
                         .then(() => {
                             // Update user's stokvel balance
                             return db.collection('users').doc(userId).get();
@@ -398,11 +401,10 @@ document.addEventListener('DOMContentLoaded', () => {
                                     // Update total savings
                                     const savingsTotal = (userData.savingsTotal || 0) + amount;
                                     
-                                    // Check for discount eligibility
-                                    let storeDiscount = userData.storeDiscount || 0;
-                                    if (savingsTotal >= 10000 && !userData.funeralCover) {
+                                    let storeDiscount = 0;
+                                    if (savingsTotal >= 10000) {
                                         storeDiscount = 25;
-                                    } else if (savingsTotal >= 5000 && !userData.funeralCover) {
+                                    } else if (savingsTotal >= 5000) {
                                         storeDiscount = 10;
                                     }
                                     

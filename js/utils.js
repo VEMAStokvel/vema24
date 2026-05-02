@@ -1,5 +1,14 @@
-import { auth } from './firebase.js';
 import { router, route } from './router.js';
+
+// Get auth from global scope (set by firebase.js or firebase-init.js)
+// Lazy load to ensure Firebase has initialized
+function getAuth() {
+    return window.auth;
+}
+
+function getDb() {
+    return window.db;
+}
 
 // Auth state management
 export function handleAuthState(user) {
@@ -94,7 +103,7 @@ export async function initializeFirebaseAuth() {
                 resolve();
             }, 5000);
 
-            const unsubscribe = auth.onAuthStateChanged(
+            const unsubscribe = getAuth().onAuthStateChanged(
                 (user) => {
                     clearTimeout(authTimeout);
                     handleAuthComplete(user);
@@ -135,7 +144,7 @@ function handleAuthComplete(user) {
 // Authentication check for protected actions
 export function requireAuth(redirectPath, actionName = 'access this feature') {
     return new Promise((resolve, reject) => {
-        const user = auth.currentUser;
+        const user = getAuth().currentUser;
         
         console.log('requireAuth called with:', { redirectPath, actionName, user: !!user });
         

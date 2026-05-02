@@ -28,21 +28,14 @@ export const ROUTES = {
         HOME: 'dashboard/index.html',
         STOKVELS: 'dashboard/stokvels.html',
         STOKVEL: 'dashboard/stokvel.html',
-        LOANS: 'dashboard/loans.html',
-        LOAN_APPLICATION: 'dashboard/Loan Widget/loan-application.html',
-        FUNERAL: 'dashboard/funeral.html',
-        FUNERAL_FORM: 'dashboard/Funeral Widget/funeral-form.html',
-        STORE: 'dashboard/store.html',
         CONSTITUTION: 'dashboard/constitution.html',
         USERS: 'dashboard/users.html',
         SHARED_STYLES: 'dashboard/shared-styles-scripts.html',
-        
+
         // Admin pages
         ADMIN: {
             DASHBOARD: 'dashboard/admin-dashboard.html',
-            STOKVELS: 'dashboard/admin-stokvels.html',
-            LOANS: 'dashboard/admin-loans.html',
-            FUNERALS: 'dashboard/admin-funerals.html'
+            STOKVELS: 'dashboard/admin-stokvels.html'
         }
     },
     
@@ -51,12 +44,9 @@ export const ROUTES = {
         LOGO_BLACK: 'assets/logo/Vema Black.png',
         LOGO_WHITE: 'assets/logo/Vema White.png',
         CONSTITUTIONS: {
-            CREDIT_TERMS: 'assets/constitutions/CreditTerms.pdf',
-            FUNERAL_PLAN: 'assets/constitutions/FuneralPlan.pdf',
             GROCERY_STOKVEL: 'assets/constitutions/GroceryStokvel.pdf',
             JANUARY_STOKVEL: 'assets/constitutions/JanuaryStokvel.pdf',
-            PLANNING_AHEAD: 'assets/constitutions/PlanningAheadStokvel.pdf',
-            POWER_OF_ATTORNEY: 'assets/constitutions/PowerOfAttorney.pdf'
+            PLANNING_AHEAD: 'assets/constitutions/PlanningAheadStokvel.pdf'
         }
     },
     
@@ -71,11 +61,7 @@ export const ROUTES = {
         FIREBASE: 'js/firebase.js',
         ROUTER: 'js/router.js',
         MOBILE_MENU: 'js/mobile-menu.js',
-        LOAN_CALCULATOR: 'js/loan-calculator.js',
-        LOANS: 'js/loans.js',
-        FUNERAL: 'js/funeral.js',
-        STOKVEL: 'js/stokvel.js',
-        STORE: 'js/store.js'
+        STOKVEL: 'js/stokvel.js'
     }
 };
 
@@ -206,23 +192,18 @@ export class Router {
         return {
             home: route('DASHBOARD.HOME'),
             stokvels: route('DASHBOARD.STOKVELS'),
-            loans: route('DASHBOARD.LOANS'),
-            funeral: route('DASHBOARD.FUNERAL'),
-            store: route('DASHBOARD.STORE'),
             constitution: route('DASHBOARD.CONSTITUTION'),
             users: route('DASHBOARD.USERS')
         };
     }
-    
+
     /**
      * Get all admin routes resolved for current page
      */
     getAdminRoutes() {
         return {
             dashboard: route('DASHBOARD.ADMIN.DASHBOARD'),
-            stokvels: route('DASHBOARD.ADMIN.STOKVELS'),
-            loans: route('DASHBOARD.ADMIN.LOANS'),
-            funerals: route('DASHBOARD.ADMIN.FUNERALS')
+            stokvels: route('DASHBOARD.ADMIN.STOKVELS')
         };
     }
     

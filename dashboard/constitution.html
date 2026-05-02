@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stokvel & Legal Documents</title>
+    <title>Stokvel constitutions — Vema24</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js"></script>
@@ -22,6 +22,14 @@
         }
         .document-item:hover {
             transform: translateX(5px);
+        }
+        .document-item.doc-highlight {
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.45);
+            animation: docPulse 1.2s ease 2;
+        }
+        @keyframes docPulse {
+            0%, 100% { box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.45); }
+            50% { box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.2); }
         }
         .back-button {
             transition: all 0.2s ease;
@@ -59,43 +67,26 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen p-4 md:p-8">
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 min-h-screen p-4 md:p-8">
     <div class="max-w-4xl mx-auto">
-        <!-- Header -->
-        <header class="text-center mb-10 mt-6">
-            <h1 class="text-3xl md:text-4xl font-bold text-indigo-800 mb-3">Stokvels & Legal Documents</h1>
-            <p class="text-lg text-gray-600 max-w-2xl mx-auto">Access and view all constitution documents and legal agreements for your stokvel groups.</p>
+        <header class="mb-8 mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <a href="index.html" class="inline-flex items-center gap-2 text-sm font-semibold text-indigo-700 hover:text-indigo-900 order-2 sm:order-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                Back to dashboard
+            </a>
+            <div class="text-center sm:text-right order-1 sm:order-2 flex-1">
+                <h1 class="text-2xl md:text-3xl font-bold text-indigo-900">Stokvel constitutions</h1>
+                <p class="text-gray-600 text-sm md:text-base mt-1 max-w-xl sm:ml-auto">Official texts for the three savings plans on Vema24. Read before you join or contribute.</p>
+            </div>
         </header>
 
         <!-- Main Content -->
-        <main class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <main class="bg-white rounded-2xl shadow-xl shadow-indigo-900/5 overflow-hidden border border-indigo-100/50">
             <!-- Documents List -->
             <div id="documents-list" class="p-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-6 pb-2 border-b border-gray-200">Available Documents</h2>
+                <h2 class="text-xl font-semibold text-gray-800 mb-6 pb-2 border-b border-gray-200">Your plans</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="document-item bg-blue-50 rounded-xl p-4 border border-blue-100 cursor-pointer hover:bg-blue-100" onclick="openPdf('Credit Terms', CreditTermsContent)">
-                        <div class="flex items-center">
-                            <div class="bg-blue-100 p-3 rounded-lg mr-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                            </div>
-                            <h3 class="font-medium text-gray-800">Credit Terms</h3>
-                        </div>
-                    </div>
-                    
-                    <div class="document-item bg-green-50 rounded-xl p-4 border border-green-100 cursor-pointer hover:bg-green-100" onclick="openPdf('Funeral Plan', FuneralPlanContent)">
-                        <div class="flex items-center">
-                            <div class="bg-green-100 p-3 rounded-lg mr-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                            </div>
-                            <h3 class="font-medium text-gray-800">Funeral Plan</h3>
-                        </div>
-                    </div>
-                    
-                    <div class="document-item bg-purple-50 rounded-xl p-4 border border-purple-100 cursor-pointer hover:bg-purple-100" onclick="openPdf('Grocery Stokvel', GroceryStokvelContent)">
+                    <div id="stokvel-grocery" class="document-item bg-purple-50 rounded-xl p-4 border border-purple-100 cursor-pointer hover:bg-purple-100" onclick="openPdf('Grocery Stokvel', GroceryStokvelContent)">
                         <div class="flex items-center">
                             <div class="bg-purple-100 p-3 rounded-lg mr-4">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -106,7 +97,7 @@
                         </div>
                     </div>
                     
-                    <div class="document-item bg-red-50 rounded-xl p-4 border border-red-100 cursor-pointer hover:bg-red-100" onclick="openPdf('January Stokvel', JanuaryStokvelContent)">
+                    <div id="stokvel-january" class="document-item bg-red-50 rounded-xl p-4 border border-red-100 cursor-pointer hover:bg-red-100" onclick="openPdf('January Stokvel', JanuaryStokvelContent)">
                         <div class="flex items-center">
                             <div class="bg-red-100 p-3 rounded-lg mr-4">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -117,7 +108,7 @@
                         </div>
                     </div>
                     
-                    <div class="document-item bg-yellow-50 rounded-xl p-4 border border-yellow-100 cursor-pointer hover:bg-yellow-100" onclick="openPdf('Planning Ahead Stokvel', PlanningAheadStokvelContent)">
+                    <div id="stokvel-planning" class="document-item bg-yellow-50 rounded-xl p-4 border border-yellow-100 cursor-pointer hover:bg-yellow-100" onclick="openPdf('Planning Ahead Stokvel', PlanningAheadStokvelContent)">
                         <div class="flex items-center">
                             <div class="bg-yellow-100 p-3 rounded-lg mr-4">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -125,17 +116,6 @@
                                 </svg>
                             </div>
                             <h3 class="font-medium text-gray-800">Planning Ahead Stokvel</h3>
-                        </div>
-                    </div>
-                    
-                    <div class="document-item bg-indigo-50 rounded-xl p-4 border border-indigo-100 cursor-pointer hover:bg-indigo-100" onclick="openPdf('Power of Attorney', PowerOfAttorneyContent)">
-                        <div class="flex items-center">
-                            <div class="bg-indigo-100 p-3 rounded-lg mr-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                            </div>
-                            <h3 class="font-medium text-gray-800">Power of Attorney</h3>
                         </div>
                     </div>
                 </div>
@@ -165,233 +145,6 @@
 
     <script>
         // PDF content as text (from your provided files)
-        const CreditTermsContent = `
-
- VEMA 24
-
- CREDIT TERMS AND CONDITIONS
-
-(Issued in terms of Section 93(2) of the National Credit Act No. 34 of 2005)
-
-These Terms of Use apply to all loan agreements facilitated by Verna 24 (Pty) Ltd
-("Vema 24", "we", "us"). They must be read together with the Quotation and Payment Schedule
-issued to you. Any reference to "agreement" herein refers to these Terms of Use
-together with the Quotation and Payment Schedule. Any reference to "you/your" means the
-applicant stokvel group, its executives, and members.
-
-1. INTRODUCTION
-
-Vema 24 is registered with the National Credit Regulator ("NCR") and abides by the National
-Credit Act, 34 of 2005 ("NCA").
-
-The agreement becomes binding once Verna 24 disburses the approved loan into your Verna
-24 stokvel account. Approval of any loan is at the sole discretion of Verna 24.
-
-The stokvel group warrants that it is the lawful, exclusive, and rightful holder of the Verna 24
-stokvel account(s).
-
-2. QUOTATION AND PAYMENT SCHEDULE
-
-A quotation will be auto-generated and displayed on the Verna 24 platform for review and
-acceptance.
-
-Once accepted, a payment schedule will be issued electronically to the stokvel executives.
-
-3. INTEREST RATE AND FEES
-
-The interest rate is fixed for the duration of the agreement and will not exceed the maximum
-rate permitted under the NCA.
-
-Interest, fees, and charges are calculated upfront and collected according to the agreed
-payment schedule.
-
-If Verna 24 changes any rates, fees, or charges in accordance with the NCA, we will notify the
-stokvel executives at least five (5) business days prior to implementation.
-
-4. REPAYMENT TERMS
-
-Once funds are disbursed into the Verna 24 stokvel account, the stokvel group and all its
-members are jointly responsible for repayment.
-
-You authorise Verna 24 and/or its appointed third-party service providers to raise recurring
-payments against your account(s) for any missed instalments.
-
-Payments due on weekends or public holidays will be processed on the next business day.
-
-5. SESSION
-
-
-You cede, in securitatem debiti, all rights to any savings in your Verna 24 stokvel account(s) as collateral against the loan.
-
-Vema 24 reserves the right to apply or transfer such collateral as security until the loan is fully repaid.
-
-This cession remains in force until all obligations under the loan agreement are discharged.
-
-6. INSURANCE
-
-Where applicable, a credit life policy may be arranged on your behalf through an authorised third-party provider.
-
-You may elect to use the proposed policy or substitute it with your own.
-
-The policy may cover death, permanent disability, temporary disability, or loss of income as per the insurer's terms.
-
-Premiums will be recovered as part of your repayment schedule.
-
-7. STATEMENTS
-
-Loan repayment schedules will be incorporated into your Verna 24 account statements, which are available online.
-
-Failure to receive a statement does not release you from repayment obligations.
-
-8. TERMINATION
-
-You may terminate this agreement by closing your Verna 24 account, provided all outstanding amounts are settled immediately from your account balance.
-
-9. DEFAULT
-
-Failure to comply with this agreement entitles Verna 24 to claim the full outstanding balance, including principal, interest, and fees.
-
-10. JURISDICTION
-
-In terms of Section 45 of the Magistrates' Court Act, you consent to Verna 24 instituting legal proceedings in the Magistrates' Court, notwithstanding that Verna 24 may choose any court of competent jurisdiction.
-
-11. LEGAL COSTS
-
-You will be liable for all legal costs incurred by Verna 24 in enforcing this agreement, on an attorney-and-client scale, unless a court orders otherwise.
-
-12. CERTIFICATE OF BALANCE
-
-A certificate issued by a duly authorised manager of Verna 24, or your latest account statement, will serve as prima facie proof of the amount due.
-
-13. WHOLE AGREEMENT
-
-
-This agreement must be read in conjunction with Verna 24's platform terms of use and Privacy Policy. No unwritten terms shall apply.
-
-14. YOUR RIGHTS
-
-You may lodge complaints directly with Verna 24 via support@verna24.co.za or by contacting our customer support line.
-
-If unresolved, you may escalate complaints to the National Credit Regulator (NCR) or the National Consumer Tribunal (NCT).
-
-NCR: Tel 0860 627 627 | Email: complaints@ncr.org.za | Website: www.ncr.org.za
-
-Tribunal: www.thenct.org.za
-
- These terms are binding upon acceptance of your loan quotation and form part of the loan agreement between you and Verna 24.`;
-
-        const FuneralPlanContent = `
-
- Vema24 Funeral Plan Constitution
-
- 1. NAME
-The name of the scheme shall be Vema24 Funeral Plan.
-
- 2. ADMINISTRATION
-The Funeral Plan is administered by Akanani Funeral Assist, a community-based savings and funeral benefit initiative.
-
- 3. PURPOSE
-To provide fixed cash funeral benefits to the nominated beneficiary or policyholder in the event of death, subject to the terms outlined herein.
-
- 4. DEFINITIONS
-Policyholder: The primary insured member, aged 18 to 72 years.
-Spouse: A legally recognized or life partner residing with the Policyholder for more than 6 months.
-Children: Up to five (5) unmarried children under 18 years of age.
-Parents: Up to four (4) biological, legal, or step-parents of the Policyholder or Spouse, not older than 74 years.
-Extended Family: Uncles, aunts, cousins, nieces, nephews, or any legally recognised family members nominated by the Policyholder.
-Nominated Beneficiary: A person nominated to receive the funeral benefit upon the Policyholder's death.
-Premium: Monthly amount payable in advance.
-Grace Period: 20 days after non-payment notice.
-Waiting Period: The time before claims become payable.
-VAS: Value-added services offered with the plan.
-
- 5. ELIGIBILITY
-Any South African permanent resident or valid permit holder aged 18 to 72 may join.
-
- 6. MEMBERSHIP COVER
-The Funeral Plan may cover:
-- The Policyholder
-- One Spouse
-- Up to five (5) children
-- Up to four (4) parents
-- Extended family members, such as uncles, aunts, cousins, etc., nominated by the Policyholder and reflected in the Schedule
-
- 7. PREMIUM PAYMENT
-- Premiums are payable monthly in advance.
-
-
-Vema24 Funeral Plan Constitution
-
-- If a premium is unpaid, a 20-day Grace Period applies.
-- Non-payment for 2 consecutive months results in the reduced Protector Benefit.
-- The Plan can be reinstated within 2 months, but new waiting periods may apply.
-
-8. COVER AMOUNTS
-
-Fixed cash benefits are paid upon the death of a covered member, as specified in the Plan Schedule.
-
-9. WAITING PERIODS
-
-- Accidental death: No waiting period.
-- Natural causes: 6 months with 6 paid premiums.
-- Suicide: 12 months with 12 paid premiums.
-- Waiting periods may be waived if transitioning from another funeral policy.
-
-10. EXCLUSIONS
-
-No benefit shall be payable if death results from:
-- Substance or alcohol abuse
-- War, protest, or public disorder
-- Criminal activities
-- Nuclear or biological exposure
-- Fraud or intentional misrepresentation
-
-11. CLAIM PROCEDURE
-
-- Claims must be lodged within 3 months of death.
-- Full documentation and a claim form are required.
-- Claims are paid within 24 hours of approval (excluding weekends/public holidays).
-- Claims will not be processed if premiums are in arrears or waiting periods apply.
-
-12. BENEFICIARY PAYOUTS
-
-- For family members: The Policyholder is the beneficiary.
-- For Policyholder's death: Payout is made to the nominated beneficiary or surviving spouse.
-- If no valid beneficiary is nominated: Payout will follow succession law.
-
-13. CANCELLATION POLICY
-
-- Members may cancel within 31 days for a full refund (cooling-off period).
-- After 31 days, no refund.
-- Akanani Funeral Assist may cancel the policy with 31 days' written notice.
-
-Vema24 Funeral Plan Constitution
-
-14. ANNUAL INCREASE
-- Premiums may increase annually by up to 10%.
-- Cover amount may increase proportionally.
-- Notice will be given at least 31 days prior.
-
-15. OPTIONAL BENEFITS
-- Increased accidental death cover
-- Cover for up to 4 parents
-- Extended family cover
-- Family extender benefit (3-month cover after Policyholder's death)
-- Airtime voucher to assist with funeral arrangements
-
-16. TREATING CUSTOMERS FAIRLY (TCF)
-Our Society adheres to the TCF (Treating Customers Fairly) principles:
-- Transparency, fairness, and access to information
-- Suitability of product and services
-- No post-sale barriers
-
-17. COMPLAINTS PROCEDURE
-Complaints must be submitted in writing within 30 days to:
-complaints@vema24.co.za
-
-18. PRIVACY & DATA PROTECTION
-Akanani Funeral Assist and Vema24 will handle personal information in accordance with the POPI Act, ensuring privacy and security. Personal information will be destroyed upon request and stored for a minimum of 5 years as per FAIS regulations.`;
-
         const GroceryStokvelContent = `
 
  GROCERY STOKVEL
@@ -753,104 +506,6 @@ The Stokvel shall be managed by a Governing Body consisting of:
 
 This Constitution was formally adopted on: 01 January 2025.`;
 
-        const PowerOfAttorneyContent = `
-
-  VEMA 24
-
- POWER OF ATTORNEY & CONSENT
-
-By applying for any and/or all loans through Vema 24, you hereby expressly nominate,
-constitute, and appoint Vema 24 (Pty) Ltd, together with any of its authorised employees,
-officers, or agents, as your true and lawful attorney-in-fact and agent, with full power of
-substitution and resubstitution, for you and in your name, place, and stead, in any and all
-capacities, to:
-
-1. Initiate Debit Orders: Initiate and process recurring debit orders against your designated
-bank account(s) for the purpose of collecting loan repayments, interest, fees, and any other
-amounts due in terms of any loan agreement entered into with Vema 24.
-
-2. Access Stokvel Account(s): Access, manage, and/or debit your Vema 24 stokvel account(s)
-to set off any outstanding amounts owed to Vema 24, including but not limited to principal,
-interest, fees, and charges.
-
-3. Cession of Savings: Give effect to the cession of your rights, title, and interest in and to any
-and all savings held in your Vema 24 stokvel account(s) as security for any loan advanced by
-Vema 24.
-
-4. Sign Documents: Execute and deliver any and all documents, certificates, instruments, and
-notices that Vema 24 may deem necessary or advisable in connection with the management
-and/or recovery of any loan, including but not limited to certificates of balance, cession
-agreements, and settlement notices.
-
-5. Communicate with Third Parties: Communicate with any bank, financial institution, or third-
-party payment processor to verify, process, or collect any amounts due.
-
-6. **Perform All Necessary Acts: Perform any and all acts and things whatsoever requisite,**
-necessary, or appropriate to be done in connection with the repayment and/or recovery of any
-loan, as fully to all intents and purposes as you might or could do in person.
-
-  GENERAL PROVISIONS
-
--  This Power of Attorney is coupled with an interest and is irrevocable until all amounts owed to
-Vema 24 are paid in full.
-
--  This Power of Attorney shall remain in full force and effect notwithstanding any disability,
-incapacity, or dissolution of the stokvel group, its executives, or members.
-
--  A certificate signed by any manager of Vema 24 shall be conclusive proof of the amount due
-and owing at any time.
-
--  This Power of Attorney shall be governed by the laws of the Republic of South Africa.
-
-
-  DECLARATION AND CONSENT
-
-By accepting any loan from Vema 24, I/we hereby:
-
--  Acknowledge that I/we have read and understood this Power of Attorney and Consent.
-
--  Authorise Vema 24 to act as my/our attorney-in-fact in accordance with the powers set out
-above.
-
--  Confirm that Vema 24 may exercise these powers without further notice to or consent from
-me/us.
-
--  Agree to indemnify and hold harmless Vema 24 from any claims, losses, or damages arising
-from the lawful exercise of these powers.
-
--  Consent to the jurisdiction of the Magistrate's Court in terms of Section 45 of the Magistrates'
-Court Act, notwithstanding Vema 24's right to proceed in any other court of competent
-jurisdiction.
-
-  Date of Effect: This Power of Attorney and Consent shall take effect from the date of
-acceptance of any loan quotation and shall remain in force until all obligations to Vema 24 are
-fully discharged.
-
-  ACCEPTED AND AGREED:
-
-  For and on behalf of the Stokvel Group:
-
-Full Name of Stokvel: ..........................................................................
-
-Name of Authorised Representative: ..........................................................................
-
-Signature: ..........................................................................
-
-Date: ..........................................................................
-
-  WITNESSES:
-
-1. Name: ..........................................................................
-
-Signature: ..........................................................................
-
-Date: ..........................................................................
-
-2. Name: ..........................................................................
-
-Signature: ..........................................................................
-
-Date: ..........................................................................`;
 
         // Set up PDF.js worker
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js';
@@ -892,8 +547,21 @@ Date: ..........................................................................
             document.getElementById('documents-list').style.display = 'block';
         }
 
-        // Add event listeners for better mobile experience
         document.addEventListener('DOMContentLoaded', function() {
+            const hashMap = { grocery: 'stokvel-grocery', january: 'stokvel-january', planning: 'stokvel-planning' };
+            const key = (window.location.hash || '').replace(/^#/, '').toLowerCase();
+            const elId = hashMap[key];
+            if (elId) {
+                const target = document.getElementById(elId);
+                if (target) {
+                    setTimeout(function () {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        target.classList.add('doc-highlight');
+                        setTimeout(function () { target.classList.remove('doc-highlight'); }, 4000);
+                    }, 200);
+                }
+            }
+
             const documentItems = document.querySelectorAll('.document-item');
             documentItems.forEach(item => {
                 item.addEventListener('touchend', function(e) {

@@ -3,65 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vema24 - Login</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="../css/styles.css" rel="stylesheet">
-    <!-- Firebase SDK -->
+    <title>Vema24 — Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="../css/auth-pages.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore-compat.js"></script>
+    <style>* { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }</style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+<body class="auth-bg antialiased text-slate-800 relative">
+    <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
+        <div class="absolute -top-32 -right-24 h-[420px] w-[420px] rounded-full bg-blue-400/15 blur-3xl"></div>
+        <div class="absolute -bottom-28 -left-20 h-[380px] w-[380px] rounded-full bg-violet-400/12 blur-3xl"></div>
+    </div>
+
     <!-- Loading screen -->
-    <div id="loading-screen" class="fixed inset-0 bg-white bg-opacity-90 flex items-center justify-center z-50">
+    <div id="loading-screen" class="auth-loading-overlay fixed inset-0 z-[110] flex items-center justify-center">
         <div class="text-center">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600 mb-4"></div>
-            <p class="text-gray-700">Checking authentication...</p>
+            <div class="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-2 border-blue-200 border-t-blue-600"></div>
+            <p class="font-medium text-slate-600">Checking authentication…</p>
         </div>
     </div>
 
-    <!-- Main content (hidden by default) -->
-    <div id="main-content" class="hidden">
-        <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-            <div class="text-center mb-8">
-                <img src="../assets/logo/Vema Black.png" alt="Vema Logo" class="h-16 mx-auto mb-4">
-                <h1 class="text-2xl font-bold text-blue-800">Welcome Back</h1>
-                <p class="text-gray-600">Sign in to your Vema24 account</p>
-                <div id="login-reason" class="hidden mt-4 p-3 bg-blue-50 rounded-lg">
-                    <p class="text-sm text-blue-700">
-                        <i class="fas fa-info-circle mr-2"></i>
+    <nav class="auth-nav-shell" aria-label="Sign in">
+        <div class="auth-nav-inner">
+            <div class="auth-nav-pill">
+                <a href="../index.html" class="flex min-w-0 shrink-0 items-center gap-2 pr-0.5" aria-label="Vema24 home">
+                    <span class="auth-logo-ring" aria-hidden="true">
+                        <img src="../assets/logo/Vema White.png" alt="" width="22" height="22">
+                    </span>
+                    <span class="auth-wordmark text-[0.95rem] sm:text-base">Vema24</span>
+                </a>
+                <div class="auth-nav-actions">
+                    <a href="../index.html" class="auth-link-muted hidden sm:inline">Home</a>
+                    <a href="register.html" class="auth-cta-pill !text-[0.78rem] !py-2 !px-3.5">
+                        Join <i class="fas fa-arrow-right text-[10px] opacity-90"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="main-content" class="hidden px-4 pb-16 pt-24 sm:px-6 sm:pt-28">
+        <div class="auth-card mx-auto w-full max-w-md p-8 sm:p-10">
+            <div class="mb-8 text-center">
+                <h1 class="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Welcome back</h1>
+                <p class="mt-2 text-sm text-slate-600">Sign in to your Vema24 account</p>
+                <div id="login-reason" class="mt-4 hidden rounded-xl border border-blue-100 bg-blue-50/90 p-3 text-left">
+                    <p class="text-sm text-blue-800">
+                        <i class="fas fa-info-circle mr-2 opacity-80"></i>
                         <span id="login-reason-text">Please sign in to continue</span>
                     </p>
                 </div>
             </div>
-            
-            <!-- Error message container -->
-            <div id="error-message" class="hidden mb-4 p-3 rounded-lg text-sm"></div>
-            
-            <form id="login-form">
-                <div class="mb-4">
-                    <label for="email" class="block text-gray-700 text-sm font-medium mb-2">Email Address</label>
-                    <input type="email" id="email" name="email" required class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+
+            <div id="error-message" class="mb-4 hidden rounded-xl border border-red-100 bg-red-50 p-3 text-sm text-red-800"></div>
+
+            <form id="login-form" class="space-y-5">
+                <div>
+                    <label for="email" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">Email</label>
+                    <input type="email" id="email" name="email" required autocomplete="email"
+                        class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
                 </div>
-                <div class="mb-6">
-                    <label for="password" class="block text-gray-700 text-sm font-medium mb-2">Password</label>
-                    <input type="password" id="password" name="password" required class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <a href="reset-password.html" class="text-sm text-blue-600 hover:text-blue-800 mt-2 inline-block">Forgot password?</a>
+                <div>
+                    <label for="password" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">Password</label>
+                    <input type="password" id="password" name="password" required autocomplete="current-password"
+                        class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                    <a href="reset-password.html" class="mt-2 inline-block text-sm font-semibold text-blue-600 hover:text-blue-700">Forgot password?</a>
                 </div>
-                <button type="submit" id="login-button" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-medium flex justify-center items-center">
-                    <span id="button-text">Sign In</span>
-                    <span id="button-spinner" class="hidden ml-2">
-                        <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <button type="submit" id="login-button"
+                    class="relative flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition hover:opacity-[0.97] disabled:opacity-60">
+                    <span id="button-text">Sign in</span>
+                    <span id="button-spinner" class="hidden">
+                        <svg class="h-5 w-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
                     </span>
                 </button>
             </form>
-            
-            <div class="mt-6 text-center">
-                <p class="text-gray-600">Don't have an account? <a href="register.html" class="text-blue-600 hover:text-blue-800 font-medium">Sign up</a></p>
-            </div>
+
+            <p class="mt-8 border-t border-slate-100 pt-6 text-center text-sm text-slate-600">
+                Don’t have an account?
+                <a href="register.html" class="font-semibold text-blue-600 hover:text-blue-700">Create one</a>
+            </p>
         </div>
     </div>
 
@@ -248,7 +275,6 @@
                 
                 errorMessage.textContent = errorText;
                 errorMessage.classList.remove('hidden');
-                errorMessage.classList.add('bg-red-100', 'text-red-700');
                 
                 // Reset button state
                 document.getElementById('button-text').classList.remove('hidden');

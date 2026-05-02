@@ -770,7 +770,503 @@
         .d1 { animation-delay:.1s; } .d2 { animation-delay:.2s; }
         .d3 { animation-delay:.3s; } .d4 { animation-delay:.4s; }
 
-        
+        /* ── Engagement: step-by-step journey + Lottie ── */
+        #engage-lab {
+            scroll-margin-top: 5.5rem;
+            background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 45%, #f1f5f9 100%);
+        }
+        .ve-j-wrap {
+            max-width: 26rem;
+            margin: 0 auto;
+        }
+        .ve-j-eyebrow {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #047857;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            padding: 0.35rem 0.65rem;
+            border-radius: 999px;
+            margin-bottom: 0.5rem;
+        }
+        .ve-j-title {
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            color: #0f172a;
+            line-height: 1.2;
+            margin: 0 0 0.35rem;
+        }
+        .ve-j-lead {
+            font-size: 0.875rem;
+            color: #64748b;
+            line-height: 1.5;
+            margin: 0 0 1.25rem;
+        }
+        .ve-j-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1.35rem;
+            box-shadow:
+                0 20px 50px rgba(15, 23, 42, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            overflow: hidden;
+        }
+        .ve-j-progress {
+            padding: 0.85rem 1.1rem 0.65rem;
+            background: linear-gradient(90deg, #f0fdf4, #eff6ff);
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .ve-j-progress-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.6875rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #475569;
+            margin-bottom: 0.4rem;
+        }
+        .ve-j-bar {
+            height: 6px;
+            border-radius: 999px;
+            background: #e2e8f0;
+            overflow: hidden;
+        }
+        .ve-j-bar > i {
+            display: block;
+            height: 100%;
+            width: 0%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #10b981, #2563eb);
+            transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .ve-j-body {
+            padding: 1.15rem 1.2rem 1.25rem;
+            min-height: 20rem;
+            position: relative;
+        }
+        .ve-j-pane {
+            display: none;
+            animation: veJPaneIn 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        .ve-j-pane.is-active {
+            display: block;
+        }
+        @keyframes veJPaneIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px) scale(0.97);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .ve-j-quote {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            font-style: italic;
+            color: #334155;
+            line-height: 1.55;
+            margin: 0 0 1rem;
+            padding-left: 0.65rem;
+            border-left: 3px solid #38bdf8;
+        }
+        .ve-j-lottie {
+            width: 100%;
+            max-width: 220px;
+            height: 200px;
+            margin: 0 auto 0.5rem;
+        }
+        .ve-j-lottie-fallback {
+            display: none;
+            width: 100%;
+            max-width: 220px;
+            height: 200px;
+            margin: 0 auto 0.5rem;
+            align-items: center;
+            justify-content: center;
+            font-size: 4.5rem;
+            opacity: 0.85;
+        }
+        .ve-j-lottie-fallback.ve-show {
+            display: flex;
+        }
+        .ve-j-h {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0 0 0.35rem;
+        }
+        .ve-j-p {
+            font-size: 0.8125rem;
+            color: #64748b;
+            line-height: 1.55;
+            margin: 0 0 1rem;
+        }
+        .ve-j-goalpick {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .ve-j-goal {
+            width: 100%;
+            text-align: left;
+            padding: 0.85rem 1rem;
+            border-radius: 0.9rem;
+            border: 2px solid #e2e8f0;
+            background: #f8fafc;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.8125rem;
+            color: #1e293b;
+            transition: border-color 0.2s, background 0.2s, transform 0.15s;
+        }
+        .ve-j-goal:hover {
+            border-color: #93c5fd;
+            background: #eff6ff;
+        }
+        .ve-j-goal[aria-pressed='true'] {
+            border-color: #2563eb;
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+        .ve-j-goal small {
+            display: block;
+            font-weight: 500;
+            font-size: 0.6875rem;
+            color: #64748b;
+            margin-top: 0.2rem;
+        }
+        .ve-j-yesno {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.65rem;
+            margin-top: 0.25rem;
+        }
+        .ve-j-y {
+            padding: 0.75rem 0.5rem;
+            border-radius: 0.85rem;
+            font-weight: 800;
+            font-size: 0.8125rem;
+            border: 2px solid #e2e8f0;
+            background: #fff;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .ve-j-y:hover {
+            border-color: #86efac;
+            background: #f0fdf4;
+        }
+        .ve-j-y--yes {
+            border-color: #22c55e;
+            background: #ecfdf5;
+            color: #14532d;
+        }
+        .ve-j-y--no {
+            border-color: #fca5a5;
+            background: #fef2f2;
+            color: #991b1b;
+        }
+        .ve-j-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 6px;
+            height: 4.5rem;
+            margin: 0.75rem 0 0.25rem;
+        }
+        .ve-j-chart span {
+            width: 10px;
+            border-radius: 5px 5px 2px 2px;
+            background: linear-gradient(to top, #2563eb, #93c5fd);
+            transform-origin: bottom;
+            transform: scaleY(0);
+            transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .ve-j-pane.is-active .ve-j-chart.ve-j-chart--on span {
+            transform: scaleY(1);
+        }
+        .ve-j-pane.is-active .ve-j-chart span:nth-child(1) { transition-delay: 0.05s; }
+        .ve-j-pane.is-active .ve-j-chart span:nth-child(2) { transition-delay: 0.1s; }
+        .ve-j-pane.is-active .ve-j-chart span:nth-child(3) { transition-delay: 0.15s; }
+        .ve-j-pane.is-active .ve-j-chart span:nth-child(4) { transition-delay: 0.2s; }
+        .ve-j-pane.is-active .ve-j-chart span:nth-child(5) { transition-delay: 0.25s; }
+        .ve-j-chart span:nth-child(1) { height: 35%; }
+        .ve-j-chart span:nth-child(2) { height: 52%; }
+        .ve-j-chart span:nth-child(3) { height: 44%; }
+        .ve-j-chart span:nth-child(4) { height: 68%; }
+        .ve-j-chart span:nth-child(5) { height: 88%; }
+        .ve-j-spark {
+            width: 100%;
+            height: 3.25rem;
+            margin: 0.5rem 0;
+        }
+        .ve-j-spark path {
+            fill: none;
+            stroke: #2563eb;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            transition: stroke-dashoffset 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .ve-j-pane.is-active .ve-j-spark path {
+            stroke-dashoffset: 0;
+        }
+        .ve-j-foot {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.75rem 1.1rem 1rem;
+            border-top: 1px solid #f1f5f9;
+            background: #fafbfc;
+        }
+        .ve-j-foot .ve-btn {
+            flex: 1;
+            justify-content: center;
+            text-align: center;
+            padding: 0.65rem 0.75rem;
+            font-size: 0.8125rem;
+        }
+        .ve-j-foot .ve-btn--ghost {
+            flex: 0;
+            min-width: 5rem;
+        }
+        .ve-range-row {
+            margin-top: 0.65rem;
+        }
+        .ve-range-row label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 0.25rem;
+        }
+        .ve-range {
+            width: 100%;
+            accent-color: #2563eb;
+        }
+        .ve-projection {
+            margin-top: 0.85rem;
+            padding: 0.9rem;
+            border-radius: 0.85rem;
+            background: linear-gradient(135deg, #1e3a8a, #1d4ed8);
+            color: #fff;
+        }
+        .ve-projection .ve-big {
+            font-size: 1.45rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+        }
+        .ve-bar-track {
+            height: 0.45rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.2);
+            margin-top: 0.55rem;
+            overflow: hidden;
+        }
+        .ve-bar-fill {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #facc15, #fde047);
+            width: 0%;
+            transition: width 0.35s ease;
+        }
+        .ve-fit-phase {
+            display: none;
+        }
+        .ve-fit-phase.is-on {
+            display: block;
+            animation: veJPaneIn 0.35s ease both;
+        }
+        .ve-j-flexline {
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px dashed #e2e8f0;
+        }
+        .ve-j-checkbox {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: #334155;
+            cursor: pointer;
+        }
+        .ve-j-checkbox input {
+            margin-top: 0.15rem;
+            accent-color: #7c3aed;
+        }
+        .ve-match-banner {
+            margin-top: 0.75rem;
+            padding: 0.65rem 0.85rem;
+            border-radius: 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #ecfdf5, #eff6ff);
+            border: 1px solid #bbf7d0;
+            color: #14532d;
+            display: none;
+        }
+        .ve-match-banner.ve-show {
+            display: block;
+        }
+        .ve-fit-result {
+            display: none;
+            margin-top: 0.65rem;
+            padding: 0.65rem 0.8rem;
+            border-radius: 0.65rem;
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #166534;
+        }
+        .ve-fit-result.ve-show {
+            display: block;
+        }
+        .ve-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            margin-top: 0.75rem;
+        }
+        .ve-btn {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.45rem 0.75rem;
+            border-radius: 0.65rem;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #1e293b;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .ve-btn:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+        .ve-btn--pri {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: #fff;
+        }
+        .ve-btn--pri:hover {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+        }
+        .ve-toast {
+            position: fixed;
+            bottom: 5.5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(12px);
+            z-index: 300;
+            background: #0f172a;
+            color: #fff;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            padding: 0.55rem 1rem;
+            border-radius: 999px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s, transform 0.25s;
+            max-width: min(90vw, 22rem);
+            text-align: center;
+        }
+        .ve-toast.ve-show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .ve-nudge {
+            font-size: 0.6875rem;
+            color: #94a3b8;
+            margin-top: 0.5rem;
+        }
+        .ve-tour-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            z-index: 400;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .ve-tour-backdrop.ve-open { display: flex; }
+        .ve-tour-modal {
+            background: #fff;
+            border-radius: 1.25rem;
+            max-width: 26rem;
+            width: 100%;
+            max-height: 90vh;
+            overflow: auto;
+            padding: 1.35rem;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+        }
+        .ve-tour-step {
+            display: none;
+        }
+        .ve-tour-step.ve-active { display: block; }
+        .ve-tour-nav {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .cta-after-toggle {
+            width: 100%;
+            margin-top: 1rem;
+            text-align: center;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.85);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.75rem;
+            padding: 0.6rem 1rem;
+            cursor: pointer;
+        }
+        .cta-after-toggle:hover { background: rgba(255, 255, 255, 0.12); }
+        .cta-after-panel {
+            display: none;
+            margin-top: 0.75rem;
+            text-align: left;
+            font-size: 0.8125rem;
+            color: rgba(255, 255, 255, 0.88);
+            line-height: 1.55;
+            padding: 0.85rem 1rem;
+            border-radius: 0.75rem;
+            background: rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .cta-after-panel.ve-open { display: block; }
+        .cta-after-panel ul {
+            margin: 0.5rem 0 0;
+            padding-left: 1.1rem;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .ve-bar-fill { transition: none; }
+            .ve-j-pane,
+            .ve-fit-phase.is-on {
+                animation: none !important;
+            }
+            .ve-j-pane.is-active .ve-j-chart.ve-j-chart--on span {
+                transform: scaleY(1) !important;
+                transition: none !important;
+            }
+            .ve-j-pane.is-active .ve-j-spark path {
+                stroke-dashoffset: 0 !important;
+                transition: none !important;
+            }
+            .ve-j-bar > i {
+                transition: none !important;
+            }
+        }
     </style>
 </head>
 <body class="m-0 bg-slate-50">

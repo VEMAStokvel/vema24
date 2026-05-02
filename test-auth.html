@@ -20,8 +20,8 @@
         <p id="session-info">SessionStorage: <span id="session-data"></span></p>
     </div>
     
-    <button onclick="testLoanButton()">Test Loan Apply Now</button>
-    <button onclick="testFuneralButton()">Test Funeral Learn More</button>
+    <button onclick="testDashboardButton()">Test protected dashboard</button>
+    <button onclick="testConstitutionButton()">Test constitution page</button>
     <button onclick="clearSession()">Clear SessionStorage</button>
     <button onclick="checkAuth()">Check Auth State</button>
     
@@ -64,24 +64,22 @@
             sessionEl.textContent = `Destination: ${intendedDest || 'none'}, Action: ${intendedAction || 'none'}`;
         }
         
-        window.testLoanButton = function() {
-            console.log('=== Testing Loan Button ===');
-            requireAuth('dashboard/loans.html', 'apply for a loan')
+        window.testDashboardButton = function() {
+            console.log('=== Testing dashboard requireAuth ===');
+            requireAuth('dashboard/index.html', 'open the member dashboard')
                 .then(() => {
-                    console.log('Auth successful, would redirect to loans dashboard');
-                    // Don't actually redirect in test
+                    console.log('Auth successful, would redirect to dashboard');
                 })
                 .catch(() => {
                     console.log('Auth failed, would redirect to login');
                 });
         };
-        
-        window.testFuneralButton = function() {
-            console.log('=== Testing Funeral Button ===');
-            requireAuth('dashboard/funeral.html', 'access funeral cover information')
+
+        window.testConstitutionButton = function() {
+            console.log('=== Testing constitution requireAuth ===');
+            requireAuth('dashboard/constitution.html', 'view stokvel constitutions')
                 .then(() => {
-                    console.log('Auth successful, would redirect to funeral dashboard');
-                    // Don't actually redirect in test
+                    console.log('Auth successful, would redirect to constitutions');
                 })
                 .catch(() => {
                     console.log('Auth failed, would redirect to login');

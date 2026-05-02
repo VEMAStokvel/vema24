@@ -8,315 +8,359 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Firebase SDK v12 -->
     <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-storage-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest"></script>
 
     <style>
         * { font-family: 'Inter', sans-serif; }
+        body { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #eff6ff 100%); min-height: 100vh; }
 
-        /* ===== ANIMATIONS ===== */
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* ── Top nav: floating pill (match index landing + admin dashboard) ── */
+        nav.topnav-shell {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: max(0.65rem, env(safe-area-inset-top, 0px)) 0.75rem 0;
+            background: transparent;
         }
-        @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-12px); }
-        }
-        @keyframes pulse-ring {
-            0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(37, 99, 235, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
-        }
-        @keyframes shimmer {
-            0% { background-position: -1000px 0; }
-            100% { background-position: 1000px 0; }
-        }
-
-        .dash-card {
-            animation: fadeUp 0.6s ease forwards;
-            opacity: 0;
-        }
-        .dash-card:nth-child(1) { animation-delay: 0.1s; }
-        .dash-card:nth-child(2) { animation-delay: 0.15s; }
-        .dash-card:nth-child(3) { animation-delay: 0.2s; }
-        .dash-card:nth-child(4) { animation-delay: 0.25s; }
-
-        .stokvel-item {
-            animation: fadeUp 0.6s ease forwards;
-            opacity: 0;
-        }
-        .stokvel-item:nth-child(1) { animation-delay: 0.1s; }
-        .stokvel-item:nth-child(2) { animation-delay: 0.2s; }
-        .stokvel-item:nth-child(3) { animation-delay: 0.3s; }
-        .stokvel-item:nth-child(4) { animation-delay: 0.4s; }
-
-        .explore-item {
-            animation: fadeUp 0.6s ease forwards;
-            opacity: 0;
-        }
-        .explore-item:nth-child(1) { animation-delay: 0.15s; }
-        .explore-item:nth-child(2) { animation-delay: 0.25s; }
-        .explore-item:nth-child(3) { animation-delay: 0.35s; }
-
-        /* Cards */
-        .card-premium {
-            background: white;
-            border-radius: 20px;
-            border: 1px solid rgba(37, 99, 235, 0.1);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .card-premium:hover {
-            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.15);
-            transform: translateY(-4px);
-            border-color: rgba(37, 99, 235, 0.2);
-        }
-
-        .card-gradient {
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(124, 58, 237, 0.05));
-            border: 2px solid rgba(37, 99, 235, 0.1);
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #f0f9ff 0%, #f3f4f6 100%);
-            border: 1px solid #dbeafe;
-            border-radius: 16px;
-            padding: 1.5rem;
-            transition: all 0.3s ease;
-        }
-        .stat-card:hover {
-            box-shadow: 0 12px 32px rgba(37, 99, 235, 0.15);
-            transform: translateY(-2px);
-        }
-
-        .hero-section {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-            border-radius: 24px;
-            padding: 3rem;
-            color: white;
-            position: relative;
-            overflow: hidden;
-        }
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -20%;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(37, 99, 235, 0.2) 0%, transparent 70%);
-            border-radius: 50%;
-        }
-        .hero-section::after {
-            content: '';
-            position: absolute;
-            bottom: -30%;
-            left: -10%;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%);
-            border-radius: 50%;
-        }
-        .hero-content {
-            position: relative;
-            z-index:10;
-        }
-
-        .motivation-box {
-            animation: float 4s ease-in-out infinite;
-        }
-
-        .section-title {
-            font-size: 1.875rem;
-            font-weight: 700;
-            color: #0f172a;
+        .topnav-pill {
+            margin: 0 auto;
+            max-width: 100%;
+            width: 100%;
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 1.5rem;
+            gap: 0.5rem 0.75rem;
+            padding: 0.55rem 0.65rem 0.55rem 1rem;
+            background: rgba(255, 255, 255, 0.97);
+            border: 1px solid rgba(226, 232, 240, 0.98);
+            border-radius: 9999px;
+            box-shadow:
+                0 10px 40px rgba(15, 23, 42, 0.12),
+                0 2px 10px rgba(15, 23, 42, 0.06);
+            backdrop-filter: blur(14px);
         }
-
-        .section-icon {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, #2563eb, #3b82f6);
-            border-radius: 12px;
+        @media (min-width: 768px) {
+            .topnav-pill { padding: 0.55rem 0.65rem 0.55rem 1.15rem; gap: 0.75rem 1rem; }
+        }
+        .topnav-logo-ring {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 1.5rem;
+            background: linear-gradient(135deg, #2563eb, #0891b2);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
         }
+        .topnav-logo-ring img { height: 1.15rem; width: auto; max-width: 1.35rem; object-fit: contain; }
+        .topnav-wordmark {
+            font-weight: 800;
+            font-size: 1.05rem;
+            letter-spacing: -0.03em;
+            white-space: nowrap;
+            background: linear-gradient(90deg, #1d4ed8, #0891b2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .topnav-icon-btn {
+            color: #475569;
+            border-radius: 9999px;
+            padding: 0.45rem 0.55rem;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+        .topnav-icon-btn:hover { background: #f1f5f9; color: #0f172a; }
+        .topnav-mobile-panel {
+            margin-top: 0.65rem;
+            border-radius: 1.25rem;
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.1);
+            overflow: hidden;
+            transform-origin: top center;
+        }
+        @media (max-width: 767px) {
+            #dash-mobile-menu {
+                transition:
+                    opacity 0.26s ease,
+                    transform 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+                    max-height 0.38s ease,
+                    margin-top 0.25s ease,
+                    visibility 0s linear 0.35s;
+                max-height: 0;
+                opacity: 0;
+                transform: scale(0.82);
+                visibility: hidden;
+                pointer-events: none;
+                margin-top: 0 !important;
+                border-width: 0;
+                overflow: hidden;
+            }
+            #dash-mobile-menu.is-open {
+                transition:
+                    opacity 0.28s ease 0.05s,
+                    transform 0.36s cubic-bezier(0.22, 1, 0.36, 1),
+                    max-height 0.42s ease,
+                    margin-top 0.22s ease,
+                    visibility 0s linear 0s;
+                max-height: 20rem;
+                opacity: 1;
+                transform: scale(1);
+                visibility: visible;
+                pointer-events: auto;
+                margin-top: 0.65rem !important;
+                border-width: 1px;
+                overflow: hidden;
+            }
+        }
+        @media (min-width: 768px) {
+            #dash-mobile-menu { display: none !important; }
+        }
+        .topnav-mobile-panel a {
+            color: #334155;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: background 0.12s ease, color 0.12s ease;
+        }
+        .topnav-mobile-panel a:hover { background: #f8fafc; color: #0f172a; }
 
-        .section-icon.purple {
-            background: linear-gradient(135deg, #7c3aed, #a855f7);
+        @keyframes fadeUp      { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes slideInRight  { from { opacity:0; transform:translateX(100%); } to { opacity:1; transform:translateX(0); } }
+        @keyframes slideOutRight { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(100%); } }
+        @keyframes float       { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-12px); } }
+        @keyframes spin        { to { transform:rotate(360deg); } }
+        @keyframes live-pulse  { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+        @keyframes toast-in    { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes toast-out   { from { opacity:1; transform:translateY(0); } to { opacity:0; transform:translateY(14px); } }
+
+        .dash-card   { animation: fadeUp 0.6s ease forwards; opacity:0; }
+        .dash-card:nth-child(1) { animation-delay:.08s; }
+        .dash-card:nth-child(2) { animation-delay:.14s; }
+        .dash-card:nth-child(3) { animation-delay:.20s; }
+        .dash-card:nth-child(4) { animation-delay:.26s; }
+
+        .stokvel-item  { animation: fadeUp 0.6s ease forwards; opacity:0; }
+        .explore-item  { animation: fadeUp 0.6s ease forwards; opacity:0; }
+        .doc-item      { animation: fadeUp 0.5s ease forwards; opacity:0; }
+        .doc-item:nth-child(1) { animation-delay:.05s; }
+        .doc-item:nth-child(2) { animation-delay:.12s; }
+        .doc-item:nth-child(3) { animation-delay:.19s; }
+        .doc-item:nth-child(4) { animation-delay:.26s; }
+
+        .card-premium {
+            background:white; border-radius:20px;
+            border:1px solid rgba(37,99,235,0.1);
+            box-shadow:0 4px 6px rgba(0,0,0,0.07);
+            transition:all 0.3s ease;
         }
+        .card-premium:hover {
+            box-shadow:0 20px 40px rgba(37,99,235,0.15);
+            transform:translateY(-4px);
+            border-color:rgba(37,99,235,0.2);
+        }
+        .card-gradient {
+            background: linear-gradient(135deg,rgba(37,99,235,0.05),rgba(124,58,237,0.05));
+            border:2px solid rgba(37,99,235,0.1);
+        }
+        .stat-card {
+            background:linear-gradient(135deg,#f0f9ff,#f3f4f6);
+            border:1px solid #dbeafe; border-radius:16px; padding:1.5rem;
+            transition:all 0.3s ease;
+        }
+        .stat-card:hover { box-shadow:0 12px 32px rgba(37,99,235,0.15); transform:translateY(-2px); }
+
+        .hero-section {
+            background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#334155 100%);
+            border-radius:24px; padding:3rem; color:white; position:relative; overflow:hidden;
+        }
+        .hero-section::before {
+            content:''; position:absolute; top:-50%; right:-20%;
+            width:500px; height:500px;
+            background:radial-gradient(circle,rgba(37,99,235,0.2) 0%,transparent 70%); border-radius:50%;
+        }
+        .hero-section::after {
+            content:''; position:absolute; bottom:-30%; left:-10%;
+            width:400px; height:400px;
+            background:radial-gradient(circle,rgba(124,58,237,0.15) 0%,transparent 70%); border-radius:50%;
+        }
+        .hero-content { position:relative; z-index:10; }
+        .motivation-box { animation:float 4s ease-in-out infinite; }
+
+        .live-dot { width:8px; height:8px; background:#4ade80; border-radius:50%; display:inline-block; animation:live-pulse 1.5s ease-in-out infinite; }
+
+        .section-title { font-size:1.875rem; font-weight:700; color:#0f172a; display:flex; align-items:center; gap:12px; margin-bottom:1.5rem; }
+        .section-icon { width:48px; height:48px; background:linear-gradient(135deg,#2563eb,#3b82f6); border-radius:12px; display:flex; align-items:center; justify-content:center; color:white; font-size:1.5rem; }
+        .section-icon.purple { background:linear-gradient(135deg,#7c3aed,#a855f7); }
+        .section-icon.amber  { background:linear-gradient(135deg,#d97706,#f59e0b); }
 
         .rank-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: linear-gradient(135deg, #fde68a, #fbbf24);
-            color: #78350f;
-            border-radius: 999px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+            display:inline-flex; align-items:center; gap:8px; padding:8px 16px;
+            background:linear-gradient(135deg,#fde68a,#fbbf24); color:#78350f;
+            border-radius:999px; font-weight:700; font-size:0.85rem;
+            box-shadow:0 4px 12px rgba(251,191,36,0.3);
         }
 
         .button-glow {
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
-            color: white;
-            font-weight: 600;
-            padding: 0.875rem 1.75rem;
-            border-radius: 12px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            background:linear-gradient(135deg,#2563eb,#7c3aed); color:white; font-weight:600;
+            padding:0.875rem 1.75rem; border-radius:12px; border:none; cursor:pointer;
+            transition:all 0.3s ease; display:inline-flex; align-items:center; gap:8px;
         }
-        .button-glow:hover {
-            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.4);
-            transform: translateY(-2px);
-        }
-        .button-glow:active {
-            transform: translateY(0);
-        }
+        .button-glow:hover  { box-shadow:0 12px 24px rgba(37,99,235,0.4); transform:translateY(-2px); }
+        .button-glow:active { transform:translateY(0); }
+        .button-glow:disabled { opacity:0.6; cursor:not-allowed; transform:none; box-shadow:none; }
 
         .button-outline {
-            background: transparent;
-            color: #2563eb;
-            font-weight: 600;
-            padding: 0.875rem 1.75rem;
-            border: 2px solid #2563eb;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            background:transparent; color:#2563eb; font-weight:600;
+            padding:0.875rem 1.75rem; border:2px solid #2563eb; border-radius:12px;
+            cursor:pointer; transition:all 0.3s ease; display:inline-flex; align-items:center; gap:8px;
         }
-        .button-outline:hover {
-            background: #f0f9ff;
-            transform: translateY(-2px);
-        }
+        .button-outline:hover { background:#f0f9ff; transform:translateY(-2px); }
 
-        .progress-ring {
-            transform: rotate(-90deg);
-            transform-origin: 50% 50%;
-        }
+        .divider { height:2px; background:linear-gradient(90deg,transparent,#e2e8f0,transparent); margin:3rem 0; }
 
-        .progress-ring__circle {
-            transition: stroke-dashoffset 0.35s;
-            stroke-dasharray: 283;
-            stroke-dashoffset: 0;
-        }
+        #loading-overlay { background:linear-gradient(135deg,#f8fafc,#eff6ff); }
+        .spinner { width:50px; height:50px; border:4px solid #dbeafe; border-top-color:#2563eb; border-radius:50%; animation:spin 1s linear infinite; }
 
-        /* Empty States */
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-        }
+        #toast-container { position:fixed; bottom:1.5rem; right:1.5rem; z-index:9999; display:flex; flex-direction:column; gap:8px; }
+        .toast { display:flex; align-items:center; gap:10px; padding:14px 18px; border-radius:14px; font-weight:600; font-size:0.9rem; max-width:320px; box-shadow:0 8px 24px rgba(0,0,0,0.15); animation:toast-in 0.35s ease; }
+        .toast.success { background:#ecfdf5; color:#065f46; border-left:4px solid #10b981; }
+        .toast.error   { background:#fef2f2; color:#991b1b; border-left:4px solid #ef4444; }
+        .toast.info    { background:#eff6ff; color:#1e40af; border-left:4px solid #3b82f6; }
+        .toast.warning { background:#fffbeb; color:#92400e; border-left:4px solid #f59e0b; }
+        .toast.out     { animation:toast-out 0.35s ease forwards; }
 
-        .divider {
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
-            margin: 3rem 0;
-        }
+        .animate-slideInRight  { animation:slideInRight  0.3s ease-out; }
+        .animate-slideOutRight { animation:slideOutRight 0.3s ease-out forwards; }
 
-        /* Loading */
-        #loading-overlay {
-            background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+        .doc-card {
+            background:white; border-radius:16px; padding:1.25rem;
+            border:2px solid transparent; cursor:pointer; transition:all 0.25s ease;
+            display:flex; align-items:center; gap:1rem;
         }
+        .doc-card:hover { transform:translateY(-3px); box-shadow:0 12px 28px rgba(0,0,0,0.1); }
 
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #dbeafe;
-            border-top-color: #2563eb;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        .constitution-content { font-size:0.9rem; line-height:1.9; color:#374151; white-space:pre-line; }
+
+        .guide-panel {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(15, 23, 42, 0.06);
         }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .guide-step {
+            display: flex; gap: 14px; align-items: flex-start;
         }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero-section {
-                padding: 2rem;
-            }
-            .section-title {
-                font-size: 1.5rem;
-            }
+        .guide-step-num {
+            flex-shrink: 0; width: 32px; height: 32px; border-radius: 10px;
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: white; font-weight: 800; font-size: 0.85rem;
+            display: flex; align-items: center; justify-content: center;
         }
-
-        lottie-player {
-            display: block;
+        .history-chip {
+            border-radius: 14px; padding: 0.65rem 1rem;
+            background: white; border: 1px solid #e2e8f0;
+            font-size: 0.8rem; font-weight: 600; color: #475569;
         }
+        .history-chip strong { color: #0f172a; font-weight: 800; }
+        .contribute-steps {
+            display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 0.5rem;
+        }
+        .contribute-step-pill {
+            font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+            padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,0.2); color: rgba(255,255,255,0.85);
+        }
+        .contribute-step-pill.active { background: white; color: #047857; }
 
-        body {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #eff6ff 100%);
-            min-height: 100vh;
+        .stat-mini-cal { width: 100%; }
+        .stat-mini-cal-cell { min-width: 0; }
+
+        @media (max-width:768px) {
+            .hero-section { padding:2rem; }
+            .section-title { font-size:1.5rem; }
+            #details-panel { max-width:100% !important; }
         }
     </style>
 </head>
-<body class="bg-gray-50" style="margin: 0; padding: 0;">
+<body style="margin:0;padding:0;">
 
     <!-- Loading Overlay -->
-    <div id="loading-overlay" class="fixed inset-0 z-50 flex items-center justify-center">
+    <div id="loading-overlay" class="fixed inset-0 z-[110] flex items-center justify-center">
         <div class="text-center">
             <div class="spinner mx-auto mb-4"></div>
             <p class="text-gray-600 font-medium">Loading your dashboard...</p>
         </div>
     </div>
 
-    <!-- Main Container -->
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
     <div class="min-h-screen">
-        <!-- Header -->
-        <header class="bg-white border-b border-gray-200 sticky top-0 z-40 backdrop-blur-sm bg-white/95">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-lg">V</div>
-                        <div>
-                            <h1 class="text-xl font-bold text-gray-900">Vema24</h1>
-                            <p class="text-xs text-gray-500 font-medium">Savings Platform</p>
+        <!-- Top nav (floating pill) -->
+        <nav class="topnav-shell" aria-label="Dashboard">
+            <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="topnav-pill">
+                    <a href="../index.html" class="flex items-center gap-2 shrink-0 min-w-0 pr-0.5" aria-label="Vema24 home">
+                        <span class="topnav-logo-ring" aria-hidden="true">
+                            <img src="../assets/logo/Vema White.png" alt="" width="22" height="22">
+                        </span>
+                        <span class="topnav-wordmark text-[0.95rem] sm:text-base">Vema24</span>
+                    </a>
+                    <span class="inline-flex items-center shrink-0 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 border border-slate-200/80">Dashboard</span>
+
+                    <div class="flex items-center gap-1 sm:gap-1.5 shrink-0 ml-auto pl-1 md:pl-2">
+                        <a href="constitution.html" title="Stokvel constitutions" class="inline-flex sm:hidden items-center justify-center topnav-icon-btn text-indigo-600" aria-label="Constitutions">
+                            <i class="fas fa-book-open"></i>
+                        </a>
+                        <a href="constitution.html" class="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm font-semibold text-indigo-800 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100/80 transition">
+                            <i class="fas fa-book-open text-indigo-600"></i> Constitutions
+                        </a>
+                        <div class="hidden md:flex items-center gap-2 px-2.5 py-1 rounded-full bg-slate-100/90 border border-slate-200/80">
+                            <span class="live-dot"></span>
+                            <span class="text-xs font-mono tabular-nums font-semibold text-slate-700" id="live-clock">--:--:--</span>
                         </div>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <div class="hidden md:flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 transition cursor-pointer">
-                            <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                        <div class="hidden md:flex items-center gap-2 pl-1 pr-2 py-1 rounded-full bg-slate-50 border border-slate-200/80 max-w-[11rem] lg:max-w-[13rem]">
+                            <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0">
                                 <span id="user-avatar">U</span>
                             </div>
-                            <span class="text-sm font-medium text-gray-700" id="user-name">Member</span>
+                            <span class="text-xs font-semibold text-slate-700 truncate min-w-0" id="user-name">Member</span>
                         </div>
-                        <button id="logout-btn" class="px-4 py-2 text-gray-600 hover:text-red-600 font-medium transition flex items-center gap-2">
+                        <button type="button" data-action="logout" class="hidden md:inline-flex items-center gap-1.5 text-sm font-semibold text-red-600 hover:text-red-700 rounded-full px-2.5 py-2 hover:bg-red-50 transition-colors">
                             <i class="fas fa-sign-out-alt"></i>
-                            <span class="hidden sm:inline">Logout</span>
+                            Logout
                         </button>
+
+                        <div class="flex md:hidden items-center">
+                            <button type="button" id="dash-mobile-menu-button" class="topnav-icon-btn" aria-expanded="false" aria-controls="dash-mobile-menu">
+                                <i class="fas fa-bars text-lg" aria-hidden="true"></i>
+                                <span class="sr-only">Menu</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
+
+                <div id="dash-mobile-menu" class="topnav-mobile-panel md:hidden" role="navigation" aria-label="Dashboard menu">
+                    <a href="constitution.html" class="block px-5 py-3.5 border-b border-slate-100">
+                        <i class="fas fa-book-open text-indigo-600 mr-2"></i>Constitutions
+                    </a>
+                    <div class="px-5 py-3 border-b border-slate-100 flex items-center gap-2 text-slate-600 text-sm">
+                        <span class="live-dot"></span>
+                        <span id="live-clock-mobile" class="font-mono text-xs tabular-nums font-semibold"></span>
+                    </div>
+                    <button type="button" data-action="logout" class="block w-full text-left px-5 py-3.5 font-semibold text-red-600 hover:bg-red-50 transition-colors">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </button>
+                </div>
             </div>
-        </header>
+        </nav>
 
         <!-- Main Content -->
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20">
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-20">
 
             <!-- Hero Section -->
             <div class="hero-section mb-12 dash-card">
@@ -328,18 +372,22 @@
                         <h1 class="text-4xl lg:text-5xl font-bold mb-3">
                             Welcome back, <span id="greeting-name" class="text-blue-300">Member</span> 👋
                         </h1>
-                        <p class="text-slate-300 text-lg mb-4" id="greeting-date">Sunday, 20 April 2025</p>
+                        <p class="text-slate-300 text-lg mb-4" id="greeting-date">Loading...</p>
                         <p class="text-blue-100 text-xl font-medium leading-relaxed" id="motivation-quote">Small steps today. Big wins tomorrow.</p>
                     </div>
                     <div class="hidden lg:flex justify-center items-center motivation-box">
-                        <lottie-player src="https://lottie.host/ed3fdd01-6e1e-4ded-8b1a-2f3c0c0a4b5d/2aDmMEpqIN.json" background="transparent" speed="1" style="width: 320px; height: 320px;"></lottie-player>
+                        <svg width="280" height="280" viewBox="0 0 320 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="160" cy="160" r="100" fill="#dbeafe" opacity="0.5"/>
+                            <circle cx="160" cy="160" r="80" fill="#3b82f6" opacity="0.8"/>
+                            <path d="M160 80 L190 140 L250 150 L200 190 L210 250 L160 220 L110 250 L120 190 L70 150 L130 140 Z" fill="#fbbf24"/>
+                        </svg>
                     </div>
                 </div>
             </div>
 
             <!-- Quick Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                <div class="stat-card dash-card">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 items-stretch">
+                <div class="stat-card dash-card flex flex-col h-full">
                     <div class="flex items-start justify-between mb-4">
                         <div>
                             <p class="text-gray-600 text-sm font-medium">Total Savings</p>
@@ -347,87 +395,452 @@
                         </div>
                         <div class="text-4xl">💰</div>
                     </div>
-                    <p class="text-xs text-green-600 font-semibold"><i class="fas fa-arrow-up mr-1"></i>Up 12% this month</p>
+                    <p class="text-xs text-green-600 font-semibold mt-auto"><i class="fas fa-check-circle mr-1"></i>Approved contributions only</p>
                 </div>
-
-                <div class="stat-card dash-card" style="background: linear-gradient(135deg, #f0fdf4 0%, #f7fee7 100%); border-color: #bbf7d0;">
-                    <div class="flex items-start justify-between mb-4">
-                        <div>
+                <div id="active-stokvel-stat-card" class="stat-card dash-card flex flex-col h-full" style="background:linear-gradient(135deg,#f0fdf4,#f7fee7);border-color:#bbf7d0;">
+                    <div class="flex items-start justify-between mb-2">
+                        <div class="min-w-0 pr-2">
                             <p class="text-gray-600 text-sm font-medium">Active Stokvels</p>
                             <h2 class="text-3xl lg:text-4xl font-bold text-gray-900" id="active-stokvels">0</h2>
                         </div>
-                        <div class="text-4xl">🎯</div>
+                        <div class="text-4xl shrink-0">🎯</div>
                     </div>
-                    <p class="text-xs text-green-600 font-semibold"><i class="fas fa-check-circle mr-1"></i>All on track</p>
-                </div>
-
-                <div class="stat-card dash-card" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-color: #fcd34d;">
-                    <div class="flex items-start justify-between mb-4">
-                        <div>
-                            <p class="text-gray-600 text-sm font-medium">This Month</p>
-                            <h2 class="text-3xl lg:text-4xl font-bold text-gray-900" id="this-month-savings">R0.00</h2>
-                        </div>
-                        <div class="text-4xl">📈</div>
-                    </div>
-                    <p class="text-xs text-amber-600 font-semibold"><i class="fas fa-fire mr-1"></i>Contribution</p>
+                    <p class="text-xs text-green-600 font-semibold mt-auto leading-relaxed"><i class="fas fa-calendar-alt mr-1"></i><span id="stat-stokvel-footnote">Join a plan to get started</span></p>
                 </div>
             </div>
 
-            <!-- My Stokvels Section -->
-            <section id="my-stokvels-section" style="display: none;" class="mb-16">
-                <div class="section-title">
-                    <div class="section-icon">
-                        <i class="fas fa-check-circle"></i>
+            <!-- Pending stokvel join requests (awaiting admin approval) -->
+            <section id="pending-stokvel-requests-section" class="mb-10 hidden" aria-labelledby="pending-requests-heading">
+                <div class="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50/90 p-5 sm:p-6 shadow-md shadow-amber-900/5">
+                    <div class="flex flex-col sm:flex-row sm:items-start gap-4">
+                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-700 text-xl shadow-inner">
+                            <i class="fas fa-hourglass-half" aria-hidden="true"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <h2 id="pending-requests-heading" class="text-lg font-bold text-amber-950">Pending stokvel requests</h2>
+                            <p class="text-sm text-amber-900/85 mt-1">You’ve asked to join these plans. An admin will approve your request before it appears under <strong>My Active Stokvels</strong>.</p>
+                            <ul id="pending-stokvel-requests-list" class="mt-4 space-y-2"></ul>
+                        </div>
                     </div>
+                </div>
+            </section>
+
+            <!-- How it works (only when user has not joined any stokvel yet) -->
+            <section id="dashboard-guide-section" class="guide-panel p-6 sm:p-8 mb-12 dash-card" style="display:none;" aria-labelledby="guide-heading">
+                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+                    <div class="flex-1 min-w-0">
+                        <h2 id="guide-heading" class="text-lg sm:text-xl font-bold text-slate-900 flex items-center gap-2 mb-4">
+                            <span class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center"><i class="fas fa-compass"></i></span>
+                            How your stokvel dashboard works
+                        </h2>
+                        <div class="space-y-4">
+                            <div class="guide-step">
+                                <span class="guide-step-num">1</span>
+                                <div>
+                                    <p class="font-semibold text-slate-800">Request a stokvel</p>
+                                    <p class="text-sm text-slate-600 mt-0.5">Under <strong>Discover</strong>, choose a plan and send a <strong>stokvel join request</strong>. An admin approves you before it appears under <strong>My Active Stokvels</strong>.</p>
+                                </div>
+                            </div>
+                            <div class="guide-step">
+                                <span class="guide-step-num">2</span>
+                                <div>
+                                    <p class="font-semibold text-slate-800">Log each payment</p>
+                                    <p class="text-sm text-slate-600 mt-0.5">Use <strong>Contribute</strong> with amount, how you paid, and <strong>proof</strong> (screenshot or PDF). Status starts as <strong>Pending review</strong>.</p>
+                                </div>
+                            </div>
+                            <div class="guide-step">
+                                <span class="guide-step-num">3</span>
+                                <div>
+                                    <p class="font-semibold text-slate-800">Admin approves</p>
+                                    <p class="text-sm text-slate-600 mt-0.5">Once marked <strong>Approved</strong>, the amount counts toward your savings totals below. Always follow your plan rules in the <a href="constitution.html" class="text-indigo-600 font-semibold hover:underline">constitution library</a>.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lg:w-72 shrink-0 rounded-2xl bg-slate-900 text-white p-5 shadow-lg">
+                        <p class="text-xs font-bold uppercase tracking-wider text-indigo-300 mb-2">Status legend</p>
+                        <ul class="text-sm space-y-2 text-slate-200">
+                            <li class="flex gap-2 items-start"><span class="inline-flex mt-0.5 w-2 h-2 rounded-full bg-amber-400 shrink-0"></span><span><strong class="text-white">Pending review</strong> — proof received; waiting on admin.</span></li>
+                            <li class="flex gap-2 items-start"><span class="inline-flex mt-0.5 w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span><span><strong class="text-white">Approved</strong> — verified; included in savings figures.</span></li>
+                        </ul>
+                        <a href="constitution.html" class="mt-4 w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white text-slate-900 text-sm font-bold hover:bg-indigo-50 transition">
+                            <i class="fas fa-file-contract text-indigo-600"></i> Full constitution library
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- My Stokvels Section -->
+            <section id="my-stokvels-section" style="display:none;" class="mb-16">
+                <div class="section-title">
+                    <div class="section-icon"><i class="fas fa-check-circle"></i></div>
                     <div>
                         <h2>My Active Stokvels</h2>
                         <p class="text-gray-600 text-sm font-normal mt-1">Stokvels you're actively saving with</p>
                     </div>
                 </div>
-
-                <div id="my-stokvels-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Populated by JS -->
-                </div>
+                <div id="my-stokvels-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
             </section>
 
-            <!-- Divider -->
-            <div id="divider" style="display: none;" class="divider"></div>
+            <div id="divider" style="display:none;" class="divider"></div>
 
-            <!-- Discover Stokvels Section -->
-            <section id="explore-section" style="display: none;" class="mb-16">
+            <!-- Discover Section -->
+            <section id="explore-section" style="display:none;" class="mb-16">
                 <div class="section-title">
-                    <div class="section-icon purple">
-                        <i class="fas fa-sparkles"></i>
-                    </div>
+                    <div class="section-icon purple"><i class="fas fa-sparkles"></i></div>
                     <div>
-                        <h2>Discover More Plans</h2>
-                        <p class="text-gray-600 text-sm font-normal mt-1">Join additional stokvels and expand your savings portfolio</p>
+                        <h2>Discover</h2>
+                        <p class="text-gray-600 text-sm font-normal mt-1"><strong>Stokvel — request to join</strong> under Discover. Tap a plan to send a join request; an admin approves you before it moves to <strong>My Active Stokvels</strong>.</p>
                     </div>
                 </div>
-
-                <div id="explore-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Populated by JS -->
-                </div>
+                <div id="explore-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </section>
 
-            <!-- All Joined Celebration -->
-            <div id="all-joined" style="display: none;" class="text-center py-20">
-                <div class="mb-8">
-                    <lottie-player src="https://lottie.host/40c75c19-2a29-4f3b-a4c0-8ea0c84d2e4b/7CnVD5QHOg.json" background="transparent" speed="1" style="width: 240px; height: 240px; margin: 0 auto;"></lottie-player>
-                </div>
+            <!-- All Joined -->
+            <div id="all-joined" style="display:none;" class="text-center py-20">
+                <div class="mb-8" style="font-size:120px;">🎉</div>
                 <div class="inline-flex items-center gap-2 px-4 py-2 bg-amber-100 border-2 border-amber-300 rounded-full mb-4 font-semibold text-amber-900">
-                    <i class="fas fa-crown"></i>
-                    Master Saver Achievement Unlocked!
+                    <i class="fas fa-crown"></i>Master Saver Achievement Unlocked!
                 </div>
                 <h3 class="text-3xl font-bold text-gray-900 mb-3">You're a Pro Saver! 🎉</h3>
-                <p class="text-gray-600 max-w-md mx-auto text-lg">You've joined all available stokvels. Keep contributing and watch your wealth grow exponentially!</p>
+                <p class="text-gray-600 max-w-md mx-auto text-lg">You've joined all available stokvels. Keep contributing and watch your wealth grow!</p>
             </div>
+
+            <!-- Full contribution history -->
+            <div class="divider"></div>
+            <section class="mb-16" id="dashboard-history-section">
+                <div class="section-title">
+                    <div class="section-icon purple"><i class="fas fa-receipt"></i></div>
+                    <div class="flex-1 min-w-0">
+                        <h2>Your contribution history</h2>
+                        <p class="text-gray-600 text-sm font-normal mt-1">Every payment you logged with proof. <strong>Pending</strong> means an admin is still reviewing; <strong>Approved</strong> means it counted toward your savings.</p>
+                    </div>
+                </div>
+                <div id="history-summary-row" class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4 hidden">
+                    <div class="history-chip"><i class="fas fa-list text-slate-400 mr-1"></i>Logged <strong id="hist-count-total">0</strong></div>
+                    <div class="history-chip"><i class="fas fa-check-circle text-emerald-500 mr-1"></i>Approved <strong id="hist-count-approved">0</strong></div>
+                    <div class="history-chip"><i class="fas fa-clock text-amber-500 mr-1"></i>Pending <strong id="hist-count-pending">0</strong></div>
+                    <div class="history-chip"><i class="fas fa-coins text-indigo-500 mr-1"></i>Pending value <strong id="hist-pending-amount">R0</strong></div>
+                </div>
+                <div class="card-premium overflow-hidden border border-indigo-100/60 shadow-lg shadow-indigo-900/5">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-left">
+                                    <th class="px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider">Date</th>
+                                    <th class="px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider">Plan</th>
+                                    <th class="px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider">Amount</th>
+                                    <th class="px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider">Method</th>
+                                    <th class="px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboard-history-body" class="divide-y divide-slate-100 bg-white">
+                                <tr><td colspan="5" class="px-4 py-12 text-center text-slate-400">Loading history…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="px-4 py-3 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-slate-600">
+                        <span><i class="fas fa-info-circle text-indigo-500 mr-1"></i>Top stats count <strong>approved</strong> payments only. This table lists every log (pending and approved).</span>
+                        <a href="constitution.html" class="font-semibold text-indigo-700 hover:text-indigo-900 whitespace-nowrap">Read full constitutions →</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stokvel constitutions (quick view + full page) -->
+            <div class="divider"></div>
+            <section class="mb-16">
+                <div class="section-title">
+                    <div class="section-icon amber"><i class="fas fa-file-contract"></i></div>
+                    <div>
+                        <h2>Stokvel constitutions</h2>
+                        <p class="text-gray-600 text-sm font-normal mt-1">Quick summary here — open the <a href="constitution.html" class="text-indigo-600 font-semibold hover:underline">full constitution library</a> for complete texts.</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="doc-card doc-item" style="border-color:#d1fae5;background:linear-gradient(135deg,#f0fdf4,#fff);" onclick="openDocument('grocery')">
+                        <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-shopping-basket text-green-600 text-xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-bold text-gray-900">Grocery Stokvel</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">Summary · Jan–Oct cycle</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-300 flex-shrink-0"></i>
+                    </div>
+                    <div class="doc-card doc-item" style="border-color:#ddd6fe;background:linear-gradient(135deg,#f5f3ff,#fff);" onclick="openDocument('january')">
+                        <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-calendar-alt text-purple-600 text-xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-bold text-gray-900">January Stokvel</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">Summary · Lock-in &amp; bonus</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-300 flex-shrink-0"></i>
+                    </div>
+                    <div class="doc-card doc-item" style="border-color:#fde68a;background:linear-gradient(135deg,#fffbeb,#fff);" onclick="openDocument('planning')">
+                        <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-chart-line text-amber-600 text-xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-bold text-gray-900">Planning Ahead</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">Summary · Flexible savings</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-300 flex-shrink-0"></i>
+                    </div>
+                    <a href="constitution.html" class="doc-card doc-item no-underline text-inherit" style="border-color:#c7d2fe;background:linear-gradient(135deg,#eef2ff,#fff);">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-book text-indigo-600 text-xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-bold text-gray-900">Full library</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">All plan texts in one place</p>
+                        </div>
+                        <i class="fas fa-external-link-alt text-indigo-300 flex-shrink-0 text-sm"></i>
+                    </a>
+                </div>
+            </section>
 
         </main>
     </div>
 
+    <!-- Details Side Panel (single, unique ID) -->
+    <div id="details-panel" class="fixed inset-y-0 right-0 bg-black/30 hidden z-[110] backdrop-blur-sm" style="width:100%;max-width:520px;">
+        <div class="bg-white rounded-l-2xl shadow-2xl h-full overflow-y-auto flex flex-col animate-slideInRight">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white relative overflow-hidden shrink-0">
+                <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
+                <div class="flex items-start justify-between relative z-10">
+                    <div>
+                        <div class="text-4xl mb-3" id="panel-icon">📊</div>
+                        <h2 class="text-2xl font-bold" id="panel-title">Stokvel Details</h2>
+                        <p class="text-blue-100 text-sm mt-1" id="panel-desc">Savings Plan</p>
+                    </div>
+                    <button onclick="closeDetailsPanel()" class="text-blue-100 hover:text-white transition text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1">
+                <!-- Stats -->
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <div class="p-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl">
+                        <p class="text-xs text-gray-600 font-semibold"><i class="fas fa-wallet mr-1"></i>Balance</p>
+                        <div class="text-2xl font-bold text-blue-600 mt-1" id="panel-balance">R0.00</div>
+                    </div>
+                    <div class="p-3 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl">
+                        <p class="text-xs text-gray-600 font-semibold"><i class="fas fa-check-circle mr-1"></i>Approved</p>
+                        <div class="text-2xl font-bold text-green-600 mt-1" id="panel-count">0</div>
+                    </div>
+                    <div class="p-3 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl">
+                        <p class="text-xs text-gray-600 font-semibold"><i class="fas fa-calendar mr-1"></i>Monthly</p>
+                        <div class="text-xl font-bold text-purple-600 mt-1" id="panel-monthly">R0.00</div>
+                    </div>
+                    <div class="p-3 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl">
+                        <p class="text-xs text-gray-600 font-semibold"><i class="fas fa-chart-pie mr-1"></i>Progress</p>
+                        <div class="text-xl font-bold text-amber-600 mt-1" id="panel-progress">0%</div>
+                    </div>
+                </div>
+                <div id="panel-schedule-block" class="mb-6 rounded-xl border border-indigo-100 bg-indigo-50/60 p-4 text-sm space-y-2">
+                    <p class="font-bold text-slate-800 text-xs uppercase tracking-wide"><i class="fas fa-calendar-check text-indigo-600 mr-1"></i>Payment schedule</p>
+                    <p id="panel-next-due-line" class="text-slate-800 leading-snug">—</p>
+                    <p id="panel-missed-line" class="text-slate-700 text-xs leading-snug">—</p>
+                </div>
+                <!-- Progress Bar -->
+                <div class="mb-8">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-gray-800 text-sm"><i class="fas fa-chart-line text-blue-600 mr-2"></i>Savings Progress</h3>
+                        <span class="text-sm font-bold text-blue-600" id="panel-progress-label">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div id="panel-progress-bar" class="bg-gradient-to-r from-blue-500 to-indigo-600 h-3 rounded-full transition-all duration-700" style="width:0%"></div>
+                    </div>
+                </div>
+                <!-- Chart -->
+                <div class="mb-8">
+                    <h3 class="font-bold text-gray-800 text-sm mb-4"><i class="fas fa-chart-bar text-green-600 mr-2"></i>Last 6 Months</h3>
+                    <canvas id="panel-chart" class="max-h-48"></canvas>
+                </div>
+                <!-- History -->
+                <div class="mb-6">
+                    <h3 class="font-bold text-gray-800 text-sm mb-4"><i class="fas fa-history text-purple-600 mr-2"></i>Transaction History</h3>
+                    <div class="overflow-x-auto rounded-xl border border-gray-200">
+                        <table class="min-w-full text-sm">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Date</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Amount</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Method</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="panel-history-body" class="divide-y divide-gray-100">
+                                <tr><td colspan="4" class="px-4 py-8 text-center text-gray-400">
+                                    <i class="fas fa-inbox text-3xl mb-2 block opacity-30"></i>No contributions yet
+                                </td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Actions -->
+                <div class="flex gap-3">
+                    <button onclick="openContributeFromPanel()" class="flex-1 button-glow justify-center py-3 text-sm">
+                        <i class="fas fa-plus"></i>Contribute
+                    </button>
+                    <button onclick="closeDetailsPanel()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-xl transition text-sm flex items-center justify-center gap-2">
+                        <i class="fas fa-times"></i>Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contribute Modal -->
+    <div id="contribute-modal" class="fixed inset-0 z-[110] hidden overflow-y-auto overscroll-contain bg-slate-900/50 backdrop-blur-md">
+        <div class="flex min-h-[100dvh] w-full items-start justify-center px-4 pb-10 pt-[max(1.25rem,env(safe-area-inset-top,0px))] sm:items-center sm:py-10">
+        <div class="bg-white rounded-2xl shadow-2xl shadow-emerald-900/10 max-w-lg w-full overflow-hidden border border-emerald-100/80 my-auto max-h-[calc(100dvh-2.5rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] flex flex-col">
+            <div class="bg-gradient-to-br from-emerald-600 via-green-600 to-teal-700 p-6 sm:p-7 text-white relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+                <div class="absolute bottom-0 left-0 w-32 h-32 bg-black/10 rounded-full -ml-10 -mb-10"></div>
+                <button type="button" onclick="closeContributeModal()" class="mb-3 text-white/90 hover:text-white transition text-xl relative z-10 rounded-lg p-1 hover:bg-white/10" aria-label="Back">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="flex items-center gap-3 relative z-10 mb-2">
+                    <span class="text-4xl" aria-hidden="true">💵</span>
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-bold leading-tight">Log a contribution</h2>
+                        <p class="text-emerald-100 text-sm mt-0.5 font-medium" id="contribute-stokvel-name">January Stokvel</p>
+                    </div>
+                </div>
+                <p class="text-emerald-50/95 text-xs sm:text-sm relative z-10 max-w-md leading-relaxed">Upload proof of payment. An admin will verify and mark it approved so it adds to your savings.</p>
+                <div class="contribute-steps relative z-10 mt-4">
+                    <span class="contribute-step-pill active">1. Amount &amp; method</span>
+                    <span class="contribute-step-pill active">2. Proof</span>
+                    <span class="contribute-step-pill active">3. Submit</span>
+                </div>
+            </div>
+            <div class="px-5 sm:px-6 py-3 bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-emerald-100 flex flex-wrap items-center justify-between gap-2">
+                <span class="text-xs text-slate-700"><i class="fas fa-bullseye text-emerald-600 mr-1"></i>Monthly guide: <strong id="contribute-monthly-target" class="text-slate-900">R0</strong></span>
+                <span class="text-xs text-slate-700">Approved total: <strong id="contribute-total-saved" class="text-emerald-700">R0.00</strong></span>
+            </div>
+            <div class="p-5 sm:p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
+                <!-- Bank details for EFT (stable reference per user) -->
+                <section class="rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-50 to-blue-50/90 p-4 sm:p-5 shadow-sm" aria-labelledby="contribute-bank-heading">
+                    <div class="flex items-start gap-3 mb-4">
+                        <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-600 text-white text-lg shadow-md">
+                            <i class="fas fa-university" aria-hidden="true"></i>
+                        </span>
+                        <div class="min-w-0">
+                            <h3 id="contribute-bank-heading" class="text-base font-bold text-slate-900 leading-snug">Stokvel bank account details</h3>
+                            <p class="text-xs text-slate-600 mt-1">Use these details when paying by EFT. Your payment reference never changes.</p>
+                        </div>
+                    </div>
+                    <div class="rounded-xl border border-sky-200/90 bg-white/80 px-3 py-3 text-xs text-sky-950 mb-4">
+                        <p class="font-bold text-sky-900 mb-2"><i class="fas fa-info-circle text-sky-600 mr-1"></i>Important: when you pay, note that:</p>
+                        <ul class="list-disc list-inside space-y-1 text-sky-950/95 leading-relaxed">
+                            <li>You’re contributing to your stokvel savings.</li>
+                            <li>Use the <strong>reference below</strong> exactly — it identifies you on our bank statement.</li>
+                            <li>The reference stays the same for every deposit.</li>
+                        </ul>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1">Bank name</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="contribute-bank-name" readonly tabindex="-1"
+                                    class="flex-1 min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-inner">
+                                <button type="button" class="shrink-0 rounded-xl border border-sky-200 bg-white px-3 py-2 text-xs font-bold text-sky-800 hover:bg-sky-50" onclick="copyContributeBankField('contribute-bank-name')">Copy</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1">Account number</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="contribute-account-no" readonly tabindex="-1"
+                                    class="flex-1 min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-inner font-mono tracking-tight">
+                                <button type="button" class="shrink-0 rounded-xl border border-sky-200 bg-white px-3 py-2 text-xs font-bold text-sky-800 hover:bg-sky-50" onclick="copyContributeBankField('contribute-account-no')">Copy</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1">Branch code</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="contribute-branch" readonly tabindex="-1"
+                                    class="flex-1 min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-inner font-mono">
+                                <button type="button" class="shrink-0 rounded-xl border border-sky-200 bg-white px-3 py-2 text-xs font-bold text-sky-800 hover:bg-sky-50" onclick="copyContributeBankField('contribute-branch')">Copy</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1">Your payment reference <span class="text-emerald-700 normal-case font-semibold">(permanent)</span></label>
+                            <div class="flex gap-2">
+                                <input type="text" id="contribute-payment-ref" readonly tabindex="-1"
+                                    class="flex-1 min-w-0 rounded-xl border-2 border-emerald-200 bg-emerald-50/90 px-3 py-2.5 text-sm font-bold text-slate-900 font-mono tracking-tight">
+                                <button type="button" class="shrink-0 rounded-xl border border-emerald-300 bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700" onclick="copyContributeBankField('contribute-payment-ref')">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="mt-3 flex items-start gap-2 text-[11px] text-slate-600 leading-relaxed">
+                        <i class="fas fa-info-circle text-slate-400 mt-0.5 shrink-0"></i>
+                        <span>This reference is derived from your account and does not change. Include your stokvel name in the payment note if your bank allows extra text.</span>
+                    </p>
+                </section>
+
+                <div class="flex flex-wrap items-center gap-2 text-xs">
+                    <button type="button" id="contribute-constitution-summary" class="inline-flex items-center gap-1.5 font-bold text-emerald-800 bg-white/80 border border-emerald-200/80 px-3 py-2 rounded-xl hover:bg-emerald-50 transition">
+                        <i class="fas fa-file-alt"></i> Plan summary (popup)
+                    </button>
+                    <a id="contribute-constitution-library" href="constitution.html" class="inline-flex items-center gap-1.5 font-semibold text-slate-700 bg-slate-100 px-3 py-2 rounded-xl hover:bg-slate-200 transition">
+                        <i class="fas fa-external-link-alt text-slate-500"></i> Full library &amp; PDF
+                    </a>
+                </div>
+                <div class="rounded-xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-xs text-amber-950 leading-relaxed">
+                    <strong class="font-semibold"><i class="fas fa-lightbulb text-amber-600 mr-1"></i>Before you pay:</strong> Match the amount to your monthly guide where possible. Official rules live in the <a href="constitution.html" id="contribute-constitution-inline" class="font-bold text-amber-900 underline underline-offset-2">constitution library</a>.
+                </div>
+                <form id="contribute-form" onsubmit="submitContribution(event)" class="space-y-5">
+                    <div>
+                        <label for="contribute-amount" class="block text-slate-800 text-sm font-bold mb-2">Amount (ZAR)</label>
+                        <input type="number" id="contribute-amount" placeholder="e.g. 150.00" step="0.01" min="1"
+                            class="w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition" required>
+                    </div>
+                    <div>
+                        <label for="contribute-method" class="block text-slate-800 text-sm font-bold mb-2">How you paid</label>
+                        <select id="contribute-method" class="w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition" required>
+                            <option value="">Choose method</option>
+                            <option value="Bank Transfer">Bank Transfer / EFT</option>
+                            <option value="Debit Order">Debit order</option>
+                            <option value="Mobile Money">Mobile money</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Cheque">Cheque</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-slate-800 text-sm font-bold mb-2">Payment proof <span class="text-red-500">*</span></label>
+                        <p class="text-xs text-slate-500 mb-2">Required so we can match your payment. Status will show as <strong>Pending</strong> until approved.</p>
+                        <div id="proof-upload-area" class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50/50 transition">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-slate-400 mb-2 block"></i>
+                            <p class="text-sm text-slate-600 font-medium">Tap or drag file here</p>
+                            <p class="text-xs text-slate-400 mt-1">PNG, JPG or PDF · max 5&nbsp;MB</p>
+                            <input type="file" id="proof-file" accept="image/*,.pdf" style="display:none;">
+                        </div>
+                        <div id="proof-filename" class="text-sm text-emerald-700 mt-2 hidden items-center gap-2 font-medium">
+                            <i class="fas fa-check-circle"></i> <span id="filename-text"></span>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="contribute-note" class="block text-slate-800 text-sm font-bold mb-2">Note for admin <span class="text-slate-400 font-normal">(optional)</span></label>
+                        <textarea id="contribute-note" rows="2" maxlength="500" placeholder="e.g. EFT reference, split payment, or anything that helps verify your deposit"
+                            class="w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition resize-none"></textarea>
+                    </div>
+                    <div class="flex flex-col-reverse sm:flex-row gap-3 pt-1">
+                        <button type="button" onclick="closeContributeModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-3 rounded-xl transition">Cancel</button>
+                        <button type="submit" id="contribute-submit-btn" class="flex-1 button-glow justify-center py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 border-0">
+                            <i class="fas fa-paper-plane mr-2"></i>Submit for review
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        </div>
+    </div>
+
     <!-- Join Modal -->
-    <div id="join-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50 p-4 backdrop-blur-sm">
+    <div id="join-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-[110] p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
             <div id="modal-header" class="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-white relative overflow-hidden">
                 <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -mr-20 -mt-20"></div>
@@ -436,338 +849,1252 @@
                 </button>
                 <div class="text-5xl mb-4 relative z-10" id="modal-icon">🎓</div>
                 <h2 class="text-2xl font-bold relative z-10" id="modal-title">Join Stokvel</h2>
-                <p class="text-blue-100 text-sm mt-2 relative z-10" id="modal-desc">Join this amazing savings plan</p>
+                <p class="text-blue-100 text-sm mt-2 relative z-10" id="modal-desc">Join this savings plan</p>
             </div>
-
             <div id="form-view" class="p-8">
-                <div class="mb-6 p-4 bg-blue-50 border-2 border-blue-100 rounded-lg">
+                <div class="mb-6 p-4 bg-blue-50 border-2 border-blue-100 rounded-xl">
                     <label class="text-xs font-bold text-blue-600 uppercase tracking-wider block mb-2">📋 Plan</label>
                     <p class="text-lg font-bold text-gray-900" id="plan-display">January Stokvel</p>
                 </div>
-
                 <div class="mb-6">
                     <label class="text-xs font-bold text-gray-700 uppercase tracking-wider block mb-3">
-                        <i class="fas fa-message mr-2"></i>Message (Optional)
+                        <i class="fas fa-comment mr-2"></i>Message (Optional)
                     </label>
-                    <textarea id="join-message" rows="4" placeholder="Tell the admin why you want to join..." class="w-full border-2 border-gray-200 rounded-lg px-4 py-3 focus:border-blue-600 focus:ring-0 outline-none resize-none text-sm font-medium"></textarea>
+                    <textarea id="join-message" rows="4" placeholder="Tell the admin why you want to join..."
+                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-blue-600 outline-none resize-none text-sm"></textarea>
                 </div>
-
                 <button onclick="submitJoinRequest()" id="join-btn" class="w-full button-glow justify-center py-3 text-base">
                     <i class="fas fa-paper-plane"></i>Send Join Request
                 </button>
             </div>
-
             <div id="success-view" class="p-8 text-center hidden">
-                <lottie-player src="https://lottie.host/1f52c6c2-d8d6-4ae8-b94a-d9f61c4c48ab/VQZHy84l62.json" background="transparent" speed="1" style="width: 140px; height: 140px; margin: 0 auto;"></lottie-player>
-                <h3 class="text-xl font-bold text-gray-900 mt-6">Request Sent! 🎉</h3>
+                <div style="font-size:80px;margin-bottom:20px;">✅</div>
+                <h3 class="text-xl font-bold text-gray-900">Request Sent! 🎉</h3>
                 <p class="text-gray-600 text-sm mt-3">The admin will review your request and get back to you soon.</p>
                 <button onclick="closeJoinModal()" class="mt-8 w-full button-glow justify-center py-3">Done</button>
             </div>
         </div>
     </div>
 
+    <!-- Constitution Viewer Modal -->
+    <div id="constitution-modal" class="fixed inset-0 bg-black/60 flex items-center justify-center hidden z-[110] p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="bg-gradient-to-r from-slate-800 to-slate-700 p-5 text-white flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-file-contract text-2xl text-blue-300"></i>
+                    <h2 class="text-xl font-bold" id="constitution-title">Document</h2>
+                </div>
+                <button onclick="closeDocument()" class="text-slate-300 hover:text-white transition text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="overflow-y-auto flex-1 p-8 bg-gray-50">
+                <div id="constitution-body" class="constitution-content bg-white rounded-xl p-6 shadow-sm"></div>
+            </div>
+            <div class="p-4 border-t border-gray-200 shrink-0 bg-white flex flex-col sm:flex-row gap-2">
+                <a id="constitution-deep-link" href="constitution.html" class="flex-1 inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition text-center">
+                    <i class="fas fa-book-open"></i> Open in library (full text)
+                </a>
+                <button type="button" onclick="closeDocument()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="../js/firebase.js"></script>
+    <!-- UMD build exposes global `emailjs` (index.min.js is ESM and does not) -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script src="../js/config/email.config.js"></script>
     <script>
-        const DAILY_QUOTES = [
-            "Small steps today. Big wins tomorrow. 🌟",
-            "Every contribution counts. Keep going! 💪",
-            "You're on your way to financial freedom. 🚀",
-            "Consistency is the key to wealth. 🔑",
-            "Your future self will thank you. 🙏",
-            "Invest in yourself and your dreams. ✨",
-            "Patience pays off. Trust the process. 🌱",
-            "You've got this! Keep saving strong. 💎"
-        ];
-
-        const PLAN_META = {
-            'January Stokvel': { icon: '🎓', desc: 'Save all year, receive payout in January', color: 'blue' },
-            'Grocery Stokvel': { icon: '🛒', desc: 'Stock up on household goods in bulk', color: 'green' },
-            'Planning Ahead Stokvel': { icon: '📊', desc: 'Flexible plan — save for 10+ months', color: 'purple' }
-        };
-
-        const PLAN_CONFIG = {
-            'January Stokvel': { icon: '🎓', grad: 'from-blue-500 to-blue-700', monthly: 75 },
-            'Grocery Stokvel': { icon: '🛒', grad: 'from-green-500 to-green-700', monthly: 150 },
-            'Planning Ahead Stokvel': { icon: '📊', grad: 'from-purple-500 to-purple-700', monthly: 100 }
-        };
-
-        const EXPLORE_PLANS = [
-            { type: 'January Stokvel', icon: '🎓', color: 'blue' },
-            { type: 'Grocery Stokvel', icon: '🛒', color: 'green' },
-            { type: 'Planning Ahead Stokvel', icon: '📊', color: 'purple' }
-        ];
-
-        let _currentPlan = null;
-        let window.userData = null;
-
-        function setupGreeting(name) {
-            const now = new Date();
-            const hour = now.getHours();
-            let greeting = 'Good morning';
-            if (hour >= 12) greeting = 'Good afternoon';
-            if (hour >= 18) greeting = 'Good evening';
-
-            document.getElementById('greeting-name').textContent = name || 'Member';
-            document.getElementById('greeting-date').textContent = now.toLocaleDateString('en-ZA', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-
-            const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-            const quote = DAILY_QUOTES[dayOfYear % DAILY_QUOTES.length];
-            document.getElementById('motivation-quote').textContent = quote;
+    (function () {
+        if (typeof emailjs !== 'undefined' && window.VEMA_EMAIL_CONFIG && window.VEMA_EMAIL_CONFIG.publicKey) {
+            emailjs.init(window.VEMA_EMAIL_CONFIG.publicKey);
         }
-
-        function getRank(balance) {
-            if (balance >= 5000) return { label: 'Investor', emoji: '📈' };
-            if (balance >= 2000) return { label: 'Grower', emoji: '🌿' };
-            if (balance >= 500) return { label: 'Saver', emoji: '💰' };
-            return { label: 'Seedling', emoji: '🌱' };
-        }
-
-        function renderMyStokvels(stokvels) {
-            const section = document.getElementById('my-stokvels-section');
-            const grid = document.getElementById('my-stokvels-grid');
-            const divider = document.getElementById('divider');
-
-            if (!stokvels || stokvels.length === 0) {
-                section.style.display = 'none';
-                divider.style.display = 'none';
-                return;
-            }
-
-            section.style.display = 'block';
-            divider.style.display = 'block';
-
-            grid.innerHTML = stokvels.map((s, idx) => {
-                const config = PLAN_CONFIG[s.type] || { icon: '💰', monthly: 100 };
-                const meta = PLAN_META[s.type] || { icon: '💰', desc: 'Savings plan' };
-                const progress = Math.min((s.totalSaved || 0) / (config.monthly * 3) * 100, 100);
-
-                return `
-                    <div class="card-premium stokvel-item p-6" style="animation-delay: ${idx * 0.1}s">
-                        <div class="flex items-start justify-between mb-6">
-                            <div class="text-5xl">${meta.icon}</div>
-                            <span class="inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
-                                <i class="fas fa-check-circle"></i>Active
-                            </span>
-                        </div>
-
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">${s.type}</h3>
-                        <p class="text-sm text-gray-600 mb-6">${meta.desc}</p>
-
-                        <div class="mb-6">
-                            <div class="flex justify-between items-center mb-3">
-                                <span class="text-sm font-semibold text-gray-700">Progress</span>
-                                <span class="text-sm font-bold text-blue-600">${progress.toFixed(0)}%</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full" style="width: ${progress}%"></div>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg mb-6">
-                            <div>
-                                <p class="text-gray-600 text-xs font-semibold uppercase">Saved</p>
-                                <p class="text-xl font-bold text-gray-900 mt-1">R${(s.totalSaved || 0).toFixed(2)}</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-gray-600 text-xs font-semibold uppercase">Monthly</p>
-                                <p class="text-xl font-bold text-gray-900 mt-1">R${config.monthly}</p>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-3">
-                            <button class="button-glow justify-center py-2 text-sm">
-                                <i class="fas fa-plus"></i>Contribute
-                            </button>
-                            <button class="button-outline justify-center py-2 text-sm">
-                                <i class="fas fa-info-circle"></i>Details
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function renderExplorePlans(stokvels) {
-            const section = document.getElementById('explore-section');
-            const grid = document.getElementById('explore-grid');
-            const allJoined = document.getElementById('all-joined');
-
-            const joined = stokvels.map(s => s.type);
-            const available = EXPLORE_PLANS.filter(p => !joined.includes(p.type));
-
-            if (available.length === 0) {
-                section.style.display = 'none';
-                allJoined.style.display = 'block';
-                return;
-            }
-
-            section.style.display = 'block';
-            allJoined.style.display = 'none';
-
-            grid.innerHTML = available.map((p, idx) => {
-                const meta = PLAN_META[p.type];
-                return `
-                    <div class="card-premium card-gradient explore-item p-6 cursor-pointer hover:scale-105 transition-transform" onclick="openJoinModal('${p.type}')" style="animation-delay: ${idx * 0.1}s">
-                        <div class="flex items-start justify-between mb-6">
-                            <div style="font-size: 3rem; line-height: 1;">${meta.icon}</div>
-                            <span class="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">
-                                <i class="fas fa-unlock"></i>Available
-                            </span>
-                        </div>
-
-                        <h3 class="text-xl font-bold text-gray-900 mb-2">${p.type}</h3>
-                        <p class="text-sm text-gray-700 mb-6">${meta.desc}</p>
-
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2 text-blue-600 font-semibold text-sm">
-                                <i class="fas fa-heart"></i>
-                                <span>Join to start saving</span>
-                            </div>
-                            <i class="fas fa-arrow-right text-2xl text-blue-400 opacity-60"></i>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function openJoinModal(planType) {
-            _currentPlan = planType;
-            const meta = PLAN_META[planType];
-
-            document.getElementById('modal-icon').textContent = meta.icon;
-            document.getElementById('modal-title').textContent = `Join ${planType}`;
-            document.getElementById('modal-desc').textContent = meta.desc;
-            document.getElementById('plan-display').textContent = planType;
-            document.getElementById('join-message').value = '';
-
-            const headerEl = document.getElementById('modal-header');
-            if (meta.color === 'green') {
-                headerEl.style.background = 'linear-gradient(to right, #16a34a, #22c55e)';
-            } else if (meta.color === 'purple') {
-                headerEl.style.background = 'linear-gradient(to right, #7c3aed, #a855f7)';
-            } else {
-                headerEl.style.background = 'linear-gradient(to right, #2563eb, #3b82f6)';
-            }
-
-            document.getElementById('form-view').style.display = 'block';
-            document.getElementById('success-view').style.display = 'none';
-            document.getElementById('join-modal').classList.remove('hidden');
-        }
-
-        function closeJoinModal() {
-            document.getElementById('join-modal').classList.add('hidden');
-            _currentPlan = null;
-        }
-
-        function submitJoinRequest() {
-            const user = auth.currentUser;
-            if (!user || !_currentPlan) return;
-
-            const btn = document.getElementById('join-btn');
-            const message = document.getElementById('join-message').value.trim();
-
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-
-            db.collection('stokvelRequests').add({
-                userId: user.uid,
-                userName: (window.userData && window.userData.name) ? window.userData.name : (user.displayName || 'Member'),
-                userEmail: user.email,
-                planType: _currentPlan,
-                message: message,
-                requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                status: 'Pending'
-            }).then(() => {
-                document.getElementById('form-view').style.display = 'none';
-                document.getElementById('success-view').style.display = 'block';
-                setTimeout(() => location.reload(), 2000);
-            }).catch((err) => {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Join Request';
-                alert('Failed to send request. Please try again.');
-            });
-        }
-
-        // Auth
-        auth.onAuthStateChanged(async (user) => {
-            if (!user) {
-                window.location.href = '../auth/login.html';
-                return;
-            }
-
-            try {
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                if (!userDoc.exists) throw new Error('User document not found');
-
-                const userData = userDoc.data();
-                window.userData = userData;
-
-                setupGreeting(userData.name || 'Member');
-                document.getElementById('user-name').textContent = userData.name || 'Member';
-                const initials = (userData.name || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-                document.getElementById('user-avatar').textContent = initials;
-
-                const stokvelsRef = await db.collection('users').doc(user.uid).collection('stokvels').get();
-                const stokvels = stokvelsRef.docs.map(doc => doc.data());
-
-                const txRef = await db.collection('users').doc(user.uid).collection('transactions').get();
-                let totalSaved = 0;
-                let thisMonthSavings = 0;
-                const now = new Date();
-                const currentMonth = now.getMonth();
-                const currentYear = now.getFullYear();
-
-                txRef.forEach(doc => {
-                    const tx = doc.data();
-                    if (tx.amount && tx.amount > 0) {
-                        totalSaved += parseFloat(tx.amount);
-                        const txDate = tx.date ? new Date(tx.date.seconds * 1000) : null;
-                        if (txDate && txDate.getMonth() === currentMonth && txDate.getFullYear() === currentYear) {
-                            thisMonthSavings += parseFloat(tx.amount);
-                        }
-                    }
-                });
-
-                const stokvelsSummary = [];
-                for (let stokvel of stokvels) {
-                    const stokvelTotal = txRef.docs
-                        .filter(doc => doc.data().stokvelName === stokvel.type)
-                        .reduce((sum, doc) => sum + (parseFloat(doc.data().amount) || 0), 0);
-                    stokvelsSummary.push({ ...stokvel, totalSaved: stokvelTotal });
-                }
-
-                document.getElementById('total-savings').textContent = `R${totalSaved.toFixed(2)}`;
-                document.getElementById('active-stokvels').textContent = stokvels.length;
-                document.getElementById('this-month-savings').textContent = `R${thisMonthSavings.toFixed(2)}`;
-
-                const rank = getRank(totalSaved);
-                document.getElementById('rank-badge').textContent = `${rank.emoji} ${rank.label}`;
-
-                renderMyStokvels(stokvelsSummary);
-                renderExplorePlans(stokvelsSummary);
-
-                setTimeout(() => {
-                    document.getElementById('loading-overlay').style.display = 'none';
-                }, 300);
-
-            } catch (error) {
-                console.error('Error loading dashboard:', error);
-                alert('Error loading dashboard. Please refresh the page.');
-            }
-        });
-
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            auth.signOut();
-            window.location.href = '../auth/login.html';
-        });
-
-        setupGreeting(null);
+    })();
     </script>
+    <script>
+    /* ===== CONSTANTS ===== */
+    const DAILY_QUOTES = [
+        "Small steps today. Big wins tomorrow. 🌟",
+        "Every contribution counts. Keep going! 💪",
+        "You're on your way to financial freedom. 🚀",
+        "Consistency is the key to wealth. 🔑",
+        "Your future self will thank you. 🙏",
+        "Invest in yourself and your dreams. ✨",
+        "Patience pays off. Trust the process. 🌱",
+        "You've got this! Keep saving strong. 💎"
+    ];
 
+    const PLAN_META = {
+        'January Stokvel':       { icon:'🎓', desc:'Save all year, receive payout in January',  color:'blue',   monthly:75  },
+        'Grocery Stokvel':        { icon:'🛒', desc:'Stock up on household goods in bulk',        color:'green',  monthly:150 },
+        'Planning Ahead Stokvel': { icon:'📊', desc:'Flexible plan — save for 10+ months',       color:'purple', monthly:100 }
+    };
+
+    const EXPLORE_PLANS = Object.keys(PLAN_META).map(type => ({ type, ...PLAN_META[type] }));
+
+    const PLAN_DOC_KEY = {
+        'Grocery Stokvel': 'grocery',
+        'January Stokvel': 'january',
+        'Planning Ahead Stokvel': 'planning'
+    };
+
+    function isCountedSavings(tx) {
+        const s = String(tx.status || '').toLowerCase();
+        if (s === 'pending_approval' || s === 'pending') return false;
+        if (s === 'rejected' || s === 'declined') return false;
+        return true;
+    }
+
+    function parseFirestoreDate(val) {
+        if (!val) return null;
+        if (typeof val.toDate === 'function') return val.toDate();
+        if (val.seconds != null) return new Date(val.seconds * 1000);
+        const d = new Date(val);
+        return isNaN(d.getTime()) ? null : d;
+    }
+
+    function startOfDay(d) {
+        const x = new Date(d);
+        x.setHours(0, 0, 0, 0);
+        return x;
+    }
+
+    function dueCalendarDate(year, month0, dueDay) {
+        const last = new Date(year, month0 + 1, 0).getDate();
+        const day = Math.min(dueDay, last);
+        const dt = new Date(year, month0, day);
+        dt.setHours(0, 0, 0, 0);
+        return dt;
+    }
+
+    function endOfDueDay(year, month0, dueDay) {
+        const last = new Date(year, month0 + 1, 0).getDate();
+        const day = Math.min(dueDay, last);
+        return new Date(year, month0, day, 23, 59, 59, 999);
+    }
+
+    /** Normalise Firestore Timestamp / plain object on transaction docs */
+    function txToJsDate(tx) {
+        if (!tx || tx.date == null) return null;
+        const d = tx.date;
+        if (typeof d.toDate === 'function') return d.toDate();
+        if (typeof d.seconds === 'number') return new Date(d.seconds * 1000);
+        if (d._seconds != null) return new Date(d._seconds * 1000);
+        return null;
+    }
+
+    function txToMillis(tx) {
+        const dt = txToJsDate(tx);
+        return dt && !isNaN(dt.getTime()) ? dt.getTime() : 0;
+    }
+
+    /** Next contribution date (start of that calendar day), based on join-day-of-month cycle */
+    function getNextContributionDueDate(joinedAt, now) {
+        const join = parseFirestoreDate(joinedAt);
+        if (!join) return null;
+        const dueDay = join.getDate();
+        const today = startOfDay(now);
+        let y = today.getFullYear();
+        let m = today.getMonth();
+        let dueThis = dueCalendarDate(y, m, dueDay);
+        if (dueThis >= today) return dueThis;
+        m++;
+        if (m > 11) { m = 0; y++; }
+        return dueCalendarDate(y, m, dueDay);
+    }
+
+    function monthHasApprovedPayment(txList, planType, y, m) {
+        return txList.some(tx => {
+            if (planType && tx.stokvelName !== planType) return false;
+            if (!isCountedSavings(tx)) return false;
+            const d = txToJsDate(tx);
+            if (!d || isNaN(d.getTime())) return false;
+            return d.getFullYear() === y && d.getMonth() === m;
+        });
+    }
+
+    function getMissedPaymentMonths(joinedAt, txList, planType, now) {
+        const join = parseFirestoreDate(joinedAt);
+        if (!join) return [];
+        const dueDay = join.getDate();
+        const t = new Date(now);
+        let y = join.getFullYear();
+        let m = join.getMonth();
+        const curY = t.getFullYear();
+        const curM = t.getMonth();
+        const missed = [];
+        while (y < curY || (y === curY && m <= curM)) {
+            const deadline = endOfDueDay(y, m, dueDay);
+            if (t > deadline && !monthHasApprovedPayment(txList, planType, y, m)) {
+                missed.push(new Date(y, m, 1).toLocaleDateString('en-ZA', { month: 'short', year: 'numeric' }));
+            }
+            m++;
+            if (m > 11) { m = 0; y++; }
+        }
+        return missed;
+    }
+
+    function scheduleCopyForCard(stokvel, txList, now) {
+        const join = stokvel.joinedAt;
+        const plan = stokvel.type;
+        if (!parseFirestoreDate(join)) {
+            return {
+                nextHtml: '<span class="text-slate-500">Payment dates: join date missing — ask admin.</span>',
+                missedHtml: ''
+            };
+        }
+        const next = getNextContributionDueDate(join, now);
+        const today = startOfDay(now);
+        const diff = Math.round((next - today) / 86400000);
+        const dateStr = next.toLocaleDateString('en-ZA', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+        let daysText;
+        if (diff === 0) daysText = '<span class="font-bold text-amber-700">Due today</span>';
+        else if (diff === 1) daysText = '<span class="font-bold text-indigo-700">1 day to payment</span>';
+        else daysText = `<span class="font-bold text-indigo-700">${diff} days to payment</span>`;
+        const missed = getMissedPaymentMonths(join, txList, plan, now);
+        let missedHtml;
+        if (missed.length === 0) {
+            missedHtml = '<p class="text-emerald-700 font-medium"><i class="fas fa-check-circle mr-1"></i>No missed months on record (approved payments)</p>';
+        } else {
+            const list = missed.map(m => `<span class="inline-block bg-red-50 text-red-800 border border-red-100 rounded-lg px-2 py-0.5 mr-1 mb-1">${m}</span>`).join('');
+            missedHtml = `<p class="text-red-800 font-semibold"><i class="fas fa-exclamation-circle mr-1"></i>Months with no approved payment:</p><div class="flex flex-wrap gap-1 mt-1">${list}</div>`;
+        }
+        const nextHtml = `<p class="text-slate-800"><i class="fas fa-calendar-day text-indigo-600 mr-1"></i>Next due <strong>${dateStr}</strong> · ${daysText}</p>`;
+        return { nextHtml, missedHtml };
+    }
+
+    function buildStatCardMiniCalendarHTML(joinedAt, planType, planTxList, now) {
+        const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const join = parseFirestoreDate(joinedAt);
+        const y = now.getFullYear();
+        const joinYm = join ? join.getFullYear() * 12 + join.getMonth() : -Infinity;
+        let html = '<div class="stat-mini-cal grid grid-cols-12 gap-0.5 sm:gap-1 w-full">';
+        const nowYm = now.getFullYear() * 12 + now.getMonth();
+        for (let m = 0; m < 12; m++) {
+            const cellYm = y * 12 + m;
+            const paid = monthHasApprovedPayment(planTxList, planType, y, m);
+            let inner;
+            let cls = 'stat-mini-cal-cell rounded-md py-1 px-0.5 bg-white/70 border border-slate-200/90';
+            let tit = labels[m] + ' ' + y + ': ';
+            if (join && cellYm < joinYm) {
+                inner = '<span class="text-slate-300 text-[10px]">—</span>';
+                cls += ' opacity-70';
+                tit += 'Not a member yet';
+            } else if (paid) {
+                inner = '<i class="fas fa-check text-emerald-600 text-[11px]" aria-hidden="true"></i>';
+                cls += ' bg-emerald-50/90 border-emerald-200';
+                tit += 'Approved payment for this month';
+            } else if (join && cellYm > nowYm) {
+                inner = '<span class="text-slate-300 text-[10px]">—</span>';
+                cls += ' opacity-60';
+                tit += 'Month not reached yet';
+            } else {
+                inner = '<span class="text-slate-300 text-sm leading-none">·</span>';
+                tit += 'No approved payment logged in this month yet';
+            }
+            html += '<div class="' + cls + '" title="' + tit.replace(/"/g, '&quot;') + '"><div class="text-[8px] sm:text-[9px] font-bold text-slate-500 leading-none text-center">' + labels[m].charAt(0) + '</div><div class="text-center leading-none mt-0.5 min-h-[14px] flex items-center justify-center">' + inner + '</div></div>';
+        }
+        html += '</div>';
+        return html;
+    }
+
+    function stokvelMiniCalendarContainerHtml(s, planTx, now) {
+        const join = s.joinedAt;
+        const plan = s.type;
+        const y = now.getFullYear();
+        const calHtml = buildStatCardMiniCalendarHTML(join, plan, planTx, now);
+        let daysText;
+        if (!parseFirestoreDate(join)) {
+            daysText = 'Next payment: set join date with admin to show countdown.';
+        } else {
+            const next = getNextContributionDueDate(join, now);
+            const today = startOfDay(now);
+            const diff = Math.round((next - today) / 86400000);
+            const dateStr = next.toLocaleDateString('en-ZA', { weekday: 'short', day: 'numeric', month: 'short' });
+            if (diff === 0) daysText = 'Next due ' + dateStr + ' · Due today';
+            else if (diff === 1) daysText = 'Next due ' + dateStr + ' · 1 day to payment';
+            else daysText = 'Next due ' + dateStr + ' · ' + diff + ' days to payment';
+        }
+        const missed = getMissedPaymentMonths(join, planTx, plan, now);
+        const foot = missed.length
+            ? (missed.length + ' missed month(s) on this plan — log a payment')
+            : 'All on track on this plan';
+        const safePlan = String(plan).replace(/"/g, '&quot;');
+        return `
+                <div class="stokvel-cal-container mb-5 rounded-xl border-2 border-emerald-200/90 bg-gradient-to-b from-white to-emerald-50/50 p-3 sm:p-4 shadow-sm">
+                    <p class="text-[10px] uppercase tracking-wide text-slate-500 font-bold mb-1">This year ${y} · Jan–Dec <span class="font-normal normal-case text-slate-500">(✓ = month with an approved payment)</span></p>
+                    <p class="text-[11px] text-slate-700 font-semibold mb-2 truncate" title="${safePlan}">Payment calendar · ${plan}</p>
+                    <div class="w-full" aria-label="Monthly payment status for ${safePlan}">${calHtml}</div>
+                    <p class="text-xs font-bold text-indigo-800 mt-2 leading-snug">${daysText}</p>
+                    <p class="text-xs text-green-700 font-semibold mt-1.5"><i class="fas fa-check-circle mr-1"></i>${foot}</p>
+                </div>`;
+    }
+
+    function updateActiveStokvelStatCardFootnote(summary) {
+        const footEl = document.getElementById('stat-stokvel-footnote');
+        if (!footEl) return;
+        if (!summary || summary.length === 0) {
+            footEl.textContent = 'Join a plan to get started';
+            return;
+        }
+        footEl.textContent = summary.length > 1
+            ? 'Each plan below has its own Jan–Dec payment calendar.'
+            : 'Your Jan–Dec payment calendar is on your plan card below.';
+    }
+
+    function updatePanelPaymentSchedule(stokvelType, txRowsForPlan, now) {
+        const nextEl = document.getElementById('panel-next-due-line');
+        const missEl = document.getElementById('panel-missed-line');
+        if (!nextEl || !missEl) return;
+        const member = (_stokvelsSummary || []).find(s => s.type === stokvelType);
+        const joinedAt = member && member.joinedAt;
+        if (!parseFirestoreDate(joinedAt)) {
+            nextEl.textContent = 'Join date not on file — contact support if this persists.';
+            missEl.textContent = '';
+            return;
+        }
+        const next = getNextContributionDueDate(joinedAt, now);
+        const today = startOfDay(now);
+        const diff = Math.round((next - today) / 86400000);
+        const dateStr = next.toLocaleDateString('en-ZA', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+        let dayPart = diff === 0 ? 'Due today' : (diff === 1 ? '1 day to payment' : `${diff} days to payment`);
+        nextEl.textContent = `Next due ${dateStr} · ${dayPart}`;
+        const missed = getMissedPaymentMonths(joinedAt, txRowsForPlan, stokvelType, now);
+        missEl.textContent = missed.length
+            ? ('Months with no approved payment: ' + missed.join(', ') + '.')
+            : 'No missed months on record (you have an approved payment in each closed month).';
+    }
+
+    /* ===== CONSTITUTION DOCUMENTS ===== */
+    const DOCS = {
+        grocery: {
+            title: 'Grocery Stokvel Constitution',
+            content: `GROCERY STOKVEL CONSTITUTION
+Adopted: 01 January 2025
+
+1. NAME
+Grocery Stokvel
+
+2. PURPOSE
+To provide a structured savings platform enabling Members to save from January to October, easing year-end financial pressures and providing household groceries.
+
+3. MEMBERSHIP
+• Open to any person aged 18 or older
+• Members must provide: Full Name, ID/Passport, Phone, Email, Beneficiary details
+• All personal information managed under POPIA
+
+4. SAVINGS CONTRIBUTIONS
+• Monthly contributions from January to October (debit order, EFT, or cash)
+• All contributions are compulsory
+• Members missing 2+ contributions may forfeit grocery benefits
+
+5. REWARDS
+• Grocery benefit (bonus) paid at end of October
+• Only Members with full contributions receive the bonus
+
+6. CODE OF CONDUCT
+• Members shall not use the Stokvel name for personal or business gain
+• Respectful conduct required on all platforms
+• Breaches may result in termination; savings paid at cycle end (October)
+
+7. MANAGEMENT
+Governing Body: Compliance Officer (Chairperson), Portfolio Manager (Treasurer), Secretary
+Elected annually by Members.
+
+8. COMMUNICATION
+All communications via WhatsApp, Facebook, website, email, or SMS. No physical meetings.
+
+9. FUNDS
+All funds held in the Grocery Stokvel Account. May invest in businesses under direct control.
+
+10. DEATH OF A MEMBER
+Monies paid to the deceased's estate in accordance with South African law.
+
+11. WITHDRAWAL
+Savings paid at conclusion of the savings cycle (October).
+
+12. DISSOLUTION
+Funds distributed equitably among active Members.
+
+Adopted: 01 January 2025`
+        },
+        january: {
+            title: 'January Stokvel Constitution',
+            content: `JANUARY STOKVEL CONSTITUTION
+
+1. NAME
+January Stokvel
+
+2. PURPOSE
+To enable Members to save from February to November, easing financial pressures in January.
+
+3. MEMBERSHIP
+• Open to any person aged 18 or older
+• Members must provide: Full Name, ID/Passport, Phone, Email, Beneficiary details
+• All personal information managed under POPIA
+
+4. SAVINGS CONTRIBUTIONS
+• Members choose a lock-in period of 10 or 24 months
+• Monthly contributions via debit order, EFT, or cash
+• All contributions are compulsory per the Member's selected plan
+
+5. REWARDS
+• Bonus paid in January to all qualifying Members
+• Members missing 2+ contributions in a year do not qualify for the bonus
+• Full contributions required to receive the bonus
+
+6. CODE OF CONDUCT
+• Members shall not use the Stokvel name for personal or business gain
+• Respectful conduct required on all platforms
+• Breaches may result in termination; savings paid at end of lock-in period
+
+7. MANAGEMENT
+Governing Body:
+• Compliance Officer (Chairman) — Leadership, legal compliance, investment oversight
+• Portfolio Manager (Treasurer) — Contributions, reward payments, financial records
+• Secretary — Records, membership management, communications
+
+8. SIGNING POWERS
+Any Governing Body decision requires written authorisation from 2 members.
+
+9. COMMUNICATION
+Communications via Facebook, LinkedIn, website, email, WhatsApp, SMS. No physical meetings.
+
+10. FUNDS
+All funds held in the January Stokvel Account.
+
+11. DEATH OF A MEMBER
+Monies paid to the deceased's estate in accordance with South African law.
+
+12. WITHDRAWAL
+Savings paid at conclusion of Member's lock-in period (10 or 24 months).
+
+13. DISSOLUTION
+Funds distributed equitably among active Members.
+
+Adopted: 01 January 2025`
+        },
+        planning: {
+            title: 'Planning Ahead Stokvel Constitution',
+            content: `PLANNING AHEAD STOKVEL CONSTITUTION
+
+1. NAME
+Planning Ahead Stokvel
+
+2. PURPOSE
+To provide a structured savings platform allowing Members to:
+• Join at any time during the year
+• Save consistently for financial security
+• Withdraw savings after a minimum of 10 months
+
+3. MEMBERSHIP
+• Open to any person aged 18 or older
+• Members must provide: Full Name, ID/Passport, Phone, Email, Beneficiary details
+• All personal information managed under POPIA
+
+4. SAVINGS CONTRIBUTIONS
+• Members may join at any time and select their contribution amount
+• Monthly contributions via debit order, EFT, or cash
+• All contributions are compulsory per the Member's chosen plan
+
+5. WITHDRAWALS
+• Members may withdraw savings after a minimum of 10 months
+• Early withdrawals (before 10 months) are not permitted
+• The withdrawal value is based on total contributions made
+• Members failing to contribute regularly may forfeit agreed benefits
+
+6. CODE OF CONDUCT
+• Members shall not use the Stokvel name for personal or business gain
+• Respectful conduct required on all platforms
+• Breaches may result in termination; savings paid after 10-month minimum
+
+7. MANAGEMENT
+Governing Body:
+• Compliance Officer (Chairman) — Leadership, compliance, investment oversight
+• Portfolio Manager (Treasurer) — Contributions, withdrawal payments, records
+• Secretary — Records, membership management, communications
+
+8. COMMUNICATION
+Communications via Facebook, LinkedIn, website, email, WhatsApp, SMS. No physical meetings.
+
+9. FUNDS
+All funds held in the Planning Ahead Stokvel Account.
+
+10. DEATH OF A MEMBER
+Monies paid to the deceased's estate in accordance with South African law.
+
+11. WITHDRAWAL OF MEMBERSHIP
+Members may resign at any time. Savings paid after completing at least 10 months of saving.
+
+12. DISSOLUTION
+Funds distributed equitably among active Members.
+
+Adopted: 01 January 2025`
+        },
+
+    };
+
+    /* ===== STATE ===== */
+    let _currentPlan = null;
+    let _currentPanelStokvel = null;
+    let _panelChart = null;
+    let _currentContributionStokvel = null;
+    let _contributionProofFile = null;
+    let _stokvelsSummary = [];
+    /** @type {Array<{id:string,planType:string,status:string,requestedAt?:*,message?:string}>} */
+    let _pendingStokvelRequests = [];
+    window.userData = null;
+
+    function escapeHtmlDash(str) {
+        if (str == null || str === '') return '';
+        return String(str)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function formatRequestedAt(ts) {
+        if (!ts) return '';
+        let d;
+        if (typeof ts.toDate === 'function') d = ts.toDate();
+        else if (typeof ts.seconds === 'number') d = new Date(ts.seconds * 1000);
+        else return '';
+        if (Number.isNaN(d.getTime())) return '';
+        return d.toLocaleString('en-ZA', { dateStyle: 'medium', timeStyle: 'short' });
+    }
+
+    function renderPendingStokvelRequests(pending) {
+        const section = document.getElementById('pending-stokvel-requests-section');
+        const list = document.getElementById('pending-stokvel-requests-list');
+        if (!section || !list) return;
+        const rows = (pending || []).filter(r => String(r.status) === 'Pending');
+        if (rows.length === 0) {
+            section.classList.add('hidden');
+            list.innerHTML = '';
+            return;
+        }
+        section.classList.remove('hidden');
+        list.innerHTML = rows.map(r => {
+            const when = formatRequestedAt(r.requestedAt);
+            const plan = escapeHtmlDash(r.planType || 'Plan');
+            const sub = when ? `Requested ${escapeHtmlDash(when)}` : 'Awaiting admin approval';
+            return `<li class="rounded-xl border border-amber-200/90 bg-white/70 px-4 py-3 shadow-sm">
+                <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                    <span class="font-semibold text-amber-950">${plan}</span>
+                    <span class="text-xs font-medium text-amber-800/90">${sub}</span>
+                </div>
+                ${r.message ? `<p class="text-xs text-amber-900/75 mt-2 border-t border-amber-100 pt-2">${escapeHtmlDash(r.message)}</p>` : ''}
+            </li>`;
+        }).join('');
+    }
+
+    /* ===== LIVE CLOCK ===== */
+    (function tickClock() {
+        const t = new Date().toLocaleTimeString('en-ZA');
+        const el = document.getElementById('live-clock');
+        const mob = document.getElementById('live-clock-mobile');
+        if (el) el.textContent = t;
+        if (mob) mob.textContent = t;
+        setTimeout(tickClock, 1000);
+    })();
+
+    /* ===== TOAST ===== */
+    function showToast(message, type = 'info', duration = 3500) {
+        const icons = { success:'fa-check-circle', error:'fa-times-circle', info:'fa-info-circle', warning:'fa-exclamation-triangle' };
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i>${message}`;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.classList.add('out');
+            setTimeout(() => toast.remove(), 350);
+        }, duration);
+    }
+
+    /* ===== GREETING ===== */
+    function setupGreeting(name) {
+        const now = new Date();
+        document.getElementById('greeting-name').textContent = name || 'Member';
+        document.getElementById('greeting-date').textContent = now.toLocaleDateString('en-ZA', {
+            weekday:'long', year:'numeric', month:'long', day:'numeric'
+        });
+        const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+        document.getElementById('motivation-quote').textContent = DAILY_QUOTES[dayOfYear % DAILY_QUOTES.length];
+    }
+
+    /* ===== RANK ===== */
+    function getRank(balance) {
+        if (balance >= 5000) return { label:'Investor',  emoji:'📈' };
+        if (balance >= 2000) return { label:'Grower',    emoji:'🌿' };
+        if (balance >= 500)  return { label:'Saver',     emoji:'💰' };
+        return                       { label:'Seedling', emoji:'🌱' };
+    }
+
+    /* ===== RENDER MY STOKVELS ===== */
+    function renderMyStokvels(stokvels, txList) {
+        const section  = document.getElementById('my-stokvels-section');
+        const grid     = document.getElementById('my-stokvels-grid');
+        const divider  = document.getElementById('divider');
+        const guide    = document.getElementById('dashboard-guide-section');
+        const txs      = txList || [];
+        const now      = new Date();
+        if (!stokvels || stokvels.length === 0) {
+            section.style.display = 'none';
+            divider.style.display = 'none';
+            if (guide) guide.style.display = 'block';
+            return;
+        }
+        if (guide) guide.style.display = 'none';
+        section.style.display = 'block';
+        divider.style.display = 'block';
+        grid.innerHTML = stokvels.map((s, idx) => {
+            const meta = PLAN_META[s.type] || { icon:'💰', desc:'Savings plan', monthly:100 };
+            const progress = Math.min((s.totalSaved || 0) / (meta.monthly * 3) * 100, 100);
+            const pct = progress.toFixed(0);
+            const planTx = txs.filter(tx => tx.stokvelName === s.type);
+            const sched = scheduleCopyForCard(s, planTx, now);
+            return `
+            <div class="card-premium stokvel-item p-6" style="animation-delay:${idx*0.1}s;">
+                <div class="flex items-start justify-between mb-5">
+                    <div class="text-5xl">${meta.icon}</div>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">
+                        <i class="fas fa-check-circle"></i>Active
+                    </span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-1">${s.type}</h3>
+                <p class="text-sm text-gray-500 mb-3">${meta.desc}</p>
+                <div class="mb-5 rounded-xl border border-slate-200 bg-slate-50/80 p-3 text-xs space-y-2">
+                    ${sched.nextHtml}
+                    ${sched.missedHtml}
+                    <p class="text-slate-500 mt-1 leading-relaxed"><i class="fas fa-info-circle mr-1"></i>Based on your <strong>join date</strong> (same day each month) and <strong>approved</strong> payments only.</p>
+                </div>
+                ${stokvelMiniCalendarContainerHtml(s, planTx, now)}
+                <div class="mb-5">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-semibold text-gray-600">Progress (3-month goal)</span>
+                        <span class="text-xs font-bold text-blue-600">${pct}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-2.5 rounded-full transition-all duration-700" style="width:${progress}%"></div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 p-4 bg-gray-50 rounded-xl mb-5">
+                    <div>
+                        <p class="text-gray-500 text-xs font-semibold uppercase">Total Saved</p>
+                        <p class="text-xl font-bold text-gray-900 mt-1">R${(s.totalSaved||0).toFixed(2)}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-gray-500 text-xs font-semibold uppercase">Monthly Target</p>
+                        <p class="text-xl font-bold text-gray-900 mt-1">R${meta.monthly}</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="openContributeModal('${s.type}', ${s.totalSaved||0})" class="button-glow justify-center py-2.5 text-sm" type="button">
+                        <i class="fas fa-plus"></i>Contribute
+                    </button>
+                    <button onclick="openDetailsPanel('${s.type}', ${s.totalSaved||0}, ${meta.monthly}, ${pct})" class="button-outline justify-center py-2.5 text-sm" type="button">
+                        <i class="fas fa-info-circle"></i>Details
+                    </button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    /* ===== RENDER EXPLORE ===== */
+    function renderExplorePlans(stokvels) {
+        const section  = document.getElementById('explore-section');
+        const grid     = document.getElementById('explore-grid');
+        const allJoined = document.getElementById('all-joined');
+        const joined   = stokvels.map(s => s.type);
+        const available = EXPLORE_PLANS.filter(p => !joined.includes(p.type));
+        const pendingByPlan = new Map(
+            (_pendingStokvelRequests || []).filter(r => String(r.status) === 'Pending').map(r => [r.planType, r])
+        );
+        if (available.length === 0) {
+            section.style.display = 'none';
+            allJoined.style.display = 'block';
+            return;
+        }
+        section.style.display = 'block';
+        allJoined.style.display = 'none';
+        grid.innerHTML = available.map((p, idx) => {
+            const pend = pendingByPlan.get(p.type);
+            const isPending = !!pend;
+            const badge = isPending
+                ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-bold border border-amber-200/80"><i class="fas fa-clock"></i>Awaiting approval</span>`
+                : `<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold"><i class="fas fa-unlock"></i>Available</span>`;
+            const cardCls = isPending
+                ? 'card-premium explore-item p-6 cursor-pointer ring-2 ring-amber-300/60 bg-amber-50/40 hover:scale-[1.01] transition-transform'
+                : 'card-premium card-gradient explore-item p-6 cursor-pointer hover:scale-[1.02] transition-transform';
+            const foot = isPending
+                ? `<div class="flex items-center justify-between"><span class="flex items-center gap-2 text-amber-800 font-semibold text-sm"><i class="fas fa-info-circle"></i>Join request pending</span><i class="fas fa-hourglass-half text-2xl text-amber-500/80"></i></div>`
+                : `<div class="flex items-center justify-between"><span class="flex items-center gap-2 text-blue-600 font-semibold text-sm"><i class="fas fa-paper-plane"></i>Request to join this stokvel</span><i class="fas fa-arrow-right text-2xl text-blue-400 opacity-60"></i></div>`;
+            const typeAttr = encodeURIComponent(p.type);
+            return `
+            <div class="${cardCls}" role="button" tabindex="0" data-explore-plan="${typeAttr}" data-explore-pending="${isPending ? '1' : '0'}" onclick="handleExplorePlanClickFromCard(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleExplorePlanClickFromCard(this);}" style="animation-delay:${idx*0.1}s;">
+                <div class="flex items-start justify-between mb-5">
+                    <div style="font-size:3rem;line-height:1;">${p.icon}</div>
+                    ${badge}
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">${p.type}</h3>
+                <p class="text-sm text-gray-600 mb-5">${p.desc}</p>
+                ${foot}
+            </div>`;
+        }).join('');
+    }
+
+    function handleExplorePlanClickFromCard(el) {
+        const raw = el && el.getAttribute('data-explore-plan');
+        const pending = el && el.getAttribute('data-explore-pending') === '1';
+        if (!raw) return;
+        const planType = decodeURIComponent(raw);
+        if (pending) {
+            showToast('Your join request for this plan is waiting for admin approval.', 'info', 4500);
+            return;
+        }
+        openJoinModal(planType);
+    }
+
+    /* ===== JOIN MODAL ===== */
+    function openJoinModal(planType) {
+        _currentPlan = planType;
+        const meta = PLAN_META[planType];
+        document.getElementById('modal-icon').textContent = meta.icon;
+        document.getElementById('modal-title').textContent = `Join ${planType}`;
+        document.getElementById('modal-desc').textContent  = meta.desc;
+        document.getElementById('plan-display').textContent = planType;
+        document.getElementById('join-message').value = '';
+        const header = document.getElementById('modal-header');
+        if (meta.color === 'green')       header.style.background = 'linear-gradient(to right,#16a34a,#22c55e)';
+        else if (meta.color === 'purple') header.style.background = 'linear-gradient(to right,#7c3aed,#a855f7)';
+        else                              header.style.background = 'linear-gradient(to right,#2563eb,#3b82f6)';
+        document.getElementById('form-view').style.display = 'block';
+        document.getElementById('success-view').classList.add('hidden');
+        document.getElementById('join-modal').classList.remove('hidden');
+    }
+
+    function closeJoinModal() {
+        document.getElementById('join-modal').classList.add('hidden');
+        _currentPlan = null;
+    }
+
+    function submitJoinRequest() {
+        const user = auth.currentUser;
+        if (!user || !_currentPlan) return;
+        const btn = document.getElementById('join-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+        const memberName  = window.userData?.name || user.displayName || 'Member';
+        const memberEmail = user.email;
+        db.collection('stokvelRequests').add({
+            userId: user.uid, userName: memberName, userEmail: memberEmail,
+            planType: _currentPlan, message: document.getElementById('join-message').value.trim(),
+            status: 'Pending', requestedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+            if (typeof emailjs !== 'undefined' && window.VEMA_EMAIL_CONFIG) {
+                const cfg = window.VEMA_EMAIL_CONFIG;
+                emailjs.send(cfg.serviceId, cfg.templates.user, {
+                    to_email: memberEmail, user_name: memberName, plan_type: _currentPlan,
+                    message: `Your request to join the ${_currentPlan} stokvel has been received and is pending admin approval.`,
+                }).catch(err => console.warn('Join email failed (non-blocking):', err));
+            }
+            document.getElementById('form-view').style.display = 'none';
+            document.getElementById('success-view').classList.remove('hidden');
+            setTimeout(() => location.reload(), 2000);
+        }).catch(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Join Request';
+            showToast('Failed to send request. Please try again.', 'error');
+        });
+    }
+
+    /* ===== DETAILS SIDE PANEL ===== */
+    async function openDetailsPanel(stokvelType, totalSaved, monthly, progress) {
+        const user = auth.currentUser;
+        if (!user) return;
+        _currentPanelStokvel = stokvelType;
+        const meta = PLAN_META[stokvelType] || { icon:'💰', desc:'Savings plan' };
+        document.getElementById('panel-icon').textContent    = meta.icon;
+        document.getElementById('panel-title').textContent   = stokvelType;
+        document.getElementById('panel-desc').textContent    = meta.desc;
+        document.getElementById('panel-balance').textContent = `R${totalSaved.toFixed(2)}`;
+        document.getElementById('panel-monthly').textContent = `R${monthly}`;
+        const capped = Math.min(progress, 100);
+        document.getElementById('panel-progress').textContent       = `${capped.toFixed(0)}%`;
+        document.getElementById('panel-progress-label').textContent  = `${capped.toFixed(0)}%`;
+        document.getElementById('panel-progress-bar').style.width    = `${capped}%`;
+        const panel = document.getElementById('details-panel');
+        panel.classList.remove('hidden');
+        const inner = panel.querySelector('div');
+        inner.classList.remove('animate-slideOutRight');
+        inner.classList.add('animate-slideInRight');
+        try {
+            const txSnap = await db.collection('users').doc(user.uid).collection('transactions').get();
+            const transactions = txSnap.docs
+                .map(d => d.data())
+                .filter(tx => tx.stokvelName === stokvelType)
+                .sort((a, b) => txToMillis(b) - txToMillis(a));
+            document.getElementById('panel-count').textContent = transactions.filter(isCountedSavings).length;
+            updatePanelPaymentSchedule(stokvelType, transactions, new Date());
+            renderHistoryTable(transactions);
+            createContributionChart(transactions);
+        } catch (err) {
+            console.error('Error loading details:', err);
+        }
+    }
+
+    function closeDetailsPanel() {
+        const panel = document.getElementById('details-panel');
+        const inner = panel.querySelector('div');
+        inner.classList.remove('animate-slideInRight');
+        inner.classList.add('animate-slideOutRight');
+        setTimeout(() => {
+            panel.classList.add('hidden');
+            inner.classList.remove('animate-slideOutRight');
+            inner.classList.add('animate-slideInRight');
+            _currentPanelStokvel = null;
+            if (_panelChart) { _panelChart.destroy(); _panelChart = null; }
+        }, 300);
+    }
+
+    function txStatusDisplay(tx) {
+        const s = String(tx.status || '').toLowerCase();
+        if (s === 'pending_approval' || s === 'pending') return { label: 'Pending review', cls: 'bg-amber-100 text-amber-900', icon: 'fa-clock' };
+        if (s === 'rejected' || s === 'declined') return { label: 'Rejected', cls: 'bg-red-100 text-red-800', icon: 'fa-times-circle' };
+        if (s === 'completed' || s === '') return { label: 'Approved', cls: 'bg-emerald-100 text-emerald-900', icon: 'fa-check-circle' };
+        return { label: tx.status || 'Approved', cls: 'bg-emerald-100 text-emerald-900', icon: 'fa-check-circle' };
+    }
+
+    function methodIcon(method) {
+        const m = { 'Bank Transfer': 'fa-university', 'Debit Order': 'fa-money-check-alt', 'Mobile Money': 'fa-mobile-alt', 'Cash': 'fa-money-bill', 'Cheque': 'fa-file-invoice' };
+        return m[method] || 'fa-wallet';
+    }
+
+    function renderHistoryTable(transactions) {
+        const tbody = document.getElementById('panel-history-body');
+        if (transactions.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8 text-center text-gray-400">
+                <i class="fas fa-inbox text-3xl mb-2 block opacity-30"></i>No contributions for this plan yet</td></tr>`;
+            return;
+        }
+        tbody.innerHTML = transactions.map((tx, idx) => {
+            const td = txToJsDate(tx);
+            const date = td ? td.toLocaleDateString('en-ZA') : 'N/A';
+            const st = txStatusDisplay(tx);
+            return `<tr class="hover:bg-gray-50 transition" style="animation:fadeUp 0.3s ease-out ${idx*0.05}s backwards;">
+                <td class="px-4 py-3 text-sm font-medium text-gray-700">${date}</td>
+                <td class="px-4 py-3 font-bold text-green-600">R${(tx.amount||0).toFixed(2)}</td>
+                <td class="px-4 py-3 text-xs text-gray-600"><i class="fas ${methodIcon(tx.method)} mr-1"></i>${tx.method||'-'}</td>
+                <td class="px-4 py-3">
+                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold ${st.cls}">
+                        <i class="fas ${st.icon}"></i>${st.label}
+                    </span>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    function updateHistorySummary(list) {
+        const row = document.getElementById('history-summary-row');
+        if (!row) return;
+        if (!list.length) {
+            row.classList.add('hidden');
+            return;
+        }
+        row.classList.remove('hidden');
+        const approved = list.filter(isCountedSavings).length;
+        let pending = 0, pendAmt = 0;
+        list.forEach(tx => {
+            const s = String(tx.status || '').toLowerCase();
+            if (s === 'pending_approval' || s === 'pending') {
+                pending++;
+                pendAmt += parseFloat(tx.amount) || 0;
+            }
+        });
+        document.getElementById('hist-count-total').textContent = list.length;
+        document.getElementById('hist-count-approved').textContent = approved;
+        document.getElementById('hist-count-pending').textContent = pending;
+        document.getElementById('hist-pending-amount').textContent = 'R' + pendAmt.toFixed(2);
+    }
+
+    function renderDashboardHistory(allTransactions) {
+        const tbody = document.getElementById('dashboard-history-body');
+        if (!tbody) return;
+        const list = (allTransactions || []).slice().sort((a, b) => txToMillis(b) - txToMillis(a));
+        if (list.length === 0) {
+            updateHistorySummary([]);
+            tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-12 text-center text-slate-400">
+                <i class="fas fa-inbox text-3xl mb-2 block opacity-40 text-slate-300"></i>
+                <p class="font-medium text-slate-600">No contributions yet</p>
+                <p class="text-xs mt-1 max-w-sm mx-auto">Join a stokvel, then use <strong>Contribute</strong> on your plan card to log a payment and proof.</p>
+            </td></tr>`;
+            return;
+        }
+        updateHistorySummary(list);
+        tbody.innerHTML = list.map((tx, idx) => {
+            const td = txToJsDate(tx);
+            const date = td ? td.toLocaleString('en-ZA', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
+            const st = txStatusDisplay(tx);
+            return `<tr class="hover:bg-slate-50/80 transition">
+                <td class="px-4 py-3 text-sm text-slate-700 whitespace-nowrap">${date}</td>
+                <td class="px-4 py-3 text-sm font-medium text-slate-900">${tx.stokvelName || '—'}</td>
+                <td class="px-4 py-3 text-sm font-bold text-emerald-700 tabular-nums">R${(tx.amount != null ? parseFloat(tx.amount) : 0).toFixed(2)}</td>
+                <td class="px-4 py-3 text-xs text-slate-600"><i class="fas ${methodIcon(tx.method)} mr-1 text-slate-400"></i>${tx.method || '—'}</td>
+                <td class="px-4 py-3">
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${st.cls}">
+                        <i class="fas ${st.icon}"></i>${st.label}
+                    </span>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    function createContributionChart(transactions) {
+        const ctx = document.getElementById('panel-chart').getContext('2d');
+        const today = new Date();
+        const months = [], data = [];
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+            months.push(d.toLocaleDateString('en-ZA', { month:'short', year:'2-digit' }));
+            data.push(transactions
+                .filter(tx => { const td = txToJsDate(tx); return td && td.getMonth()===d.getMonth() && td.getFullYear()===d.getFullYear(); })
+                .reduce((sum, tx) => sum + (tx.amount||0), 0));
+        }
+        if (_panelChart) _panelChart.destroy();
+        _panelChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: [{ label:'Contributions (R)', data, backgroundColor:'#3b82f6', borderColor:'#2563eb', borderWidth:1, borderRadius:8, hoverBackgroundColor:'#1d4ed8' }]
+            },
+            options: {
+                responsive:true,
+                plugins: { legend:{ display:false } },
+                scales: {
+                    y: { beginAtZero:true, ticks:{ color:'#6b7280', callback: v=>`R${v}` }, grid:{ color:'#f3f4f6' } },
+                    x: { ticks:{ color:'#6b7280' }, grid:{ display:false } }
+                }
+            }
+        });
+    }
+
+    function openContributeFromPanel() {
+        const stokvelType = _currentPanelStokvel;
+        const saved = (_stokvelsSummary.find(s => s.type === stokvelType) || {}).totalSaved || 0;
+        closeDetailsPanel();
+        setTimeout(() => openContributeModal(stokvelType, saved), 320);
+    }
+
+    /** Platform receiving account — update if your bank details change */
+    const VEMA_BANK_DETAILS = {
+        bankName: 'FNB - Stokvel House',
+        accountNumber: '63021443815',
+        branchCode: '210835'
+    };
+
+    /** Stable EFT reference per Firebase user (same forever for that account). */
+    function buildStablePaymentReference(uid) {
+        if (!uid) return '';
+        const clean = String(uid).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        return `VEMA-${clean.slice(0, 20)}`;
+    }
+
+    function copyContributeBankField(inputId) {
+        const el = document.getElementById(inputId);
+        if (!el) return;
+        const val = el.value || '';
+        if (!val) return;
+        const done = () => showToast('Copied to clipboard', 'success', 2200);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(val).then(done).catch(() => copyContributeBankFieldFallback(el));
+        } else {
+            copyContributeBankFieldFallback(el);
+        }
+    }
+
+    function copyContributeBankFieldFallback(el) {
+        try {
+            el.removeAttribute('readonly');
+            el.focus();
+            el.select();
+            el.setSelectionRange(0, el.value.length);
+            document.execCommand('copy');
+            el.setAttribute('readonly', 'readonly');
+            showToast('Copied to clipboard', 'success', 2200);
+        } catch (e) {
+            showToast('Long-press the field to copy', 'info', 3000);
+        }
+    }
+
+    /* ===== CONTRIBUTE MODAL ===== */
+    function openContributeModal(stokvelType, totalSaved = 0) {
+        _currentContributionStokvel = stokvelType;
+        _contributionProofFile = null;
+        const meta = PLAN_META[stokvelType] || { monthly:100 };
+        document.getElementById('contribute-stokvel-name').textContent   = stokvelType;
+        document.getElementById('contribute-monthly-target').textContent = `R${meta.monthly}`;
+        document.getElementById('contribute-total-saved').textContent    = `R${totalSaved.toFixed(2)}`;
+
+        const au = auth.currentUser;
+        const bn = document.getElementById('contribute-bank-name');
+        const ac = document.getElementById('contribute-account-no');
+        const br = document.getElementById('contribute-branch');
+        const ref = document.getElementById('contribute-payment-ref');
+        if (bn && ac && br && ref && au) {
+            bn.value = VEMA_BANK_DETAILS.bankName;
+            ac.value = VEMA_BANK_DETAILS.accountNumber;
+            br.value = VEMA_BANK_DETAILS.branchCode;
+            ref.value = buildStablePaymentReference(au.uid);
+        }
+        document.getElementById('contribute-amount').value  = '';
+        document.getElementById('contribute-method').value  = '';
+        const noteEl = document.getElementById('contribute-note');
+        if (noteEl) noteEl.value = '';
+        document.getElementById('proof-filename').classList.add('hidden');
+        const docKey = PLAN_DOC_KEY[stokvelType];
+        const sumBtn = document.getElementById('contribute-constitution-summary');
+        const libLink = document.getElementById('contribute-constitution-library');
+        const inline = document.getElementById('contribute-constitution-inline');
+        if (docKey) {
+            const hash = 'constitution.html#' + docKey;
+            if (sumBtn) {
+                sumBtn.classList.remove('hidden');
+                sumBtn.onclick = function () { openDocument(docKey); };
+            }
+            if (libLink) { libLink.href = hash; libLink.classList.remove('hidden'); }
+            if (inline) inline.href = hash;
+        } else {
+            if (sumBtn) { sumBtn.classList.add('hidden'); sumBtn.onclick = null; }
+            if (libLink) { libLink.href = 'constitution.html'; libLink.classList.remove('hidden'); }
+            if (inline) inline.href = 'constitution.html';
+        }
+        document.getElementById('contribute-modal').classList.remove('hidden');
+        setupFileUpload();
+    }
+
+    function closeContributeModal() {
+        document.getElementById('contribute-modal').classList.add('hidden');
+        _currentContributionStokvel = null;
+        _contributionProofFile = null;
+    }
+
+    function setupFileUpload() {
+        const area  = document.getElementById('proof-upload-area');
+        const fresh = area.cloneNode(true);
+        area.parentNode.replaceChild(fresh, area);
+        const input = fresh.querySelector('#proof-file') || document.getElementById('proof-file');
+        fresh.addEventListener('click', () => input.click());
+        fresh.addEventListener('dragover', e => { e.preventDefault(); fresh.classList.add('border-green-500','bg-green-50'); });
+        fresh.addEventListener('dragleave', () => fresh.classList.remove('border-green-500','bg-green-50'));
+        fresh.addEventListener('drop', e => { e.preventDefault(); fresh.classList.remove('border-green-500','bg-green-50'); handleFiles(e.dataTransfer.files); });
+        input.addEventListener('change', e => handleFiles(e.target.files));
+    }
+
+    function proofFileAllowed(file) {
+        const types = ['image/png', 'image/jpeg', 'application/pdf'];
+        if (file.type && types.includes(file.type)) return true;
+        const n = (file.name || '').toLowerCase();
+        return n.endsWith('.png') || n.endsWith('.jpg') || n.endsWith('.jpeg') || n.endsWith('.pdf');
+    }
+
+    function getProofContentType(file, safeFileName) {
+        let ct = (file && file.type) ? String(file.type) : '';
+        if (ct && ct !== 'application/octet-stream') return ct;
+        const lower = (safeFileName || '').toLowerCase();
+        if (lower.endsWith('.png')) return 'image/png';
+        if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) return 'image/jpeg';
+        if (lower.endsWith('.pdf')) return 'application/pdf';
+        return 'application/octet-stream';
+    }
+
+    function handleFiles(files) {
+        if (!files.length) return;
+        const file = files[0];
+        if (file.size > 5*1024*1024)                                              { showToast('File size exceeds 5MB limit', 'error');              return; }
+        if (!proofFileAllowed(file))                                             { showToast('Only PNG, JPG, and PDF files are allowed', 'error'); return; }
+        _contributionProofFile = file;
+        document.getElementById('filename-text').textContent = file.name;
+        document.getElementById('proof-filename').classList.remove('hidden');
+    }
+
+    async function submitContribution(event) {
+        event.preventDefault();
+        const user = auth.currentUser;
+        if (!user || !_currentContributionStokvel) return;
+        const amount = parseFloat(document.getElementById('contribute-amount').value);
+        const method = document.getElementById('contribute-method').value;
+        if (!amount || amount <= 0 || !method) { showToast('Please enter a valid amount and select a payment method', 'warning'); return; }
+        if (!_contributionProofFile)           { showToast('Please upload payment proof', 'warning'); return; }
+        const btn = document.getElementById('contribute-submit-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+        try {
+            await user.getIdToken(true);
+            const memberNote = (document.getElementById('contribute-note')?.value || '').trim().slice(0, 500);
+            const safeFileName = (_contributionProofFile.name || 'proof').replace(/[^\w.\-]+/g, '_');
+            const contentType = getProofContentType(_contributionProofFile, safeFileName);
+            const fileRef = firebase.storage().ref(`contributions/${user.uid}/${Date.now()}_${safeFileName}`);
+            const snap = await fileRef.put(_contributionProofFile, { contentType });
+            const fileUrl = await snap.ref.getDownloadURL();
+            await db.collection('users').doc(user.uid).collection('transactions').add({
+                stokvelName: _currentContributionStokvel, amount, method, proofUrl: fileUrl,
+                date: firebase.firestore.FieldValue.serverTimestamp(), status: 'pending_approval',
+                userId: user.uid, userName: window.userData?.name || user.displayName || 'Member', userEmail: user.email,
+                memberNote: memberNote || null
+            });
+            await sendAdminNotification(user, amount, method, fileUrl, memberNote);
+            showToast('Contribution submitted! Admin will review your payment proof.', 'success', 4500);
+            closeContributeModal();
+            document.getElementById('contribute-form').reset();
+            setTimeout(() => location.reload(), 2500);
+        } catch (err) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Submit for review';
+            console.error('Contribution error:', err);
+            const code = err && err.code ? err.code : '';
+            const errStr = String(err && err.message ? err.message : '');
+            let msg = 'Submit failed. ';
+            if (code === 'permission-denied') {
+                msg += 'Firestore blocked saving the transaction (rules). Deploy updated firestore.rules for contribution fields, or sign in with an account that may write users/{yourUid}/transactions.';
+            } else if (code === 'storage/unauthorized') {
+                msg += 'Storage rejected the file upload (Storage rules or auth). Check contributions/{userId}/... rules and that you are signed in.';
+            } else if (code === 'storage/canceled') {
+                msg += 'Upload was cancelled. If you did not cancel, check the console for CORS errors on the Storage bucket.';
+            } else if (/CORS|preflight/i.test(errStr)) {
+                console.error('Vema Storage CORS: apply storage-cors.json to the bucket in Firebase Project settings, e.g. gcloud storage buckets update gs://vema-7606a.firebasestorage.app --cors-file=storage-cors.json');
+                msg += 'Browser blocked Storage (CORS). Apply bucket CORS for this origin, then hard-refresh.';
+            } else {
+                msg += errStr || 'Please try again.';
+            }
+            showToast(msg, 'error', 10000);
+        }
+    }
+
+    async function sendAdminNotification(user, amount, method, proofUrl, memberNote) {
+        try {
+            if (typeof emailjs === 'undefined' || !window.VEMA_EMAIL_CONFIG) {
+                console.warn('EmailJS not loaded or config missing — skipping admin email.');
+                return;
+            }
+            const noteLine = memberNote ? ` Member note: ${memberNote}` : '';
+            await emailjs.send(window.VEMA_EMAIL_CONFIG.serviceId, 'tmpl_contribution_approval', {
+                to_email:        window.VEMA_EMAIL_CONFIG.adminEmail,
+                admin_email:     window.VEMA_EMAIL_CONFIG.adminEmail,
+                user_name:       window.userData?.name || user.displayName || 'Member',
+                user_email:      user.email,
+                stokvel_name:    _currentContributionStokvel,
+                amount:         `R${amount.toFixed(2)}`,
+                payment_method:  method,
+                proof_url:       proofUrl,
+                submission_date: new Date().toLocaleDateString('en-ZA'),
+                message:        `New contribution of R${amount.toFixed(2)} submitted for ${_currentContributionStokvel}.${noteLine}`
+            });
+        } catch (err) {
+            console.error('Admin notification failed:', err);
+        }
+    }
+
+    /* ===== CONSTITUTION DOCUMENTS ===== */
+    function openDocument(key) {
+        const doc = DOCS[key];
+        if (!doc) {
+            showToast('That document is not available.', 'error');
+            return;
+        }
+        document.getElementById('constitution-title').textContent = doc.title;
+        document.getElementById('constitution-body').textContent  = doc.content;
+        const deep = document.getElementById('constitution-deep-link');
+        if (deep) deep.href = 'constitution.html#' + encodeURIComponent(key);
+        document.getElementById('constitution-modal').classList.remove('hidden');
+    }
+
+    function closeDocument() {
+        document.getElementById('constitution-modal').classList.add('hidden');
+    }
+
+    /* ===== AUTH & DASHBOARD LOAD ===== */
+    auth.onAuthStateChanged(async (user) => {
+        if (!user) { window.location.href = '../auth/login.html'; return; }
+        try {
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            if (!userDoc.exists) throw new Error('User document not found');
+            const userData = userDoc.data();
+            window.userData = userData;
+            setupGreeting(userData.name || 'Member');
+            document.getElementById('user-name').textContent   = userData.name || 'Member';
+            document.getElementById('user-avatar').textContent = (userData.name || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
+
+            const [stokvelsSnap, txSnap] = await Promise.all([
+                db.collection('users').doc(user.uid).collection('stokvels').get(),
+                db.collection('users').doc(user.uid).collection('transactions').get()
+            ]);
+            try {
+                const reqSnap = await db.collection('stokvelRequests').where('userId', '==', user.uid).get();
+                _pendingStokvelRequests = reqSnap.docs
+                    .map(d => ({ id: d.id, ...d.data() }))
+                    .filter(r => String(r.status) === 'Pending');
+            } catch (reqErr) {
+                console.warn('Could not load stokvel join requests:', reqErr);
+                _pendingStokvelRequests = [];
+            }
+            renderPendingStokvelRequests(_pendingStokvelRequests);
+
+            const stokvels = stokvelsSnap.docs.map(d => d.data());
+            const txDocs   = txSnap.docs.map(d => d.data());
+
+            const now = new Date();
+            let totalSaved = 0;
+            txDocs.forEach(tx => {
+                if (!isCountedSavings(tx)) return;
+                const amt = parseFloat(tx.amount) || 0;
+                if (amt <= 0) return;
+                totalSaved += amt;
+            });
+
+            const summary = stokvels.map(s => ({
+                ...s,
+                totalSaved: txDocs
+                    .filter(tx => tx.stokvelName === s.type && isCountedSavings(tx))
+                    .reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0)
+            }));
+            _stokvelsSummary = summary;
+
+            document.getElementById('total-savings').textContent    = `R${totalSaved.toFixed(2)}`;
+            document.getElementById('active-stokvels').textContent  = stokvels.length;
+            const rank = getRank(totalSaved);
+            document.getElementById('rank-badge').textContent = `${rank.emoji} ${rank.label}`;
+
+            renderMyStokvels(summary, txDocs);
+            updateActiveStokvelStatCardFootnote(summary);
+            renderExplorePlans(summary);
+            renderDashboardHistory(txSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+
+            setTimeout(() => { document.getElementById('loading-overlay').style.display = 'none'; }, 300);
+        } catch (error) {
+            console.error('Dashboard load error:', error);
+            showToast('Error loading dashboard. Please refresh.', 'error', 6000);
+            setTimeout(() => { document.getElementById('loading-overlay').style.display = 'none'; }, 500);
+        }
+    });
+
+    document.querySelectorAll('[data-action="logout"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            auth.signOut().then(() => { window.location.href = '../auth/login.html'; });
+        });
+    });
+
+    (function initDashMobileMenu() {
+        const menuButton = document.getElementById('dash-mobile-menu-button');
+        const menu = document.getElementById('dash-mobile-menu');
+        if (!menuButton || !menu) return;
+        menuButton.addEventListener('click', () => {
+            menu.classList.toggle('is-open');
+            menuButton.setAttribute('aria-expanded', menu.classList.contains('is-open') ? 'true' : 'false');
+        });
+    })();
+
+    setupGreeting(null);
+    </script>
 </body>
 </html>
