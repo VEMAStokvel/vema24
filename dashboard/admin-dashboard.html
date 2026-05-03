@@ -2093,6 +2093,14 @@
                 showToast('Failed to create user: ' + error.message, 'error');
             }
         });
+
+        /* Inline onclick= handlers run in global scope; IIFE hides these unless attached to window. */
+        window.refreshAllPendingQueues = refreshAllPendingQueues;
+        window.loadUsersData = loadUsersData;
+        window.approveRequest = approveRequest;
+        window.rejectRequest = rejectRequest;
+        window.approveContributionRequest = approveContributionRequest;
+        window.rejectContributionRequest = rejectContributionRequest;
     })();
     </script>
 </body>
