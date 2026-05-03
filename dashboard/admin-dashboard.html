@@ -841,6 +841,8 @@
 
     <script src="../js/config/firebase-init.js"></script>
     <script>
+    (function () {
+        const db = window.db;
         /* ===== EMAILJS INIT ===== */
         if (window.emailjs && window.VEMA_EMAIL_CONFIG) {
             emailjs.init(window.VEMA_EMAIL_CONFIG.publicKey);
@@ -884,7 +886,6 @@
         }
 
         const auth = window.auth || firebase.auth();
-        const db   = window.db || firebase.firestore();
         let approvedTodayCount = 0;
 
         function hideAdminLoading(delayMs) {
@@ -2092,6 +2093,7 @@
                 showToast('Failed to create user: ' + error.message, 'error');
             }
         });
+    })();
     </script>
 </body>
 </html>

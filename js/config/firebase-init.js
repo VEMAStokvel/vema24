@@ -19,7 +19,9 @@ window.auth = firebase.auth();
 const db = firebase.firestore();
 try {
   db.settings({
+    merge: true,
     experimentalForceLongPolling: true,
+    experimentalAutoDetectLongPolling: false,
     experimentalLongPollingOptions: { timeoutSeconds: 25 },
   });
 } catch (e) {
