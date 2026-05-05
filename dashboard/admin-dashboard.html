@@ -434,14 +434,77 @@
         .admin-table-shell tbody tr:hover { background:#f8faff; }
 
         .admin-modal-backdrop {
-            padding:1rem;background:rgba(15,23,42,.55);
-            backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+            padding:1rem;background:rgba(15,23,42,.6);
+            backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
         }
         .admin-modal-panel {
             max-height:min(90vh,640px);width:100%;max-width:28rem;
             animation:fadeUp .3s ease;
         }
-        .admin-modal-panel--wide { max-width:42rem;max-height:min(92vh,720px); }
+        /* ── Member Detail Modal ── */
+        @keyframes mdPanelUp   { from{opacity:0;transform:translateY(36px) scale(.96)}to{opacity:1;transform:none} }
+        @keyframes mdFadeSlide { from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none} }
+        @keyframes mdAvatarPop { 0%{transform:scale(0) rotate(-12deg)}70%{transform:scale(1.1)}100%{transform:scale(1)} }
+        @keyframes shimmer     { to{background-position:200% center} }
+        .admin-modal-panel--wide {
+            max-width:56rem;max-height:min(95vh,860px);
+            animation:mdPanelUp .4s cubic-bezier(.22,1,.36,1) both;
+        }
+        /* Hero */
+        .md-hero {
+            background:linear-gradient(135deg,#1d4ed8 0%,#2563eb 50%,#0891b2 100%);
+            position:relative;overflow:hidden;flex-shrink:0;
+        }
+        .md-hero::after  { content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.07);pointer-events:none; }
+        .md-hero::before { content:'';position:absolute;bottom:-40px;left:15%;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.05);pointer-events:none; }
+        .md-avatar-ring {
+            width:3.5rem;height:3.5rem;border-radius:1rem;
+            background:rgba(255,255,255,.2);backdrop-filter:blur(8px);
+            display:flex;align-items:center;justify-content:center;
+            font-size:1.4rem;font-weight:800;color:white;flex-shrink:0;
+            box-shadow:0 4px 18px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.28);
+            animation:mdAvatarPop .45s cubic-bezier(.22,1,.36,1) .18s both;
+        }
+        .md-hero-reveal { opacity:0;transform:translateY(5px);transition:opacity .32s ease .22s,transform .32s ease .22s; }
+        .md-hero-reveal.loaded { opacity:1;transform:none; }
+        /* Skeleton */
+        .md-skeleton {
+            background:linear-gradient(90deg,rgba(255,255,255,.14) 25%,rgba(255,255,255,.28) 50%,rgba(255,255,255,.14) 75%);
+            background-size:200% auto;animation:shimmer 1.5s linear infinite;border-radius:6px;
+        }
+        /* Tab bar */
+        .md-tabbar { display:flex;gap:2px;background:rgba(15,23,42,.07);border-radius:14px;padding:4px; }
+        .md-tab {
+            flex:1;padding:.42rem .5rem;font-size:.78rem;font-weight:600;border-radius:10px;
+            border:none;background:transparent;color:#64748b;cursor:pointer;
+            transition:background .18s,color .18s,box-shadow .18s;
+            white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:.3rem;
+        }
+        .md-tab i { font-size:.7rem; }
+        .md-tab:hover:not(.active) { background:rgba(255,255,255,.6);color:#334155; }
+        .md-tab.active { background:white;color:#1d4ed8;box-shadow:0 1px 6px rgba(15,23,42,.1),0 1px 2px rgba(15,23,42,.06); }
+        /* Tab panes */
+        .md-tab-pane { display:none; }
+        .md-tab-pane.active { display:block;animation:mdFadeSlide .22s ease both; }
+        /* Status pills */
+        .spill-approved { background:#d1fae5;color:#065f46; }
+        .spill-pending  { background:#fef3c7;color:#92400e; }
+        .spill-rejected { background:#fee2e2;color:#991b1b; }
+        .spill-active   { background:#dbeafe;color:#1e40af; }
+        .spill-inactive { background:#f1f5f9;color:#64748b; }
+        /* Section cards */
+        .md-card { background:white;border-radius:14px;border:1px solid #e2e8f0;box-shadow:0 1px 4px rgba(15,23,42,.04); }
+        /* Transaction row states */
+        @keyframes txFlashSave{0%,100%{background:transparent}40%{background:#d1fae5}}
+        @keyframes txFadeRemove{to{opacity:0;transform:translateX(8px)}}
+        .tx-row-dirty>td:first-child{border-left:3px solid #f59e0b!important}
+        .tx-row-dirty{background:#fffbeb!important}
+        .tx-row-flash{animation:txFlashSave .9s ease}
+        .tx-row-removing{animation:txFadeRemove .28s ease forwards;pointer-events:none}
+        /* Add-tx panel */
+        .add-tx-panel{overflow:hidden;transition:max-height .25s ease,opacity .2s ease}
+        .add-tx-panel.open{opacity:1}
+        .add-tx-panel.closed{max-height:0;opacity:0}
 
         /* Scrollbar */
         ::-webkit-scrollbar{width:6px;height:6px}
@@ -828,14 +891,44 @@
 
     <!-- Member Detail Modal -->
     <div id="member-detail-modal" class="fixed inset-0 admin-modal-backdrop flex items-end sm:items-center justify-center hidden z-[110]" role="dialog" aria-modal="true" aria-labelledby="member-detail-title">
-        <div class="admin-modal-panel admin-modal-panel--wide bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl shadow-slate-900/20 overflow-hidden border border-slate-100 flex flex-col">
-            <div class="shrink-0 z-10 bg-white/95 backdrop-blur-sm border-b border-slate-100 px-5 sm:px-6 py-4 flex justify-between items-center gap-3">
-                <h3 id="member-detail-title" class="text-lg sm:text-xl font-bold text-slate-900">Member details</h3>
-                <button type="button" id="close-member-detail-modal" class="text-slate-400 hover:text-slate-700 p-2 -mr-2 rounded-lg hover:bg-slate-100 transition" aria-label="Close">
-                    <i class="fas fa-times text-xl"></i>
+        <div class="admin-modal-panel admin-modal-panel--wide bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl shadow-slate-900/25 overflow-hidden flex flex-col">
+            <!-- ── Gradient Hero Header ── -->
+            <div class="md-hero relative px-5 pt-5 pb-4 sm:px-6">
+                <!-- Close button -->
+                <button type="button" id="close-member-detail-modal"
+                    class="absolute right-4 top-4 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/35 text-white transition-all"
+                    aria-label="Close">
+                    <i class="fas fa-times text-sm"></i>
                 </button>
+                <!-- Skeleton (shown while loading) -->
+                <div id="md-hero-loading" class="flex items-center gap-3 pr-10">
+                    <div class="w-14 h-14 rounded-2xl md-skeleton shrink-0"></div>
+                    <div class="flex-1 space-y-2">
+                        <div class="h-4 md-skeleton rounded-lg w-2/5"></div>
+                        <div class="h-3 md-skeleton rounded-lg w-1/4"></div>
+                        <div class="h-3 md-skeleton rounded-lg w-1/3 mt-1"></div>
+                    </div>
+                </div>
+                <!-- Loaded content -->
+                <div id="md-hero-content" class="md-hero-reveal pr-10 hidden">
+                    <div class="flex items-start gap-4">
+                        <div id="md-hero-avatar" class="md-avatar-ring">A</div>
+                        <div class="flex-1 min-w-0">
+                            <h3 id="member-detail-title" class="text-white font-bold text-base sm:text-lg leading-tight truncate">Member</h3>
+                            <p id="md-hero-email" class="text-blue-100/90 text-xs mt-0.5 truncate"></p>
+                            <div class="flex flex-wrap items-center gap-2 mt-2">
+                                <span id="md-hero-role" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide bg-white/20 text-white"></span>
+                                <span class="text-blue-200 text-xs flex items-center gap-1">
+                                    <i class="fas fa-piggy-bank text-[10px]"></i>
+                                    Saved: <span id="md-hero-total" class="text-white font-bold ml-0.5">R0.00</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div id="member-detail-content" class="p-5 sm:p-6 overflow-y-auto flex-1 min-h-0 text-left"></div>
+            <!-- ── Content (tab bar + panes rendered by JS) ── -->
+            <div id="member-detail-content" class="overflow-y-auto flex-1 min-h-0 text-left"></div>
         </div>
     </div>
 
@@ -928,6 +1021,8 @@
         const MEMBERS_PAGE_STEP    = 5;
         let membersDirectoryAll  = [];
         let membersVisibleLimit  = MEMBERS_PAGE_INITIAL;
+        /** Stokvel row `data-stokvel-id` with unsaved edits; must Save before editing another row. */
+        let memberDetailPendingStokvelId = null;
 
         /* ===== HELPERS ===== */
         function escapeHtml(text) {
@@ -957,6 +1052,15 @@
             if (typeof val.seconds === 'number') return val.seconds * 1000;
             const d = new Date(val);
             return Number.isNaN(d.getTime()) ? 0 : d.getTime();
+        }
+        function statusBadgeClass(status) {
+            const s = (status || '').toLowerCase().replace(/\s+/g, '-');
+            if (s === 'approved')       return 'spill-approved';
+            if (s.startsWith('pending')) return 'spill-pending';
+            if (s === 'rejected')       return 'spill-rejected';
+            if (s === 'active')         return 'spill-active';
+            if (s === 'inactive')       return 'spill-inactive';
+            return 'bg-slate-100 text-slate-600';
         }
 
         /* ===== LIVE CLOCK ===== */
@@ -1048,7 +1152,41 @@
 
         /* ===== MODAL HELPERS ===== */
         function closeMemberDetailModal() {
+            memberDetailPendingStokvelId = null;
             document.getElementById('member-detail-modal')?.classList.add('hidden');
+            const hl = document.getElementById('md-hero-loading');
+            const hc = document.getElementById('md-hero-content');
+            if (hl) hl.classList.remove('hidden');
+            if (hc) { hc.classList.add('hidden'); hc.classList.remove('loaded'); }
+        }
+        function amountFieldEqual(a, b) {
+            const x = parseFloat(a);
+            const y = parseFloat(b);
+            const nx = Number.isNaN(x);
+            const ny = Number.isNaN(y);
+            if (nx && ny) return String(a).trim() === '' && String(b).trim() === '';
+            if (nx || ny) return false;
+            return Math.abs(x - y) < 1e-6;
+        }
+        function isStokvelRowDirty(tr) {
+            if (!tr || !tr.getAttribute('data-stokvel-id')) return false;
+            const monthly = tr.querySelector('.sv-monthly');
+            const saved = tr.querySelector('.sv-saved');
+            const status = tr.querySelector('.sv-status');
+            if (!monthly || !saved || !status) return false;
+            const origM = tr.dataset.origMonthly != null && tr.dataset.origMonthly !== '' ? tr.dataset.origMonthly : '0';
+            if (!amountFieldEqual(monthly.value, origM)) return true;
+            const origSt = tr.dataset.origStatus != null ? tr.dataset.origStatus : 'Active';
+            if (status.value !== origSt) return true;
+            const origSD = tr.dataset.origSavedDisplay != null && tr.dataset.origSavedDisplay !== '' ? tr.dataset.origSavedDisplay : '0';
+            if (!amountFieldEqual(saved.value, origSD)) return true;
+            return false;
+        }
+        function refreshMemberDetailPendingStokvelId() {
+            memberDetailPendingStokvelId = null;
+            document.querySelectorAll('#member-detail-content tr[data-stokvel-id]').forEach(tr => {
+                if (isStokvelRowDirty(tr)) memberDetailPendingStokvelId = tr.getAttribute('data-stokvel-id');
+            });
         }
         function showMemberDetailFeedback(message, isError) {
             const el = document.getElementById('member-detail-feedback');
@@ -1069,7 +1207,7 @@
         function recalcMemberTxTotalPositive() {
             const root = document.getElementById('member-detail-content');
             if (!root) return;
-            const section = root.querySelector('section[data-member-tx-uid]');
+            const section = root.querySelector('[data-member-tx-uid]');
             let base = 0;
             if (section) {
                 const raw = section.getAttribute('data-tx-hidden-positive-sum');
@@ -1093,11 +1231,17 @@
             if (!modal || !content || !uid) return;
             modal.classList.remove('hidden');
             hideMemberDetailFeedback();
-            titleEl.textContent = 'Loading…';
+            memberDetailPendingStokvelId = null;
+            /* Reset hero to skeleton */
+            const heroLoading = document.getElementById('md-hero-loading');
+            const heroContent = document.getElementById('md-hero-content');
+            if (heroLoading) heroLoading.classList.remove('hidden');
+            if (heroContent) { heroContent.classList.add('hidden'); heroContent.classList.remove('loaded'); }
+            if (titleEl) titleEl.textContent = '';
             content.innerHTML = `
-                <div class="flex flex-col items-center justify-center gap-3 py-12 text-slate-500">
-                    <i class="fas fa-spinner fa-spin text-2xl text-blue-600"></i>
-                    <p class="text-sm font-medium">Fetching Firestore data…</p>
+                <div class="flex flex-col items-center justify-center gap-3 py-14 text-slate-400">
+                    <i class="fas fa-spinner fa-spin text-2xl text-blue-500"></i>
+                    <p class="text-sm font-medium">Fetching member data…</p>
                 </div>`;
             try {
                 const userRef = db.collection('users').doc(uid);
@@ -1113,9 +1257,12 @@
                 }
                 const u = userSnap.data();
                 const displayName = u.name || u.email || 'Member';
-                titleEl.textContent = displayName;
                 const isSelf = !!(auth.currentUser && auth.currentUser.uid === uid);
                 const currentRole = u.role || 'user';
+
+                /* Build tx array first so stokvelRows can compute saved totals from it */
+                const transactions = txSnap.docs.map(d => ({ id:d.id, ...d.data() }));
+                transactions.sort((a,b) => firestoreTimeMs(b.date) - firestoreTimeMs(a.date));
 
                 const stokvelRows = stokvelsSnap.docs.map(d => {
                     const s = d.data();
@@ -1124,20 +1271,43 @@
                     const opts = statusChoices.map(v =>
                         `<option value="${escapeHtml(v)}" ${v===curStatus?'selected':''}>${escapeHtml(v)}</option>`
                     ).join('');
-                    const dbSaved = s.totalSaved != null ? Number(s.totalSaved) : 0;
-                    const savedTitle = `Stored in Firestore: ${formatCurrency(dbSaved)} — not updated until you Save`;
+
+                    /* Monthly: check every plausible field name the doc may use */
+                    const rawMonthly = s.monthlyContribution ?? s.monthlyAmount ?? s.amount ?? s.contributionAmount ?? s.planAmount ?? null;
+                    const monthlyContribution = rawMonthly != null && !Number.isNaN(Number(rawMonthly)) ? Number(rawMonthly) : 0;
+
+                    /* Saved: sum approved transactions for this stokvel from already-loaded tx data.
+                       Fall back to Firestore totalSaved if no matching transactions exist. */
+                    const stokvelLabel = (s.type || s.planType || '').toLowerCase().trim();
+                    const computedSaved = transactions
+                        .filter(t => (t.stokvelName || '').toLowerCase().trim() === stokvelLabel
+                                  && (t.status || '').toLowerCase() === 'approved')
+                        .reduce((sum, t) => {
+                            const a = t.amount != null ? parseFloat(t.amount) : 0;
+                            return sum + (!Number.isNaN(a) && a > 0 ? a : 0);
+                        }, 0);
+                    const storedSaved = s.totalSaved != null && !Number.isNaN(Number(s.totalSaved)) ? Number(s.totalSaved) : 0;
+                    const displaySaved = computedSaved > 0 ? computedSaved : storedSaved;
+
+                    const monthlyTitle = `Monthly contribution${rawMonthly != null ? ' (from Firestore)' : ' — not set in Firestore'}: ${formatCurrency(monthlyContribution)}`;
+                    const savedTitle   = `Computed from approved transactions: ${formatCurrency(computedSaved)}. Firestore totalSaved: ${formatCurrency(storedSaved)}`;
+
                     return `
-                        <tr class="border-b border-slate-100 last:border-0" data-stokvel-id="${escapeHtml(d.id)}">
-                            <td class="py-2 pr-2 text-sm text-slate-800 align-middle">${escapeHtml(s.type||s.planType||'—')}</td>
+                        <tr class="border-b border-slate-100 last:border-0" data-stokvel-id="${escapeHtml(d.id)}"
+                            data-orig-monthly="${monthlyContribution}" data-orig-status="${escapeHtml(curStatus)}" data-orig-saved-display="${displaySaved}">
+                            <td class="py-2 pr-2 text-sm text-slate-800 align-middle font-medium">${escapeHtml(s.type||s.planType||'—')}</td>
                             <td class="py-2 pr-2 align-middle"><select class="sv-status w-full min-w-[7rem] border border-slate-200 rounded-lg text-sm py-1.5 px-2 bg-white">${opts}</select></td>
-                            <td class="py-2 pr-2 align-middle"><input type="number" step="0.01" min="0" class="sv-saved w-full max-w-[7rem] border border-slate-200 rounded-lg text-sm py-1.5 px-2" value="0" data-db-saved="${dbSaved}" title="${escapeHtml(savedTitle)}"></td>
-                            <td class="py-2 pr-2 text-sm text-slate-600 whitespace-nowrap align-middle">${formatDate(s.joinedAt)}</td>
-                            <td class="py-2 align-middle"><button type="button" data-action="save-stokvel" data-member-uid="${escapeHtml(uid)}" class="text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg px-2.5 py-1.5 transition">Save</button></td>
+                            <td class="py-2 pr-2 align-middle"><input type="number" step="0.01" min="0" class="sv-monthly w-full max-w-[7rem] border border-slate-200 rounded-lg text-sm py-1.5 px-2" value="${monthlyContribution}" title="${escapeHtml(monthlyTitle)}"></td>
+                            <td class="py-2 pr-2 align-middle"><input type="number" step="0.01" min="0" class="sv-saved w-full max-w-[7rem] border border-slate-200 rounded-lg text-sm py-1.5 px-2 font-semibold text-green-700" value="${displaySaved}" data-db-saved="${storedSaved}" title="${escapeHtml(savedTitle)}"></td>
+                            <td class="py-2 pr-2 text-sm text-slate-500 whitespace-nowrap align-middle">${formatDate(s.joinedAt)}</td>
+                            <td class="py-2 align-middle">
+                                <div class="flex items-center gap-1">
+                                    <button type="button" data-action="save-stokvel" data-member-uid="${escapeHtml(uid)}" class="text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg px-2.5 py-1.5 transition">Save</button>
+                                    <button type="button" data-action="delete-stokvel" data-member-uid="${escapeHtml(uid)}" data-stokvel-id="${escapeHtml(d.id)}" class="text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg p-1.5 transition" title="Remove stokvel membership"><i class="fas fa-trash-alt text-xs"></i></button>
+                                </div>
+                            </td>
                         </tr>`;
                 }).join('');
-
-                const transactions = txSnap.docs.map(d => ({ id:d.id, ...d.data() }));
-                transactions.sort((a,b) => firestoreTimeMs(b.date) - firestoreTimeMs(a.date));
                 const txShown = transactions.slice(0, 25);
                 const shownTxIds = new Set(txShown.map(t => t.id));
                 let txTotal = 0;
@@ -1149,23 +1319,51 @@
                     if (!shownTxIds.has(t.id)) txHiddenPositiveSum += pos;
                 });
 
+                /* ── Reveal hero ── */
+                if (heroLoading) heroLoading.classList.add('hidden');
+                if (heroContent) {
+                    const avEl = document.getElementById('md-hero-avatar');
+                    const emEl = document.getElementById('md-hero-email');
+                    const rlEl = document.getElementById('md-hero-role');
+                    const ttEl = document.getElementById('md-hero-total');
+                    if (avEl) avEl.textContent = (displayName[0] || '?').toUpperCase();
+                    if (emEl) emEl.textContent = u.email || '—';
+                    if (rlEl) rlEl.textContent = currentRole;
+                    if (ttEl) ttEl.textContent = formatCurrency(txTotal);
+                    if (titleEl) titleEl.textContent = displayName;
+                    heroContent.classList.remove('hidden');
+                    requestAnimationFrame(() => heroContent.classList.add('loaded'));
+                }
+
                 const txAmt = (t) => (t.amount != null && !Number.isNaN(Number(t.amount)) ? Number(t.amount) : 0);
                 const txRows = txShown.length
                     ? txShown.map(t => `
-                        <tr class="border-b border-slate-100 last:border-0" data-tx-id="${escapeHtml(t.id)}">
-                            <td class="py-2 pr-2 text-sm text-slate-600 whitespace-nowrap">${formatDateTime(t.date)}</td>
-                            <td class="py-2 pr-2 text-sm text-slate-800">${escapeHtml(t.stokvelName||'—')}</td>
-                            <td class="py-2 pr-2 align-middle">
-                                <input type="number" step="0.01" min="0" class="tx-amount w-full max-w-[7.5rem] border border-slate-200 rounded-lg text-sm py-1.5 px-2 font-medium text-slate-900" value="${txAmt(t)}">
+                        <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50/70 transition-colors" data-tx-id="${escapeHtml(t.id)}">
+                            <td class="px-3 py-2.5 text-xs text-slate-500 whitespace-nowrap">${formatDateTime(t.date)}</td>
+                            <td class="px-3 py-2.5 text-xs text-slate-700 font-medium">${escapeHtml(t.stokvelName||'—')}</td>
+                            <td class="px-3 py-2.5 align-middle">
+                                <input type="number" step="0.01" min="0" class="tx-amount w-full max-w-[7rem] border border-slate-200 rounded-lg text-xs py-1.5 px-2 font-semibold text-slate-900 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none" value="${txAmt(t)}" data-orig-amount="${txAmt(t)}">
                             </td>
-                            <td class="py-2 text-sm text-slate-600">${escapeHtml(t.method||'—')}</td>
-                            <td class="py-2 text-sm"><span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">${escapeHtml(t.status||'—')}</span></td>
-                            <td class="py-2 align-middle whitespace-nowrap">
-                                <button type="button" data-action="save-tx-amount" data-member-uid="${escapeHtml(uid)}" data-tx-id="${escapeHtml(t.id)}"
-                                    class="text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg px-2.5 py-1.5 transition">Save</button>
+                            <td class="px-3 py-2.5 text-xs text-slate-500">${escapeHtml(t.method||'—')}</td>
+                            <td class="px-3 py-2.5 text-xs">
+                                <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${statusBadgeClass(t.status)}">${escapeHtml(t.status||'—')}</span>
+                            </td>
+                            <td class="px-3 py-2.5 align-middle whitespace-nowrap">
+                                <div class="flex items-center gap-1">
+                                    <button type="button" data-action="save-tx-amount" data-member-uid="${escapeHtml(uid)}" data-tx-id="${escapeHtml(t.id)}"
+                                        class="text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg px-2.5 py-1.5 transition">Save</button>
+                                    <button type="button" data-action="delete-tx" data-member-uid="${escapeHtml(uid)}" data-tx-id="${escapeHtml(t.id)}"
+                                        class="text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg p-1.5 transition" title="Delete transaction"><i class="fas fa-trash-alt text-xs"></i></button>
+                                </div>
                             </td>
                         </tr>`).join('')
-                    : `<tr><td colspan="6" class="py-4 text-sm text-slate-500 text-center">No transactions yet.</td></tr>`;
+                    : `<tr><td colspan="6" class="px-3 py-8 text-sm text-slate-400 text-center"><i class="fas fa-receipt block text-2xl mb-2 opacity-30"></i>No transactions yet.</td></tr>`;
+
+                const stokvelOptions = stokvelsSnap.docs.map(d => {
+                    const s = d.data();
+                    const name = escapeHtml(s.type || s.planType || d.id);
+                    return `<option value="${name}">${name}</option>`;
+                }).join('');
 
                 const profileImageHtml = u.profileImageUrl
                     ? `<p class="text-xs text-slate-500 mt-3"><a href="${escapeHtml(u.profileImageUrl)}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">Open profile image</a></p>`
@@ -1187,30 +1385,52 @@
                         </div>`;
 
                 content.innerHTML = `
-                    <div class="space-y-6">
-                        <div id="member-detail-feedback" class="hidden rounded-lg px-3 py-2 text-sm" role="status"></div>
-                        <section>
-                            <h4 class="text-xs font-bold uppercase tracking-wide text-slate-500 mb-3">Edit profile</h4>
-                            <p class="text-xs text-slate-500 mb-3">Email is managed in Firebase Authentication and is not editable here.</p>
-                            <form id="member-profile-form" class="rounded-xl border border-slate-200 bg-slate-50/80 p-4 space-y-4">
+                <div>
+                    <!-- Feedback banner -->
+                    <div id="member-detail-feedback" class="hidden mx-5 mt-4 rounded-xl px-3 py-2.5 text-sm border" role="status"></div>
+
+                    <!-- Tab bar -->
+                    <div class="px-5 pt-4 pb-0">
+                        <div class="md-tabbar">
+                            <button type="button" class="md-tab active" data-tab="profile">
+                                <i class="fas fa-user"></i>Profile
+                            </button>
+                            <button type="button" class="md-tab" data-tab="stokvels">
+                                <i class="fas fa-coins"></i>Stokvels <span class="ml-0.5 opacity-60 font-normal">(${stokvelsSnap.size})</span>
+                            </button>
+                            <button type="button" class="md-tab" data-tab="transactions">
+                                <i class="fas fa-receipt"></i>Transactions <span class="ml-0.5 opacity-60 font-normal">(${transactions.length})</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ═══ PROFILE TAB ═══ -->
+                    <div id="md-pane-profile" class="md-tab-pane active px-5 pt-4 pb-6 space-y-4">
+                        <!-- Edit profile card -->
+                        <div class="md-card p-4 space-y-4">
+                            <h4 class="text-xs font-bold uppercase tracking-wide text-slate-500 flex items-center gap-1.5">
+                                <i class="fas fa-user-pen text-slate-400"></i>Edit profile
+                            </h4>
+                            <p class="text-xs text-slate-400 -mt-2">Email is managed in Firebase Authentication and cannot be changed here.</p>
+                            <form id="member-profile-form" class="space-y-3">
                                 <input type="hidden" name="member-uid" value="${escapeHtml(uid)}">
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div class="sm:col-span-2">
-                                        <label for="edit-name" class="text-slate-500 text-xs font-medium block mb-1">Full name</label>
+                                        <label for="edit-name" class="text-slate-500 text-xs font-semibold block mb-1">Full name</label>
                                         <input id="edit-name" name="edit-name" type="text" required
-                                            class="w-full border border-slate-200 rounded-xl py-2 px-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                                            class="w-full border border-slate-200 rounded-xl py-2.5 px-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                                             value="${escapeHtml(u.name||'')}">
                                     </div>
                                     <div>
-                                        <label for="edit-phone" class="text-slate-500 text-xs font-medium block mb-1">Phone</label>
+                                        <label for="edit-phone" class="text-slate-500 text-xs font-semibold block mb-1">Phone</label>
                                         <input id="edit-phone" name="edit-phone" type="tel" autocomplete="off"
-                                            class="w-full border border-slate-200 rounded-xl py-2 px-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                                            class="w-full border border-slate-200 rounded-xl py-2.5 px-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
                                             value="${escapeHtml(u.phone||'')}">
                                     </div>
-                                    <div class="sm:col-span-2">
-                                        <label for="edit-address" class="text-slate-500 text-xs font-medium block mb-1">Address</label>
+                                    <div>
+                                        <label for="edit-address" class="text-slate-500 text-xs font-semibold block mb-1">Address</label>
                                         <textarea id="edit-address" name="edit-address" rows="2"
-                                            class="w-full border border-slate-200 rounded-xl py-2 px-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-y">${escapeHtml(u.address||'')}</textarea>
+                                            class="w-full border border-slate-200 rounded-xl py-2.5 px-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none transition">${escapeHtml(u.address||'')}</textarea>
                                     </div>
                                     ${roleSelectHtml}
                                 </div>
@@ -1220,86 +1440,177 @@
                                     </button>
                                 </div>
                             </form>
-                            <h4 class="text-xs font-bold uppercase tracking-wide text-slate-500 mt-6 mb-3">Account details (read-only)</h4>
-                            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 text-sm">
-                                <div class="sm:col-span-2">
-                                    <dt class="text-slate-500 text-xs font-medium">Document ID</dt>
-                                    <dd class="mt-0.5 font-mono text-xs text-slate-800 break-all">${escapeHtml(uid)}</dd>
+                        </div>
+
+                        <!-- Account details card -->
+                        <div class="md-card p-4">
+                            <h4 class="text-xs font-bold uppercase tracking-wide text-slate-500 mb-3 flex items-center gap-1.5">
+                                <i class="fas fa-id-badge text-slate-400"></i>Account details
+                            </h4>
+                            <dl class="grid grid-cols-2 gap-x-4 gap-y-3 text-xs">
+                                <div class="col-span-2">
+                                    <dt class="text-slate-400 font-semibold uppercase tracking-wide text-[10px] mb-0.5">Document ID</dt>
+                                    <dd class="font-mono text-slate-700 break-all">${escapeHtml(uid)}</dd>
                                 </div>
-                                <div class="sm:col-span-2">
-                                    <dt class="text-slate-500 text-xs font-medium">Email</dt>
-                                    <dd class="mt-0.5 text-slate-800 break-all">${escapeHtml(u.email||'—')}</dd>
-                                </div>
-                                <div>
-                                    <dt class="text-slate-500 text-xs font-medium">Email verified</dt>
-                                    <dd class="mt-0.5 text-slate-800">${u.emailVerified===true?'Yes':u.emailVerified===false?'No':'—'}</dd>
-                                </div>
-                                <div>
-                                    <dt class="text-slate-500 text-xs font-medium">Join date</dt>
-                                    <dd class="mt-0.5 text-slate-800">${formatDateTime(u.joinDate)}</dd>
+                                <div class="col-span-2">
+                                    <dt class="text-slate-400 font-semibold uppercase tracking-wide text-[10px] mb-0.5">Email</dt>
+                                    <dd class="text-slate-700 break-all">${escapeHtml(u.email||'—')}</dd>
                                 </div>
                                 <div>
-                                    <dt class="text-slate-500 text-xs font-medium">Created</dt>
-                                    <dd class="mt-0.5 text-slate-800">${formatDateTime(u.createdAt)}</dd>
+                                    <dt class="text-slate-400 font-semibold uppercase tracking-wide text-[10px] mb-0.5">Verified</dt>
+                                    <dd class="text-slate-700">${u.emailVerified===true?'<span class="spill-approved inline-flex px-2 py-0.5 rounded-full font-semibold">Yes</span>':u.emailVerified===false?'<span class="spill-rejected inline-flex px-2 py-0.5 rounded-full font-semibold">No</span>':'—'}</dd>
                                 </div>
                                 <div>
-                                    <dt class="text-slate-500 text-xs font-medium">Last updated</dt>
-                                    <dd class="mt-0.5 text-slate-800" id="member-readonly-last-updated">${formatDateTime(u.lastUpdated)}</dd>
+                                    <dt class="text-slate-400 font-semibold uppercase tracking-wide text-[10px] mb-0.5">Joined</dt>
+                                    <dd class="text-slate-700">${formatDateTime(u.joinDate)}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-slate-400 font-semibold uppercase tracking-wide text-[10px] mb-0.5">Created</dt>
+                                    <dd class="text-slate-700">${formatDateTime(u.createdAt)}</dd>
+                                </div>
+                                <div>
+                                    <dt class="text-slate-400 font-semibold uppercase tracking-wide text-[10px] mb-0.5">Last updated</dt>
+                                    <dd class="text-slate-700" id="member-readonly-last-updated">${formatDateTime(u.lastUpdated)}</dd>
                                 </div>
                             </dl>
                             ${profileImageHtml}
-                        </section>
-                        <section>
-                            <h4 class="text-xs font-bold uppercase tracking-wide text-slate-500 mb-2">Stokvels <span class="font-normal text-slate-400">(${stokvelsSnap.size})</span></h4>
-                            ${stokvelsSnap.empty
-                                ? '<p class="text-sm text-slate-500 py-2">No stokvel memberships.</p>'
-                                : `<p class="text-xs text-slate-500 mb-2">Saved (R) starts at 0 when you open this view; Firestore is unchanged until you Save. Hover the field to see the stored amount.</p>
-                                   <div class="overflow-x-auto rounded-xl border border-slate-200">
+                        </div>
+                    </div>
+
+                    <!-- ═══ STOKVELS TAB ═══ -->
+                    <div id="md-pane-stokvels" class="md-tab-pane px-5 pt-4 pb-6">
+                        ${stokvelsSnap.empty
+                            ? `<div class="md-card p-8 text-center">
+                                   <i class="fas fa-coins text-3xl text-slate-300 block mb-3"></i>
+                                   <p class="text-sm font-medium text-slate-500">No stokvel memberships.</p>
+                               </div>`
+                            : `<p class="text-xs text-slate-400 mb-3">Edit fields and Save per row before moving to another. Saved (R) reflects Firestore after you Save.</p>
+                               <div class="md-card overflow-hidden">
+                                   <div class="overflow-x-auto">
                                        <table class="min-w-full text-left">
-                                           <thead class="bg-slate-50 text-xs uppercase text-slate-500">
+                                           <thead class="bg-slate-50/80 text-[10px] uppercase tracking-wide text-slate-500 border-b border-slate-100">
                                                <tr>
-                                                   <th class="px-3 py-2 font-semibold">Plan / type</th>
-                                                   <th class="px-3 py-2 font-semibold">Status</th>
-                                                   <th class="px-3 py-2 font-semibold">Saved (R)</th>
-                                                   <th class="px-3 py-2 font-semibold">Joined</th>
-                                                   <th class="px-3 py-2 font-semibold">Actions</th>
+                                                   <th class="px-3 py-2.5 font-semibold">Plan</th>
+                                                   <th class="px-3 py-2.5 font-semibold">Status</th>
+                                                   <th class="px-3 py-2.5 font-semibold">Monthly (R)</th>
+                                                   <th class="px-3 py-2.5 font-semibold">Saved (R)</th>
+                                                   <th class="px-3 py-2.5 font-semibold">Joined</th>
+                                                   <th class="px-3 py-2.5 font-semibold">Actions</th>
                                                </tr>
                                            </thead>
                                            <tbody>${stokvelRows}</tbody>
                                        </table>
-                                   </div>`}
-                        </section>
-                        <section data-member-tx-uid="${escapeHtml(uid)}" data-tx-hidden-positive-sum="${txHiddenPositiveSum}">
-                            <div class="flex flex-wrap items-baseline justify-between gap-2 mb-2">
-                                <h4 class="text-xs font-bold uppercase tracking-wide text-slate-500">Transactions <span class="font-normal text-slate-400">(${transactions.length})</span></h4>
-                                <div class="flex flex-wrap items-center gap-3">
-                                    ${transactions.length ? `<button type="button" data-action="reset-all-tx-amounts" data-member-uid="${escapeHtml(uid)}" data-tx-count="${transactions.length}"
-                                        class="text-xs font-semibold text-amber-900 bg-amber-100 hover:bg-amber-200 border border-amber-200/80 rounded-lg px-2.5 py-1.5 transition">Reset all amounts</button>` : ''}
-                                    <p class="text-sm text-slate-600">Total (positive): <span id="member-tx-total-positive" class="font-semibold text-green-700">${formatCurrency(txTotal)}</span></p>
-                                </div>
+                                   </div>
+                               </div>`}
+                    </div>
+
+                    <!-- ═══ TRANSACTIONS TAB ═══ -->
+                    <div id="md-pane-transactions" class="md-tab-pane px-5 pt-4 pb-6" data-member-tx-uid="${escapeHtml(uid)}" data-tx-hidden-positive-sum="${txHiddenPositiveSum}">
+                        <!-- Stats row -->
+                        <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 text-emerald-800 text-sm font-bold px-3 py-1.5 rounded-xl">
+                                    <i class="fas fa-piggy-bank text-xs text-emerald-500"></i>
+                                    Total: <span id="member-tx-total-positive">${formatCurrency(txTotal)}</span>
+                                </span>
                             </div>
-                            <p class="text-xs text-slate-400 mb-2">Showing up to 25 most recent. Edit amounts and Save per row, or reset every transaction to R0.00 in Firestore.</p>
-                            <div class="overflow-x-auto rounded-xl border border-slate-200">
+                            <div class="flex items-center gap-2">
+                                ${transactions.length ? `<button type="button" data-action="reset-all-tx-amounts" data-member-uid="${escapeHtml(uid)}" data-tx-count="${transactions.length}"
+                                    class="text-xs font-semibold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl px-3 py-1.5 transition flex items-center gap-1.5">
+                                    <i class="fas fa-rotate-left text-xs"></i>Reset all amounts</button>` : ''}
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-3">Up to 25 most recent. Edit amounts inline — row highlights amber until saved.</p>
+
+                        <!-- Add Transaction accordion -->
+                        <div class="mb-4 md-card overflow-hidden">
+                            <button type="button" data-action="toggle-add-tx" data-member-uid="${escapeHtml(uid)}"
+                                class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-blue-700 hover:bg-blue-50/60 transition group">
+                                <span class="flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
+                                        <i class="fas fa-plus text-blue-600 text-xs"></i>
+                                    </span>
+                                    Add transaction
+                                </span>
+                                <i class="fas fa-chevron-down text-blue-400 text-xs transition-transform duration-200" id="add-tx-chevron-${escapeHtml(uid)}"></i>
+                            </button>
+                            <div id="add-tx-panel-${escapeHtml(uid)}" class="hidden border-t border-slate-100 bg-slate-50/60 px-4 pb-4 pt-3">
+                                <form id="add-tx-form" data-member-uid="${escapeHtml(uid)}" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                    <div>
+                                        <label class="text-slate-500 text-xs font-semibold block mb-1">Date <span class="text-red-400">*</span></label>
+                                        <input type="date" name="tx-date" required value="${new Date().toISOString().split('T')[0]}"
+                                            class="w-full border border-slate-200 rounded-xl py-2.5 px-3 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                                    </div>
+                                    <div>
+                                        <label class="text-slate-500 text-xs font-semibold block mb-1">Amount (R) <span class="text-red-400">*</span></label>
+                                        <input type="number" name="tx-amount" step="0.01" min="0" placeholder="0.00" required
+                                            class="w-full border border-slate-200 rounded-xl py-2.5 px-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                                    </div>
+                                    <div>
+                                        <label class="text-slate-500 text-xs font-semibold block mb-1">Stokvel</label>
+                                        <select name="tx-stokvel" class="w-full border border-slate-200 rounded-xl py-2.5 px-3 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                                            <option value="">— None —</option>
+                                            ${stokvelOptions}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="text-slate-500 text-xs font-semibold block mb-1">Method</label>
+                                        <select name="tx-method" class="w-full border border-slate-200 rounded-xl py-2.5 px-3 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                                            <option>EFT</option><option>Cash</option><option>Card</option><option>Bank Transfer</option><option>Other</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="text-slate-500 text-xs font-semibold block mb-1">Status</label>
+                                        <select name="tx-status" class="w-full border border-slate-200 rounded-xl py-2.5 px-3 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                                            <option>Approved</option><option>Pending</option><option>Rejected</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="text-slate-500 text-xs font-semibold block mb-1">Note</label>
+                                        <input type="text" name="tx-note" placeholder="Optional"
+                                            class="w-full border border-slate-200 rounded-xl py-2.5 px-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                                    </div>
+                                    <div class="col-span-2 sm:col-span-3 flex justify-end gap-2 pt-1">
+                                        <button type="button" data-action="cancel-add-tx" data-member-uid="${escapeHtml(uid)}"
+                                            class="text-sm px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-semibold transition">Cancel</button>
+                                        <button type="submit" id="add-tx-submit-btn"
+                                            class="button-glow text-sm py-2.5 px-5 rounded-xl inline-flex items-center gap-1.5">
+                                            <i class="fas fa-plus text-xs"></i>Add transaction
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Transactions table -->
+                        <div class="md-card overflow-hidden">
+                            <div class="overflow-x-auto">
                                 <table class="min-w-full text-left">
-                                    <thead class="bg-slate-50 text-xs uppercase text-slate-500">
+                                    <thead class="bg-slate-50/80 text-[10px] uppercase tracking-wide text-slate-500 border-b border-slate-100">
                                         <tr>
-                                            <th class="px-3 py-2 font-semibold">Date</th>
-                                            <th class="px-3 py-2 font-semibold">Stokvel</th>
-                                            <th class="px-3 py-2 font-semibold">Amount</th>
-                                            <th class="px-3 py-2 font-semibold">Method</th>
-                                            <th class="px-3 py-2 font-semibold">Status</th>
-                                            <th class="px-3 py-2 font-semibold">Action</th>
+                                            <th class="px-3 py-2.5 font-semibold">Date</th>
+                                            <th class="px-3 py-2.5 font-semibold">Stokvel</th>
+                                            <th class="px-3 py-2.5 font-semibold">Amount (R)</th>
+                                            <th class="px-3 py-2.5 font-semibold">Method</th>
+                                            <th class="px-3 py-2.5 font-semibold">Status</th>
+                                            <th class="px-3 py-2.5 font-semibold">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>${txRows}</tbody>
                                 </table>
                             </div>
-                        </section>
-                    </div>`;
+                        </div>
+                    </div>
+                </div>`;
             } catch (err) {
                 console.error('Member detail load error:', err);
-                titleEl.textContent = 'Error';
-                content.innerHTML = `<p class="text-sm text-red-600">${escapeHtml(err.message||'Failed to load user.')}</p>`;
+                if (heroLoading) heroLoading.classList.add('hidden');
+                if (heroContent) {
+                    if (titleEl) titleEl.textContent = 'Error';
+                    heroContent.classList.remove('hidden');
+                    requestAnimationFrame(() => heroContent.classList.add('loaded'));
+                }
+                content.innerHTML = `<div class="px-5 py-8 text-center"><i class="fas fa-circle-xmark text-2xl text-red-400 block mb-3"></i><p class="text-sm text-red-600">${escapeHtml(err.message||'Failed to load user.')}</p></div>`;
             }
         }
 
@@ -1965,6 +2276,49 @@
         });
 
         document.getElementById('member-detail-content').addEventListener('submit', async e => {
+            /* ── Add Transaction ── */
+            if (e.target.id === 'add-tx-form') {
+                e.preventDefault();
+                const form = e.target;
+                const memberUid = form.getAttribute('data-member-uid');
+                if (!memberUid) return;
+                const dateVal   = form.elements['tx-date'].value;
+                const amtVal    = parseFloat(form.elements['tx-amount'].value);
+                const stokvelName = form.elements['tx-stokvel'].value;
+                const method    = form.elements['tx-method'].value;
+                const status    = form.elements['tx-status'].value;
+                const note      = form.elements['tx-note'].value.trim();
+                if (!dateVal || Number.isNaN(amtVal) || amtVal < 0) {
+                    showMemberDetailFeedback('Date and a valid amount (≥ 0) are required.', true);
+                    return;
+                }
+                const submitBtn = document.getElementById('add-tx-submit-btn');
+                if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin text-xs"></i> Adding…'; }
+                try {
+                    const txDate = new Date(dateVal + 'T12:00:00');
+                    const payload = {
+                        date:        firebase.firestore.Timestamp.fromDate(txDate),
+                        amount:      amtVal,
+                        stokvelName: stokvelName || null,
+                        method:      method  || null,
+                        status:      status  || 'Approved',
+                        addedByAdmin: true,
+                        createdAt:   firebase.firestore.FieldValue.serverTimestamp(),
+                    };
+                    if (note) payload.description = note;
+                    await db.collection('users').doc(memberUid).collection('transactions').add(payload);
+                    showToast('Transaction added successfully.', 'success');
+                    await loadUsersData();
+                    await openMemberDetailModal(memberUid);
+                } catch (err) {
+                    console.error(err);
+                    if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = '<i class="fas fa-plus text-xs"></i>Add transaction'; }
+                    showMemberDetailFeedback(err.message || 'Could not add transaction.', true);
+                    showToast('Failed to add transaction.', 'error');
+                }
+                return;
+            }
+
             if (e.target.id !== 'member-profile-form') return;
             e.preventDefault();
             const form    = e.target;
@@ -1994,10 +2348,157 @@
         });
 
         document.getElementById('member-detail-content').addEventListener('input', e => {
-            if (e.target.classList && e.target.classList.contains('tx-amount')) recalcMemberTxTotalPositive();
+            if (e.target.classList && e.target.classList.contains('tx-amount')) {
+                recalcMemberTxTotalPositive();
+                const tr = e.target.closest('tr[data-tx-id]');
+                if (tr) {
+                    const orig = parseFloat(e.target.dataset.origAmount);
+                    const cur  = parseFloat(e.target.value);
+                    const dirty = !Number.isNaN(orig) && !Number.isNaN(cur) && Math.abs(orig - cur) > 1e-6;
+                    tr.classList.toggle('tx-row-dirty', dirty);
+                }
+            }
+            if (e.target.matches && e.target.matches('.sv-monthly, .sv-saved')) refreshMemberDetailPendingStokvelId();
+        });
+        document.getElementById('member-detail-content').addEventListener('change', e => {
+            if (e.target.matches && e.target.matches('.sv-status')) refreshMemberDetailPendingStokvelId();
+        });
+        document.getElementById('member-detail-content').addEventListener('mousedown', e => {
+            const saveBtn = e.target.closest('[data-action="save-stokvel"]');
+            if (saveBtn) {
+                const tr = saveBtn.closest('tr[data-stokvel-id]');
+                const sid = tr && tr.getAttribute('data-stokvel-id');
+                if (memberDetailPendingStokvelId && sid && sid !== memberDetailPendingStokvelId) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showMemberDetailFeedback('Save changes on the other stokvel row first.', true);
+                }
+                return;
+            }
+            const inner = e.target.closest('.sv-monthly, .sv-saved, .sv-status');
+            if (!inner) return;
+            const tr = inner.closest('tr[data-stokvel-id]');
+            const sid = tr && tr.getAttribute('data-stokvel-id');
+            if (memberDetailPendingStokvelId && sid && sid !== memberDetailPendingStokvelId) {
+                e.preventDefault();
+                e.stopPropagation();
+                showMemberDetailFeedback('Save this stokvel row before editing another.', true);
+            }
+        }, true);
+        document.getElementById('member-detail-content').addEventListener('focusin', e => {
+            const t = e.target;
+            if (!t.matches || !t.matches('.sv-monthly, .sv-saved, .sv-status')) return;
+            const tr = t.closest('tr[data-stokvel-id]');
+            if (!tr) return;
+            const sid = tr.getAttribute('data-stokvel-id');
+            const pending = memberDetailPendingStokvelId;
+            if (pending && sid !== pending) {
+                requestAnimationFrame(() => {
+                    t.blur();
+                    const hold = document.querySelector(`#member-detail-content tr[data-stokvel-id="${pending}"]`);
+                    const back = hold && (hold.querySelector('.sv-monthly') || hold.querySelector('.sv-saved') || hold.querySelector('.sv-status'));
+                    if (back) back.focus({ preventScroll: true });
+                });
+                showMemberDetailFeedback('Save this stokvel row before editing another.', true);
+            }
         });
 
         document.getElementById('member-detail-content').addEventListener('click', async e => {
+            /* ── Tab switching ── */
+            const tabBtn = e.target.closest('.md-tab[data-tab]');
+            if (tabBtn) {
+                const tabName = tabBtn.getAttribute('data-tab');
+                document.querySelectorAll('#member-detail-content .md-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('#member-detail-content .md-tab-pane').forEach(p => p.classList.remove('active'));
+                tabBtn.classList.add('active');
+                const pane = document.getElementById(`md-pane-${tabName}`);
+                if (pane) pane.classList.add('active');
+                return;
+            }
+
+            /* ── Toggle Add-Transaction panel ── */
+            const toggleAddTx = e.target.closest('[data-action="toggle-add-tx"]');
+            if (toggleAddTx) {
+                const uid2    = toggleAddTx.getAttribute('data-member-uid');
+                const panel   = document.getElementById(`add-tx-panel-${uid2}`);
+                const chevron = document.getElementById(`add-tx-chevron-${uid2}`);
+                if (panel) {
+                    const willOpen = panel.classList.toggle('hidden');
+                    if (chevron) chevron.style.transform = !willOpen ? 'rotate(180deg)' : '';
+                }
+                return;
+            }
+
+            /* ── Cancel Add-Transaction ── */
+            const cancelAddTx = e.target.closest('[data-action="cancel-add-tx"]');
+            if (cancelAddTx) {
+                const uid2    = cancelAddTx.getAttribute('data-member-uid');
+                const panel   = document.getElementById(`add-tx-panel-${uid2}`);
+                const chevron = document.getElementById(`add-tx-chevron-${uid2}`);
+                if (panel) {
+                    panel.classList.add('hidden');
+                    if (chevron) chevron.style.transform = '';
+                    const form = document.getElementById('add-tx-form');
+                    if (form) {
+                        form.reset();
+                        const df = form.querySelector('[name="tx-date"]');
+                        if (df) df.value = new Date().toISOString().split('T')[0];
+                    }
+                }
+                return;
+            }
+
+            /* ── Delete Transaction ── */
+            const deleteTxBtn = e.target.closest('[data-action="delete-tx"]');
+            if (deleteTxBtn) {
+                const memberUid = deleteTxBtn.getAttribute('data-member-uid');
+                const txId      = deleteTxBtn.getAttribute('data-tx-id');
+                if (!memberUid || !txId) return;
+                const tr       = deleteTxBtn.closest('tr[data-tx-id]');
+                const dateText = tr ? (tr.querySelector('td')?.textContent?.trim() || 'this transaction') : 'this transaction';
+                const ok = await showConfirm('Delete Transaction', `Permanently delete the transaction dated "${dateText}"? This cannot be undone.`, 'danger');
+                if (!ok) return;
+                try {
+                    if (tr) { tr.classList.add('tx-row-removing'); await new Promise(r => setTimeout(r, 290)); }
+                    await db.collection('users').doc(memberUid).collection('transactions').doc(txId).delete();
+                    if (tr) tr.remove();
+                    showToast('Transaction deleted.', 'success');
+                    recalcMemberTxTotalPositive();
+                    await loadUsersData();
+                } catch (err) {
+                    console.error(err);
+                    if (tr) tr.classList.remove('tx-row-removing');
+                    showMemberDetailFeedback(err.message || 'Could not delete transaction.', true);
+                    showToast('Failed to delete transaction.', 'error');
+                }
+                return;
+            }
+
+            /* ── Delete Stokvel ── */
+            const deleteStokvelBtn = e.target.closest('[data-action="delete-stokvel"]');
+            if (deleteStokvelBtn) {
+                const memberUid = deleteStokvelBtn.getAttribute('data-member-uid');
+                const stokvelId = deleteStokvelBtn.getAttribute('data-stokvel-id');
+                if (!memberUid || !stokvelId) return;
+                const tr       = deleteStokvelBtn.closest('tr[data-stokvel-id]');
+                const planName = tr ? (tr.querySelector('td')?.textContent?.trim() || 'this stokvel') : 'this stokvel';
+                const ok = await showConfirm('Remove Stokvel', `Remove "${planName}" membership for this member? This cannot be undone.`, 'danger');
+                if (!ok) return;
+                try {
+                    if (tr) { tr.classList.add('tx-row-removing'); await new Promise(r => setTimeout(r, 290)); }
+                    await db.collection('users').doc(memberUid).collection('stokvels').doc(stokvelId).delete();
+                    if (tr) tr.remove();
+                    showToast('Stokvel membership removed.', 'success');
+                    await loadUsersData();
+                } catch (err) {
+                    console.error(err);
+                    if (tr) tr.classList.remove('tx-row-removing');
+                    showMemberDetailFeedback(err.message || 'Could not remove stokvel.', true);
+                    showToast('Failed to remove stokvel.', 'error');
+                }
+                return;
+            }
+
             const resetTx = e.target.closest('[data-action="reset-all-tx-amounts"]');
             if (resetTx) {
                 const memberUid = resetTx.getAttribute('data-member-uid');
@@ -2038,12 +2539,20 @@
                 }
                 try {
                     await db.collection('users').doc(memberUid).collection('transactions').doc(txId).update({ amount: amt });
+                    if (tr) {
+                        tr.classList.remove('tx-row-dirty');
+                        tr.classList.add('tx-row-flash');
+                        setTimeout(() => tr.classList.remove('tx-row-flash'), 950);
+                        if (inp) inp.dataset.origAmount = String(amt);
+                    }
+                    showToast('Transaction amount saved.', 'success');
                     showMemberDetailFeedback('Transaction amount saved.', false);
                     await loadUsersData();
                     recalcMemberTxTotalPositive();
                 } catch (err) {
                     console.error(err);
                     showMemberDetailFeedback(err.message || 'Could not save transaction.', true);
+                    showToast('Failed to save transaction.', 'error');
                 }
                 return;
             }
@@ -2053,23 +2562,42 @@
             const tr = btn.closest('tr[data-stokvel-id]');
             if (!tr) return;
             const stokvelId   = tr.getAttribute('data-stokvel-id');
+            if (memberDetailPendingStokvelId && stokvelId !== memberDetailPendingStokvelId) {
+                showMemberDetailFeedback('Save changes on the other stokvel row first.', true);
+                return;
+            }
             const memberUid   = btn.getAttribute('data-member-uid');
             const statusSel   = tr.querySelector('.sv-status');
+            const monthlyInput = tr.querySelector('.sv-monthly');
             const savedInput  = tr.querySelector('.sv-saved');
-            if (!stokvelId || !memberUid || !statusSel || !savedInput) return;
+            if (!stokvelId || !memberUid || !statusSel || !monthlyInput || !savedInput) return;
             const status     = statusSel.value;
+            const monthlyContribution = parseFloat(monthlyInput.value);
             const totalSaved = parseFloat(savedInput.value);
+            if (Number.isNaN(monthlyContribution) || monthlyContribution < 0) {
+                showMemberDetailFeedback('Enter a valid monthly amount (0 or more).', true);
+                return;
+            }
             if (Number.isNaN(totalSaved) || totalSaved < 0) {
                 showMemberDetailFeedback('Enter a valid saved amount (0 or more).', true);
                 return;
             }
             try {
-                await db.collection('users').doc(memberUid).collection('stokvels').doc(stokvelId).update({ status, totalSaved });
+                await db.collection('users').doc(memberUid).collection('stokvels').doc(stokvelId).update({ status, monthlyContribution, totalSaved });
+                tr.dataset.origMonthly = String(monthlyContribution);
+                tr.dataset.origStatus = status;
+                // Keep UI in sync with what we just wrote to Firestore.
+                savedInput.value = String(totalSaved);
+                savedInput.setAttribute('data-db-saved', String(totalSaved));
+                tr.dataset.origSavedDisplay = String(totalSaved);
+                refreshMemberDetailPendingStokvelId();
+                showToast('Stokvel membership saved.', 'success');
                 showMemberDetailFeedback('Stokvel membership saved.', false);
                 await loadUsersData();
             } catch (err) {
                 console.error(err);
                 showMemberDetailFeedback(err.message || 'Could not save stokvel.', true);
+                showToast('Failed to save stokvel.', 'error');
             }
         });
 

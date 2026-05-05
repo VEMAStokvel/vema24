@@ -390,8 +390,9 @@ service cloud.firestore {
       // Read: Owner, or staff (admin/manager) — manager needed for some admin dashboards & collectionGroup evaluation
       allow read: if isOwner(userId) || isManager();
 
-      // Create: Member contribution log (dashboard upload + Firestore row)
-      allow create: if isOwner(userId) &&
+      // Create: Member contribution log (dashboard upload + Firestore row), or admin adding on behalf of member
+      allow create: if isAdmin() ||
+                      (isOwner(userId) &&
                       request.resource.data.userId == request.auth.uid &&
                       request.resource.data.keys().hasAll([
                         'amount', 'date', 'stokvelName', 'method', 'status', 'proofUrl', 'userId'
@@ -414,7 +415,7 @@ service cloud.firestore {
                       (!('memberNote' in request.resource.data) ||
                         request.resource.data.memberNote == null ||
                         (request.resource.data.memberNote is string &&
-                         request.resource.data.memberNote.size() <= 500));
+                         request.resource.data.memberNote.size() <= 500)));
 
       // Update: User can update their own transactions, admin can update any
       allow update: if isOwner(userId) || isAdmin();
