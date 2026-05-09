@@ -733,6 +733,10 @@
                             <p class="text-xs text-slate-600 mt-1">Use these details when paying by EFT. Your payment reference never changes.</p>
                         </div>
                     </div>
+                    <div id="contribute-bank-compliance" class="hidden rounded-xl border border-amber-300 bg-amber-50/95 px-3 py-3 text-xs text-amber-950 mb-4 leading-relaxed">
+                        <p class="font-bold text-amber-900 mb-1"><i class="fas fa-exclamation-circle text-amber-600 mr-1"></i>Banking update</p>
+                        <p id="contribute-bank-compliance-text" class="text-amber-950/95"></p>
+                    </div>
                     <div class="rounded-xl border border-sky-200/90 bg-white/80 px-3 py-3 text-xs text-sky-950 mb-4">
                         <p class="font-bold text-sky-900 mb-2"><i class="fas fa-info-circle text-sky-600 mr-1"></i>Important: when you pay, note that:</p>
                         <ul class="list-disc list-inside space-y-1 text-sky-950/95 leading-relaxed">
@@ -750,6 +754,14 @@
                                 <button type="button" class="shrink-0 rounded-xl border border-sky-200 bg-white px-3 py-2 text-xs font-bold text-sky-800 hover:bg-sky-50" onclick="copyContributeBankField('contribute-bank-name')">Copy</button>
                             </div>
                         </div>
+                        <div id="contribute-account-name-row" class="hidden">
+                            <label class="block text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1">Account name</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="contribute-account-name" readonly tabindex="-1"
+                                    class="flex-1 min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-inner">
+                                <button type="button" class="shrink-0 rounded-xl border border-sky-200 bg-white px-3 py-2 text-xs font-bold text-sky-800 hover:bg-sky-50" onclick="copyContributeBankField('contribute-account-name')">Copy</button>
+                            </div>
+                        </div>
                         <div>
                             <label class="block text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1">Account number</label>
                             <div class="flex gap-2">
@@ -764,6 +776,14 @@
                                 <input type="text" id="contribute-branch" readonly tabindex="-1"
                                     class="flex-1 min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-inner font-mono">
                                 <button type="button" class="shrink-0 rounded-xl border border-sky-200 bg-white px-3 py-2 text-xs font-bold text-sky-800 hover:bg-sky-50" onclick="copyContributeBankField('contribute-branch')">Copy</button>
+                            </div>
+                        </div>
+                        <div id="contribute-account-type-row" class="hidden">
+                            <label class="block text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1">Account type</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="contribute-account-type" readonly tabindex="-1"
+                                    class="flex-1 min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-inner">
+                                <button type="button" class="shrink-0 rounded-xl border border-sky-200 bg-white px-3 py-2 text-xs font-bold text-sky-800 hover:bg-sky-50" onclick="copyContributeBankField('contribute-account-type')">Copy</button>
                             </div>
                         </div>
                         <div>
@@ -1788,12 +1808,32 @@ Adopted: 01 January 2025`
         setTimeout(() => openContributeModal(stokvelType, saved), 320);
     }
 
-    /** Platform receiving account — update if your bank details change */
-    const VEMA_BANK_DETAILS = {
+    /** Receiving account per plan — update when bank details change */
+    const VEMA_BANK_DEFAULT = {
         bankName: 'FNB - Stokvel House',
         accountNumber: '63021443815',
         branchCode: '210835'
     };
+    const VEMA_BANK_BY_PLAN = {
+        'January Stokvel': {
+            bankName: 'Nedbank',
+            accountName: 'January savings club',
+            accountNumber: '2141787165',
+            branchCode: '10136200',
+            accountType: 'Club account'
+        },
+        'Grocery Stokvel': {
+            bankName: 'Nedbank',
+            accountNumber: '2141807697',
+            branchCode: '198765',
+            complianceNotice: 'The Grocery Stockvel account has been updated to Nedbank due to compliance policy. Please deposit the grocery stockvel to the new account from this month onwards. Account number: 2141807697, Nedbank.'
+        },
+        'Planning Ahead Stokvel': { ...VEMA_BANK_DEFAULT }
+    };
+
+    function bankDetailsForPlan(stokvelType) {
+        return VEMA_BANK_BY_PLAN[stokvelType] || VEMA_BANK_DEFAULT;
+    }
 
     /** Stable EFT reference per Firebase user (same forever for that account). */
     function buildStablePaymentReference(uid) {
@@ -1839,14 +1879,48 @@ Adopted: 01 January 2025`
         document.getElementById('contribute-total-saved').textContent    = `R${totalSaved.toFixed(2)}`;
 
         const au = auth.currentUser;
+        const bank = bankDetailsForPlan(stokvelType);
         const bn = document.getElementById('contribute-bank-name');
         const ac = document.getElementById('contribute-account-no');
         const br = document.getElementById('contribute-branch');
         const ref = document.getElementById('contribute-payment-ref');
+        const nameRow = document.getElementById('contribute-account-name-row');
+        const nameIn = document.getElementById('contribute-account-name');
+        const typeRow = document.getElementById('contribute-account-type-row');
+        const typeIn = document.getElementById('contribute-account-type');
+        const compWrap = document.getElementById('contribute-bank-compliance');
+        const compText = document.getElementById('contribute-bank-compliance-text');
+        if (nameRow && nameIn) {
+            if (bank.accountName) {
+                nameIn.value = bank.accountName;
+                nameRow.classList.remove('hidden');
+            } else {
+                nameIn.value = '';
+                nameRow.classList.add('hidden');
+            }
+        }
+        if (typeRow && typeIn) {
+            if (bank.accountType) {
+                typeIn.value = bank.accountType;
+                typeRow.classList.remove('hidden');
+            } else {
+                typeIn.value = '';
+                typeRow.classList.add('hidden');
+            }
+        }
+        if (compWrap && compText) {
+            if (bank.complianceNotice) {
+                compText.textContent = bank.complianceNotice;
+                compWrap.classList.remove('hidden');
+            } else {
+                compText.textContent = '';
+                compWrap.classList.add('hidden');
+            }
+        }
         if (bn && ac && br && ref && au) {
-            bn.value = VEMA_BANK_DETAILS.bankName;
-            ac.value = VEMA_BANK_DETAILS.accountNumber;
-            br.value = VEMA_BANK_DETAILS.branchCode;
+            bn.value = bank.bankName;
+            ac.value = bank.accountNumber;
+            br.value = bank.branchCode;
             ref.value = buildStablePaymentReference(au.uid);
         }
         document.getElementById('contribute-amount').value  = '';
