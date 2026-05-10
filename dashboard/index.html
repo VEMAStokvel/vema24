@@ -631,7 +631,7 @@
                         <div class="text-2xl font-bold text-green-600 mt-1" id="panel-count">0</div>
                     </div>
                     <div class="p-3 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl">
-                        <p class="text-xs text-gray-600 font-semibold"><i class="fas fa-calendar mr-1"></i>Monthly</p>
+                        <p class="text-xs text-gray-600 font-semibold"><i class="fas fa-calendar mr-1"></i>Monthly target</p>
                         <div class="text-xl font-bold text-purple-600 mt-1" id="panel-monthly">R0.00</div>
                     </div>
                     <div class="p-3 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl">
@@ -697,17 +697,17 @@
     <div id="contribute-modal" class="fixed inset-0 z-[110] hidden overflow-y-auto overscroll-contain bg-slate-900/50 backdrop-blur-md">
         <div class="flex min-h-[100dvh] w-full items-start justify-center px-4 pb-10 pt-[max(1.25rem,env(safe-area-inset-top,0px))] sm:items-center sm:py-10">
         <div class="bg-white rounded-2xl shadow-2xl shadow-emerald-900/10 max-w-lg w-full overflow-hidden border border-emerald-100/80 my-auto max-h-[calc(100dvh-2.5rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] flex flex-col">
-            <div class="bg-gradient-to-br from-emerald-600 via-green-600 to-teal-700 p-6 sm:p-7 text-white relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-16 -mt-16"></div>
-                <div class="absolute bottom-0 left-0 w-32 h-32 bg-black/10 rounded-full -ml-10 -mb-10"></div>
+            <div class="bg-gradient-to-br from-emerald-600 via-green-600 to-teal-700 px-6 pt-6 pb-7 sm:px-7 sm:pt-7 sm:pb-8 text-white relative overflow-x-hidden shrink-0">
+                <div class="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-16 -mt-16 pointer-events-none" aria-hidden="true"></div>
+                <div class="absolute bottom-0 left-0 w-32 h-32 bg-black/10 rounded-full -ml-10 -mb-10 pointer-events-none" aria-hidden="true"></div>
                 <button type="button" onclick="closeContributeModal()" class="mb-3 text-white/90 hover:text-white transition text-xl relative z-10 rounded-lg p-1 hover:bg-white/10" aria-label="Back">
                     <i class="fas fa-arrow-left"></i>
                 </button>
-                <div class="flex items-center gap-3 relative z-10 mb-2">
-                    <span class="text-4xl" aria-hidden="true">💵</span>
-                    <div>
-                        <h2 class="text-xl sm:text-2xl font-bold leading-tight">Log a contribution</h2>
-                        <p class="text-emerald-100 text-sm mt-0.5 font-medium" id="contribute-stokvel-name">January Stokvel</p>
+                <div class="flex items-start gap-3 relative z-10 mb-3 min-w-0">
+                    <span class="text-4xl leading-none shrink-0 pt-0.5" aria-hidden="true">💵</span>
+                    <div class="min-w-0">
+                        <h2 class="text-xl sm:text-2xl font-bold leading-snug">Log a contribution</h2>
+                        <p class="text-emerald-100 text-sm mt-1 font-medium leading-normal pb-0.5" id="contribute-stokvel-name">January Stokvel</p>
                     </div>
                 </div>
                 <p class="text-emerald-50/95 text-xs sm:text-sm relative z-10 max-w-md leading-relaxed">Upload proof of payment. An admin will verify and mark it approved so it adds to your savings.</p>
@@ -717,8 +717,8 @@
                     <span class="contribute-step-pill active">3. Submit</span>
                 </div>
             </div>
-            <div class="px-5 sm:px-6 py-3 bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-emerald-100 flex flex-wrap items-center justify-between gap-2">
-                <span class="text-xs text-slate-700"><i class="fas fa-bullseye text-emerald-600 mr-1"></i>Monthly guide: <strong id="contribute-monthly-target" class="text-slate-900">R0</strong></span>
+            <div class="px-5 sm:px-6 py-3 bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-emerald-100 flex flex-wrap items-center justify-between gap-2 shrink-0">
+                <span class="text-xs text-slate-700"><i class="fas fa-bullseye text-emerald-600 mr-1"></i>Monthly target: <strong id="contribute-monthly-target" class="text-slate-900">R0</strong></span>
                 <span class="text-xs text-slate-700">Approved total: <strong id="contribute-total-saved" class="text-emerald-700">R0.00</strong></span>
             </div>
             <div class="p-5 sm:p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
@@ -810,12 +810,13 @@
                     </a>
                 </div>
                 <div class="rounded-xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-xs text-amber-950 leading-relaxed">
-                    <strong class="font-semibold"><i class="fas fa-lightbulb text-amber-600 mr-1"></i>Before you pay:</strong> Match the amount to your monthly guide where possible. Official rules live in the <a href="constitution.html" id="contribute-constitution-inline" class="font-bold text-amber-900 underline underline-offset-2">constitution library</a>.
+                    <strong class="font-semibold"><i class="fas fa-lightbulb text-amber-600 mr-1"></i>Before you pay:</strong> The monthly target for each plan is <strong id="contribute-before-pay-target">R500</strong>. You can log <strong>any amount</strong> that appears on your proof of payment—it does not have to match the target. Official rules live in the <a href="constitution.html" id="contribute-constitution-inline" class="font-bold text-amber-900 underline underline-offset-2">constitution library</a>.
                 </div>
                 <form id="contribute-form" onsubmit="submitContribution(event)" class="space-y-5">
                     <div>
-                        <label for="contribute-amount" class="block text-slate-800 text-sm font-bold mb-2">Amount (ZAR)</label>
-                        <input type="number" id="contribute-amount" placeholder="e.g. 150.00" step="0.01" min="1"
+                        <label for="contribute-amount" class="block text-slate-800 text-sm font-bold mb-1">Amount (ZAR)</label>
+                        <p class="text-xs text-slate-600 mb-2 leading-relaxed">Enter the amount you paid. You may contribute more or less than the monthly target.</p>
+                        <input type="number" id="contribute-amount" placeholder="e.g. 500.00" step="0.01" min="1"
                             class="w-full border-2 border-slate-200 rounded-xl px-4 py-3 text-slate-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition" required>
                     </div>
                     <div>
@@ -946,10 +947,11 @@
         "You've got this! Keep saving strong. 💎"
     ];
 
+    const MONTHLY_TARGET_ZAR = 500;
     const PLAN_META = {
-        'January Stokvel':       { icon:'🎓', desc:'Save all year, receive payout in January',  color:'blue',   monthly:75  },
-        'Grocery Stokvel':        { icon:'🛒', desc:'Stock up on household goods in bulk',        color:'green',  monthly:150 },
-        'Planning Ahead Stokvel': { icon:'📊', desc:'Flexible plan — save for 10+ months',       color:'purple', monthly:100 }
+        'January Stokvel':       { icon:'🎓', desc:'Save all year, receive payout in January',  color:'blue',   monthly: MONTHLY_TARGET_ZAR },
+        'Grocery Stokvel':        { icon:'🛒', desc:'Stock up on household goods in bulk',        color:'green',  monthly: MONTHLY_TARGET_ZAR },
+        'Planning Ahead Stokvel': { icon:'📊', desc:'Flexible plan — save for 10+ months',       color:'purple', monthly: MONTHLY_TARGET_ZAR }
     };
 
     const EXPLORE_PLANS = Object.keys(PLAN_META).map(type => ({ type, ...PLAN_META[type] }));
@@ -1470,7 +1472,7 @@ Adopted: 01 January 2025`
         section.style.display = 'block';
         if (divider) divider.style.display = 'block';
         grid.innerHTML = stokvels.map((s, idx) => {
-            const meta = PLAN_META[s.type] || { icon:'💰', desc:'Savings plan', monthly:100 };
+            const meta = PLAN_META[s.type] || { icon:'💰', desc:'Savings plan', monthly: MONTHLY_TARGET_ZAR };
             const progress = Math.min((s.totalSaved || 0) / (meta.monthly * 3) * 100, 100);
             const pct = progress.toFixed(0);
             const planTx = txs.filter(tx => tx.stokvelName === s.type);
@@ -1873,9 +1875,11 @@ Adopted: 01 January 2025`
     function openContributeModal(stokvelType, totalSaved = 0) {
         _currentContributionStokvel = stokvelType;
         _contributionProofFile = null;
-        const meta = PLAN_META[stokvelType] || { monthly:100 };
+        const meta = PLAN_META[stokvelType] || { monthly: MONTHLY_TARGET_ZAR };
         document.getElementById('contribute-stokvel-name').textContent   = stokvelType;
         document.getElementById('contribute-monthly-target').textContent = `R${meta.monthly}`;
+        const payTargetLbl = document.getElementById('contribute-before-pay-target');
+        if (payTargetLbl) payTargetLbl.textContent = `R${MONTHLY_TARGET_ZAR}`;
         document.getElementById('contribute-total-saved').textContent    = `R${totalSaved.toFixed(2)}`;
 
         const au = auth.currentUser;
