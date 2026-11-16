@@ -1035,17 +1035,44 @@
         /** Resolve a membership/request field to the plan's display name. */
         function stokvelDisplayName(raw) {
             if (raw == null) return '';
-            if (typeof raw === 'object') {
-                const fromFields = raw.name || raw.type || raw.planType || raw.stokvelName || '';
-                return stokvelDisplayName(fromFields);
+            const candidates = [];
+            if (typeof raw === 'object' && !Array.isArray(raw)) {
+                // Prefer type/plan fields over `name` (name is often a stale/wrong label).
+                ['type', 'planType', 'stokvelName', 'stokvelType', 'plan', 'name'].forEach((key) => {
+                    const v = raw[key];
+                    if (v == null) return;
+                    const s = String(v).trim();
+                    if (s) candidates.push(s);
+                });
+            } else {
+                const s = String(raw).trim();
+                if (s) candidates.push(s);
             }
-            const s = String(raw).trim();
-            if (!s) return '';
-            const key = s.toLowerCase();
-            if (key === 'january' || key === 'january stokvel' || key.includes('january')) return 'January Stokvel';
-            if (key === 'grocery' || key === 'grocery stokvel' || key.includes('grocery')) return 'Grocery Stokvel';
-            if (key === 'planning' || key === 'planning ahead' || key === 'planning ahead stokvel' || key.includes('planning')) return 'Planning Ahead Stokvel';
-            return s;
+            for (const s of candidates) {
+                const key = s.toLowerCase();
+                // Check grocery/planning before january so mixed strings don't mis-label.
+                if (key.includes('grocery')) return 'Grocery Stokvel';
+                if (key.includes('planning') || key.includes('flexible')) return 'Planning Ahead Stokvel';
+                if (key.includes('january') || key === 'jan') return 'January Stokvel';
+            }
+            return candidates[0] || '';
+        }
+
+        /** Unique plan names from membership docs + contribution stokvelName values. */
+        function collectStokvelNames(stokvelDocs, txDocs) {
+            const names = [];
+            const seen = new Set();
+            const push = (n) => {
+                if (!n || seen.has(n)) return;
+                seen.add(n);
+                names.push(n);
+            };
+            (stokvelDocs || []).forEach((d) => push(stokvelDisplayName(typeof d.data === 'function' ? d.data() : d)));
+            (txDocs || []).forEach((d) => {
+                const data = typeof d.data === 'function' ? d.data() : d;
+                push(stokvelDisplayName(data && data.stokvelName));
+            });
+            return names;
         }
         function formatDate(ts) {
             if (!ts) return 'N/A';
@@ -2171,16 +2198,12 @@
                             const tx = d.data();
                             if (tx.amount && tx.amount > 0) totalSaved += parseFloat(tx.amount);
                         });
-                        const stokvelNames = [...new Set(
-                            stokvelsDocs.docs
-                                .map(d => stokvelDisplayName(d.data()))
-                                .filter(Boolean)
-                        )];
+                        const stokvelNames = collectStokvelNames(stokvelsDocs.docs, txDocs.docs);
                         return {
                             id: doc.id,
                             name: user.name || '',
                             email: user.email || '',
-                            stokvelCount: stokvelsDocs.size,
+                            stokvelCount: Math.max(stokvelsDocs.size, stokvelNames.length),
                             stokvelNames,
                             totalSaved,
                         };
