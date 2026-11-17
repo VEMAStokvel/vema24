@@ -2130,6 +2130,47 @@ Adopted: 01 January 2025`
         ]);
     }
 
+    /** Auth-only accounts (no users/{uid} row) break the dashboard — create a rules-valid minimal profile. */
+    async function ensureUserProfile(user, timeoutMs) {
+        let userDoc = await withTimeout(
+            db.collection('users').doc(user.uid).get(),
+            timeoutMs,
+            'Could not load your profile'
+        );
+        if (userDoc.exists) return userDoc;
+
+        const email = String(user.email || '').trim();
+        if (!email) {
+            throw new Error('Could not load your profile — missing email on account');
+        }
+        const fromDisplay = String(user.displayName || '').trim();
+        const fromEmail = email.split('@')[0] || '';
+        let name = fromDisplay.length >= 2 ? fromDisplay : fromEmail;
+        if (name.length < 2) name = 'Member';
+        name = name.slice(0, 120);
+
+        await withTimeout(
+            db.collection('users').doc(user.uid).set({
+                name,
+                email,
+                role: 'user',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            }),
+            timeoutMs,
+            'Could not create your profile'
+        );
+
+        userDoc = await withTimeout(
+            db.collection('users').doc(user.uid).get(),
+            timeoutMs,
+            'Could not load your profile'
+        );
+        if (!userDoc.exists) {
+            throw new Error('Could not load your profile — please complete registration again');
+        }
+        return userDoc;
+    }
+
     auth.onAuthStateChanged(async (user) => {
         if (!user) {
             clearDashboardWatchdog();
@@ -2139,12 +2180,7 @@ Adopted: 01 January 2025`
         armDashboardWatchdog();
         const FIRESTORE_OP_MS = 35000;
         try {
-            const userDoc = await withTimeout(
-                db.collection('users').doc(user.uid).get(),
-                FIRESTORE_OP_MS,
-                'Could not load your profile'
-            );
-            if (!userDoc.exists) throw new Error('User document not found');
+            const userDoc = await ensureUserProfile(user, FIRESTORE_OP_MS);
             const userData = userDoc.data();
             window.userData = userData;
             setupGreeting(userData.name || 'Member');

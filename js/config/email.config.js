@@ -7,7 +7,7 @@
 window.VEMA_EMAIL_CONFIG = {
     publicKey:  '09dmR9_e1weZ0J3ZA',
     serviceId:  'service_ivdg2co',
-    adminEmail: 'vemastokvel@gmail.com',
+    adminEmail: 'malungheloprof@gmail.com',
     templates: {
         /** Reserved for future: notify member when join request is submitted (not wired in code yet). */
         user: 'tmpl_join_request_user',
